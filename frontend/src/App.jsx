@@ -1,6 +1,6 @@
 import { useState } from "react";
 import "./App.css";
-import firebase from "./config/firebase-config";
+import { auth, googleProvider } from "./config/firebase-config";
 
 function App() {
   const [count, setCount] = useState(0);
