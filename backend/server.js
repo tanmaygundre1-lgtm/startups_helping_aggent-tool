@@ -1,5 +1,6 @@
 const express = require('express');
 const connectToDatabase = require('./config/db');
+const authenticateUser = require('./middleware/authMiddleware');
 
 const dotenv = require('dotenv');
 dotenv.config();
@@ -13,6 +14,13 @@ app.get('/api/health', (req, res) => {
   res.status(200).json({
     status: 'ok',
     message: 'Backend is running',
+  });
+});
+
+app.get('/api/auth/me', authenticateUser, (req, res) => {
+  res.status(200).json({
+    uid: req.user.uid,
+    email: req.user.email,
   });
 });
 
