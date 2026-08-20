@@ -1,6 +1,12 @@
-import { initializeApp } from "firebase/app";
-import { getAuth, GoogleAuthProvider } from "firebase/auth"; // Changed initializeAuth to getAuth
-const firebaseConfig = {  
+import { getApp, getApps, initializeApp } from "firebase/app";
+import {
+  browserLocalPersistence,
+  getAuth,
+  GoogleAuthProvider,
+  setPersistence,
+} from "firebase/auth";
+
+const firebaseConfig = {
   apiKey: "AIzaSyCUeMSYtdTXhmjPe4ddBWX_YoWGac-JlhE",
   authDomain: "innercollegestartupnetwork.firebaseapp.com",
   projectId: "innercollegestartupnetwork",
@@ -11,10 +17,10 @@ const firebaseConfig = {
 
 };
 
-const app = initializeApp(firebaseConfig);
+const app = getApps().length ? getApp() : initializeApp(firebaseConfig);
 
-// getAuth automatically includes local persistence and popup resolvers
-const auth = getAuth(app); 
+const auth = getAuth(app);
+const authPersistenceReady = setPersistence(auth, browserLocalPersistence);
 
 const googleProvider = new GoogleAuthProvider();
 
@@ -22,5 +28,7 @@ const googleProvider = new GoogleAuthProvider();
 googleProvider.setCustomParameters({
   prompt: "select_account",
 });
+
+export const ensureAuthPersistence = () => authPersistenceReady;
 
 export { app, auth, googleProvider };

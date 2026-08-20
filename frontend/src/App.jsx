@@ -7,6 +7,8 @@ import "./App.css";
 function App() {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [isLoggingIn, setIsLoggingIn] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
 
   useEffect(() => {
     // Listen for login/logout state changes
@@ -18,10 +20,17 @@ function App() {
   }, []);
 
   const handleLogin = async () => {
+    if (isLoggingIn) return;
+
+    setErrorMessage("");
+    setIsLoggingIn(true);
     try {
       await loginWithGoogle();
     } catch (error) {
       console.error("Login failed:", error);
+      setErrorMessage(error.message || "Login failed. Please try again.");
+    } finally {
+      setIsLoggingIn(false);
     }
   };
 
@@ -39,9 +48,13 @@ function App() {
     <div style={{ textAlign: "center", marginTop: "50px" }}>
       {user ? (
         <div className="profile-card">
-          <h2 style={{ color: "green" }}>
-            Your login is successfully completed!
-          </h2>
+          {errorMessage ? (
+            <p role="alert">{errorMessage}</p>
+          ) : (
+            <h2 style={{ color: "green" }}>
+              Your login is successfully completed!
+            </h2>
+          )}
           <img
             src={user.photoURL}
             alt="Profile"
@@ -57,12 +70,16 @@ function App() {
           </button>
         </div>
       ) : (
-        <button
-          onClick={handleLogin}
-          style={{ padding: "10px 20px", fontSize: "16px" }}
-        >
-          Login with Google
-        </button>
+        <>
+          <button
+            onClick={handleLogin}
+            disabled={isLoggingIn}
+            style={{ padding: "10px 20px", fontSize: "16px" }}
+          >
+            {isLoggingIn ? "Opening Google Login..." : "Login with Google"}
+          </button>
+          {errorMessage && <p role="alert">{errorMessage}</p>}
+        </>
       )}
     </div>
   );
