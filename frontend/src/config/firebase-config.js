@@ -1,12 +1,6 @@
-// Import the functions you need from the SDKs you need
 import { initializeApp } from "firebase/app";
-import { getAnalytics } from "firebase/analytics";
-// TODO: Add SDKs for Firebase products that you want to use
-// https://firebase.google.com/docs/web/setup#available-libraries
-
-// Your web app's Firebase configuration
-// For Firebase JS SDK v7.20.0 and later, measurementId is optional
-const firebaseConfig = {
+import { getAuth, GoogleAuthProvider } from "firebase/auth"; // Changed initializeAuth to getAuth
+const firebaseConfig = {  
   apiKey: "AIzaSyCUeMSYtdTXhmjPe4ddBWX_YoWGac-JlhE",
   authDomain: "innercollegestartupnetwork.firebaseapp.com",
   projectId: "innercollegestartupnetwork",
@@ -14,8 +8,19 @@ const firebaseConfig = {
   messagingSenderId: "306401185578",
   appId: "1:306401185578:web:a38b1ce47e6f6797565853",
   measurementId: "G-X9CRGNE5JD"
+
 };
 
-// Initialize Firebase
 const app = initializeApp(firebaseConfig);
-const analytics = getAnalytics(app);
+
+// getAuth automatically includes local persistence and popup resolvers
+const auth = getAuth(app); 
+
+const googleProvider = new GoogleAuthProvider();
+
+// Force account selection screen on every login attempt
+googleProvider.setCustomParameters({
+  prompt: "select_account",
+});
+
+export { app, auth, googleProvider };
