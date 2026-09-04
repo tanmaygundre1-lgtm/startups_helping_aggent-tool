@@ -20,11 +20,14 @@ const connectToDatabase = async () => {
   try {
     await mongoose.connect(process.env.MONGODB_URI, {
       dbName: process.env.MONGODB_DATABASE_NAME,
+      serverSelectionTimeoutMS: 10000,
+      connectTimeoutMS: 10000,
+      socketTimeoutMS: 20000,
     });
 
     console.log(`MongoDB connected to database: ${process.env.MONGODB_DATABASE_NAME}`);
   } catch (error) {
-    console.error('MongoDB connection failed:', {
+    console.error('MongoDB connection failed. Check MONGODB_URI, network access, and Atlas IP allowlist.', {
       name: error.name,
       message: redactConnectionString(error.message),
       ...(error.code !== undefined && { code: error.code }),

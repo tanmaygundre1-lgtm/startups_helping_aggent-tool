@@ -73,6 +73,14 @@ const userSchema = new mongoose.Schema(
       type: String,
       trim: true,
     },
+    profileType: {
+      type: String,
+      enum: ['founder', 'candidate'],
+      default: 'candidate',
+    },
+    foundedBefore: { type: Boolean, default: false },
+    companyStage: { type: String, enum: ['idea', 'early', 'growth', ''], default: '' },
+    yearsExperience: { type: Number, min: 0 },
     college: collegeSchema,
     location: locationSchema,
     skills: {
@@ -88,6 +96,49 @@ const userSchema = new mongoose.Schema(
       ],
       default: [],
     },
+
+    // Founder-specific fields
+    bio: {
+      type: String,
+      trim: true,
+      maxlength: 1000,
+    },
+    expertiseAreas: {
+      type: [{ type: String, trim: true }],
+      default: [],
+    },
+    lookingFor: {
+      type: [{ type: String, trim: true }],
+      default: [],
+    },
+
+    // Candidate-specific fields
+    targetRoles: {
+      type: [{ type: String, trim: true }],
+      default: [],
+    },
+    experience: { type: Number, min: 0 },
+    qualifications: { type: [{ type: String, trim: true }], default: [] },
+    domainInterests: {
+      type: [{ type: String, trim: true }],
+      default: [],
+    },
+    availability: {
+      type: String,
+      enum: ['full-time', 'part-time', 'flexible', ''],
+      default: '',
+    },
+    hoursPerWeek: {
+      type: Number,
+      min: 0,
+      max: 80,
+    },
+    workPreference: {
+      type: String,
+      enum: ['remote', 'in-person', 'hybrid', ''],
+      default: '',
+    },
+
     profileCompleted: {
       type: Boolean,
       default: false,
@@ -95,5 +146,11 @@ const userSchema = new mongoose.Schema(
   },
   { timestamps: true },
 );
+
+// Indexes for efficient queries
+userSchema.index({ profileType: 1 });
+userSchema.index({ 'skills.name': 1 });
+userSchema.index({ targetRoles: 1 });
+userSchema.index({ domainInterests: 1 });
 
 module.exports = mongoose.model('User', userSchema);

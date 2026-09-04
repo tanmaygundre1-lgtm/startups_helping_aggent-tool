@@ -18,11 +18,11 @@ Execute the complete StartupLink V1 MVP from backend foundation through frontend
 ```
 Week 1 (5 days):
   Mon-Fri: Phase 1 (Backend Foundation) + Phase 2 (Matching Engine)
-  
+
 Week 2 (5 days):
   Mon-Wed: Phase 3 (Invitations & Teams)
   Thu-Fri: Phase 4 (Frontend UI + Final Testing)
-  
+
 Total: 10 business days
 ```
 
@@ -31,21 +31,24 @@ Total: 10 business days
 ## Phase 1: Backend Foundation & AI Integration
 
 **Duration:** Days 1-5 (5 days)  
-**Status:** Not started  
+**Status:** Complete  
 **Owner:** Developer (autonomous)
 
 ### Objectives
+
 - Establish backend APIs for user management
 - Integrate Vercel AI SDK for idea analysis
 - Build the foundation for all downstream features
 
 ### Requirements in Scope
+
 - F1.2: Founder profile creation
 - F1.3: Candidate profile creation
 - F2.1: Create startup idea
 - F3.1: AI skill & role analysis
 
 ### Key Tasks
+
 1. **User & Candidate Profiles** (Days 1-2)
    - [ ] `/api/profiles` endpoints (POST, GET, PUT)
    - [ ] Founder profile schema & validation
@@ -75,6 +78,7 @@ Total: 10 business days
    - [ ] `/api/ideas/:id/analysis` GET and PUT endpoints
 
 ### Success Criteria
+
 - [ ] All 3 endpoints sets functional and tested manually
 - [ ] Founder can create profile, create idea, trigger AI analysis
 - [ ] AI analysis returns structured roles/skills array
@@ -83,19 +87,22 @@ Total: 10 business days
 - [ ] No critical backend errors when testing end-to-end
 
 ### Risks & Mitigations
-| Risk | Mitigation |
-|------|-----------|
-| Vercel AI SDK learning curve | Start with simple prompt, iterate based on output quality |
+
+| Risk                                | Mitigation                                                     |
+| ----------------------------------- | -------------------------------------------------------------- |
+| Vercel AI SDK learning curve        | Start with simple prompt, iterate based on output quality      |
 | JSON structure from AI inconsistent | Add post-processing validation layer, test with multiple ideas |
-| MongoDB schema changes mid-phase | Design schema upfront, use migrations if needed |
+| MongoDB schema changes mid-phase    | Design schema upfront, use migrations if needed                |
 
 ### Deliverables
+
 - Backend code in `backend/` (routes, controllers, models)
 - MongoDB schemas for User, Candidate, Idea, Analysis
 - `.planning/PHASE-1-NOTES.md` (decisions, learnings, issues)
 - Commit: "feat: Phase 1 backend foundation and AI integration"
 
 ### Test Data Needed
+
 - 1 test founder account
 - 1-2 test ideas with varied descriptions
 - Verify AI extraction works correctly
@@ -109,11 +116,13 @@ Total: 10 business days
 **Owner:** Developer (autonomous)
 
 ### Objectives
+
 - Implement candidate search and ranking
 - Build invitation/acceptance workflow
 - Enable team formation
 
 ### Requirements in Scope
+
 - F4.1: Search & filter candidates
 - F4.2: Calculate match score
 - F4.3: Display ranked matches
@@ -122,6 +131,7 @@ Total: 10 business days
 - F5.3: Form team
 
 ### Key Tasks
+
 1. **Candidate Search & Matching** (Days 6-7)
    - [ ] `/api/candidates/search` endpoint with filters
    - [ ] Filter by: skills, experience level, domain, work preference, availability
@@ -150,6 +160,7 @@ Total: 10 business days
    - [ ] Prevent double-booking (candidate can't join multiple teams for same idea)
 
 ### Success Criteria
+
 - [ ] Candidate search works with filters
 - [ ] Match score calculated correctly for test data
 - [ ] Invitations can be sent, accepted, declined
@@ -159,13 +170,15 @@ Total: 10 business days
 - [ ] Manual testing: Founder searches → finds candidates → invites → team forms
 
 ### Risks & Mitigations
-| Risk | Mitigation |
-|------|-----------|
-| Match algorithm weights not realistic | Test with sample data, adjust weights if needed |
-| Database queries slow with large dataset | Add indexes on frequently queried fields (skills, domain) |
-| Race condition: candidate accepts multiple invites | Add database constraints or transaction logic |
+
+| Risk                                               | Mitigation                                                |
+| -------------------------------------------------- | --------------------------------------------------------- |
+| Match algorithm weights not realistic              | Test with sample data, adjust weights if needed           |
+| Database queries slow with large dataset           | Add indexes on frequently queried fields (skills, domain) |
+| Race condition: candidate accepts multiple invites | Add database constraints or transaction logic             |
 
 ### Deliverables
+
 - Backend routes & controllers for search, invitations, teams
 - Match algorithm function with unit tests
 - Database indexes for performance
@@ -173,6 +186,7 @@ Total: 10 business days
 - Commit: "feat: Phase 2 matching engine and invitations"
 
 ### Test Data Needed
+
 - 5-10 candidate profiles with varied skills/interests
 - 2-3 startup ideas with different role requirements
 - Test invitation flows, team formation
@@ -186,17 +200,20 @@ Total: 10 business days
 **Owner:** Developer (autonomous)
 
 ### Objectives
+
 - Build founder and candidate UIs
 - Connect frontend to backend APIs
 - Enable end-to-end user flows
 - Final testing and polish
 
 ### Requirements in Scope
+
 - F6.1: Founder dashboard
 - F6.2: Candidate discovery
 - All frontend display for F1-F5 requirements
 
 ### Key Tasks
+
 1. **Founder UI** (Days 11-12)
    - [ ] Profile creation form (signup continuation)
    - [ ] Idea creation form with description, domain dropdown
@@ -233,6 +250,7 @@ Total: 10 business days
    - [ ] Documentation of any manual workarounds
 
 ### Success Criteria
+
 - [ ] All core UI screens built and connected to backend
 - [ ] Founder can complete full flow: Profile → Idea → Analyze → Match → Invite → Team
 - [ ] Candidate can view invitations and join team
@@ -242,13 +260,15 @@ Total: 10 business days
 - [ ] Manual end-to-end testing passed
 
 ### Risks & Mitigations
-| Risk | Mitigation |
-|------|-----------|
-| Frontend development slower than expected | Prioritize founder flow first, candidate UI second |
+
+| Risk                                           | Mitigation                                                    |
+| ---------------------------------------------- | ------------------------------------------------------------- |
+| Frontend development slower than expected      | Prioritize founder flow first, candidate UI second            |
 | API response format mismatches UI expectations | Communicate frontend/backend schema early, mock API if needed |
-| Time runs out before all UI complete | Have a "MVP-minimum UI" vs "polished UI" scope |
+| Time runs out before all UI complete           | Have a "MVP-minimum UI" vs "polished UI" scope                |
 
 ### Deliverables
+
 - React components in `frontend/src/` (pages, components)
 - API integration via axios/fetch
 - Styling with TailwindCSS
@@ -256,6 +276,7 @@ Total: 10 business days
 - Commit: "feat: Phase 3 frontend UI and integration"
 
 ### Test Data & Scenarios
+
 - Test as founder: Sign up → create idea → see AI analysis → search candidates → invite → form team
 - Test as candidate: Sign up → see discovery → receive invitation → accept → view team
 - Test on mobile device (iPhone/Android simulation)
@@ -269,11 +290,13 @@ Total: 10 business days
 **Owner:** Developer
 
 ### Objectives (Post-MVP, if time allows)
+
 - Security audit and fixes
 - Test coverage for critical paths
 - Deployment planning
 
 ### Tasks (Lower Priority, Do If Time)
+
 1. Security review
    - [ ] Audit Firebase config (no keys exposed in frontend)
    - [ ] Verify CORS is correctly configured
@@ -293,11 +316,13 @@ Total: 10 business days
    - [ ] Known issues & workarounds
 
 ### Success Criteria
+
 - [ ] No high-severity security issues
 - [ ] Critical business logic has unit tests
 - [ ] Setup doc allows another dev to run the project
 
 ### Deliverables
+
 - Security audit report
 - Unit tests (match algorithm, validation)
 - API documentation
@@ -325,22 +350,26 @@ Phase 4 (Testing & Hardening)
 ## Success Metrics
 
 ### Phase 1 Success
+
 - [ ] API endpoints respond correctly
 - [ ] AI analysis extracts roles/skills from 5 sample ideas
 - [ ] Founder can create profile and idea
 
 ### Phase 2 Success
+
 - [ ] Candidate search returns relevant results
 - [ ] Match scores make intuitive sense (high skills match = high score)
 - [ ] Invitations sent and accepted correctly
 - [ ] Team created with correct members
 
 ### Phase 3 Success
+
 - [ ] Founder completes full end-to-end flow
 - [ ] UI is usable and responsive
 - [ ] No critical bugs blocking the flow
 
 ### Final Success (All Phases)
+
 - ✅ Complete working MVP: Idea → AI → Match → Team
 - ✅ Deployable code (no console errors)
 - ✅ Real user can use it end-to-end
@@ -349,22 +378,22 @@ Phase 4 (Testing & Hardening)
 
 ## Known Constraints & Assumptions
 
-| Constraint | Impact | Mitigation |
-|-----------|--------|-----------|
-| 2-week timeline | Very aggressive | Strict MVP scope, no feature creep |
-| Single developer | Limited bandwidth | Focus on backend first, UI second |
-| Zero existing tests | Risk of bugs | Plan testing for critical paths |
-| Vercel AI SDK untested | Risk of delays | Start early, have fallback approach |
-| Limited design upfront | Risk of rework | Use simple, minimal UI design |
-| College-based candidate pool | Scalability TBD | Seed with test data for MVP |
+| Constraint                   | Impact            | Mitigation                          |
+| ---------------------------- | ----------------- | ----------------------------------- |
+| 2-week timeline              | Very aggressive   | Strict MVP scope, no feature creep  |
+| Single developer             | Limited bandwidth | Focus on backend first, UI second   |
+| Zero existing tests          | Risk of bugs      | Plan testing for critical paths     |
+| Vercel AI SDK untested       | Risk of delays    | Start early, have fallback approach |
+| Limited design upfront       | Risk of rework    | Use simple, minimal UI design       |
+| College-based candidate pool | Scalability TBD   | Seed with test data for MVP         |
 
 ---
 
 ## Version History
 
-| Version | Date | Changes |
-|---------|------|---------|
-| 1.0 | 2026-08-25 | Initial roadmap (4 phases, 2-week timeline) |
+| Version | Date       | Changes                                     |
+| ------- | ---------- | ------------------------------------------- |
+| 1.0     | 2026-08-25 | Initial roadmap (4 phases, 2-week timeline) |
 
 ---
 
