@@ -4,12 +4,51 @@ const User = require('../models/User');
 const Match = require('../models/Match');
 const { scoreCandidate, flattenRequirements } = require('../services/matchScoring');
 
-const publicCandidateFields = 'name profileImage college location skills interests targetRoles domainInterests availability workPreference hoursPerWeek';
+const publicCandidateFields =
+  'name profileImage college location skills interests targetRoles domainInterests availability workPreference hoursPerWeek createdAt';
 
 const parseList = (value) => (value ? String(value).split(',').map((item) => item.trim()).filter(Boolean) : []);
 const parsePage = (value, fallback, max) => Math.min(Math.max(Number.parseInt(value, 10) || fallback, 1), max);
 
 const getAuthenticatedUser = (req) => User.findOne({ firebaseUid: req.user.uid });
+
+const toPublicCandidate = (candidate) => ({
+  id: candidate._id,
+  name: candidate.name,
+  profileImage: candidate.profileImage,
+  college: candidate.college,
+  location: candidate.location,
+  skills: candidate.skills,
+  interests: candidate.interests,
+  targetRoles: candidate.targetRoles,
+  domainInterests: candidate.domainInterests,
+  availability: candidate.availability,
+  workPreference: candidate.workPreference,
+  hoursPerWeek: candidate.hoursPerWeek,
+});
+
+const buildCandidateQuery = ({ skills, level, domain, workMode, availability }) => {
+  const query = { profileType: 'candidate', profileCompleted: true };
+  const andConditions = [];
+
+  if (skills.length) {
+    query['skills.name'] = { $all: skills };
+  }
+
+  if (level && skills.length) {
+    // Keep $all for must-have names, and require at least one named skill at the requested level.
+    andConditions.push({ skills: { $elemMatch: { name: { $in: skills }, level } } });
+  } else if (level) {
+    query.skills = { $elemMatch: { level } };
+  }
+
+  if (domain) query.domainInterests = domain;
+  if (workMode) query.workPreference = workMode;
+  if (availability) query.availability = availability;
+  if (andConditions.length) query.$and = andConditions;
+
+  return query;
+};
 
 const searchMatches = async (req, res) => {
   try {
@@ -33,12 +72,13 @@ const searchMatches = async (req, res) => {
     const page = parsePage(req.query.page, 1, 1000000);
     const limit = parsePage(req.query.limit, 10, 50);
     const minScore = Math.min(Math.max(Number(req.query.minScore ?? 40) || 0, 0), 100);
-    const query = { profileType: 'candidate', profileCompleted: true };
-    if (requestedSkills.length) query['skills.name'] = { $all: requestedSkills };
-    if (level) query.skills = { $elemMatch: { name: { $in: requestedSkills.length ? requestedSkills : [level] }, level } };
-    if (domain) query.domainInterests = domain;
-    if (workMode) query.workPreference = workMode;
-    if (availability) query.availability = availability;
+    const query = buildCandidateQuery({
+      skills: requestedSkills,
+      level,
+      domain,
+      workMode,
+      availability,
+    });
 
     const candidates = await User.find(query).select(publicCandidateFields).lean();
     const requirements = {
@@ -65,16 +105,34 @@ const searchMatches = async (req, res) => {
             refreshedAt: new Date(),
           },
         },
-        { upsert: true, new: true, setDefaultsOnInsert: true },
+        { upsert: true, returnDocument: 'after', setDefaultsOnInsert: true },
       ).lean();
-      matches.push({ matchId: snapshot._id, candidate, score: explanation.score, explanation, invitationStatus: null, createdAt: candidate.createdAt });
+      matches.push({
+        matchId: snapshot._id,
+        candidate: toPublicCandidate(candidate),
+        score: explanation.score,
+        explanation,
+        invitationStatus: null,
+        createdAt: candidate.createdAt,
+      });
     }
 
-    matches.sort((a, b) => b.score - a.score || new Date(b.createdAt || 0) - new Date(a.createdAt || 0) || String(a.candidate._id).localeCompare(String(b.candidate._id)));
+    matches.sort(
+      (a, b) =>
+        b.score - a.score ||
+        new Date(b.createdAt || 0) - new Date(a.createdAt || 0) ||
+        String(a.candidate.id).localeCompare(String(b.candidate.id)),
+    );
     const total = matches.length;
     const offset = (page - 1) * limit;
     const paged = matches.slice(offset, offset + limit);
-    return res.status(200).json({ success: true, matches: paged, pagination: { page, limit, total, totalPages: Math.ceil(total / limit) }, sort, minScore });
+    return res.status(200).json({
+      success: true,
+      matches: paged,
+      pagination: { page, limit, total, totalPages: Math.ceil(total / limit) || 0 },
+      sort,
+      minScore,
+    });
   } catch (error) {
     console.error('[ERROR] GET /candidates/search/with-scores:', error.message);
     return res.status(500).json({ success: false, message: 'Failed to calculate candidate matches', code: 'MATCHING_FAILED' });

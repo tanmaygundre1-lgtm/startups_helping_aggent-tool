@@ -112,7 +112,7 @@ Total: 10 business days
 ## Phase 2: Matching Engine & Invitations
 
 **Duration:** Days 6-10 (5 days)  
-**Status:** Blocked (waits for Phase 1)  
+**Status:** In progress (Wave 1 complete)  
 **Owner:** Developer (autonomous)
 
 ### Objectives
@@ -120,6 +120,12 @@ Total: 10 business days
 - Implement candidate search and ranking
 - Build invitation/acceptance workflow
 - Enable team formation
+
+### Plans
+
+- [x] 02-01-PLAN.md — Deterministic matching, candidate search, and ranked score snapshots
+- [ ] 02-02-PLAN.md — Invitation lifecycle with conditional accept/decline/withdraw transitions
+- [ ] 02-03-PLAN.md — Transaction-backed one-team-per-idea formation and protected team reads
 
 ### Requirements in Scope
 

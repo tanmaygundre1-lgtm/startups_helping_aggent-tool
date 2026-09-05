@@ -1,8 +1,8 @@
 # STATE.md — StartupLink Project State
 
-**Last Updated:** 2026-09-04  
-**Phase:** Phase 1 - Backend Foundation  
-**Workflow Status:** Phase 1 complete, ready for verification and Phase 2 planning
+**Last Updated:** 2026-09-05  
+**Phase:** Phase 2 - Matching Engine & Invitations  
+**Workflow Status:** Wave 1 (02-01 matching engine) complete; ready for Wave 2 (invitations)
 
 ---
 
@@ -10,106 +10,61 @@
 
 ### ✅ Completed
 
-- [x] Codebase analysis and mapping (tech, arch, quality, concerns)
-- [x] Deep questioning and vision clarification
-- [x] PROJECT.md created with comprehensive context
-- [x] Configuration initialized
-- [x] Phase 1 backend APIs, schemas, seed data, and Gemini integration implemented
-- [x] Phase 1 manual endpoint verification completed
+- [x] Codebase analysis and mapping
+- [x] PROJECT.md / REQUIREMENTS.md / ROADMAP.md
+- [x] Phase 1 backend foundation + Gemini integration
+- [x] Phase 1 UAT verification
+- [x] Phase 2 research and plans (02-01, 02-02, 02-03)
+- [x] Phase 2 Wave 1: deterministic matching engine + ranked snapshots
 
 ### 🔄 In Progress
 
-- [x] Generate REQUIREMENTS.md from discovered features
-- [x] Create ROADMAP.md with phase breakdown
-- [x] Plan Phase 1 implementation
+- [ ] Phase 2 Wave 2: invitation lifecycle (02-02)
+- [ ] Phase 2 Wave 3: team formation (02-03)
 
 ### 📋 Upcoming
 
-- [x] Execute Phase 1 (core backend APIs, AI integration)
-- [ ] Execute Phase 2 (frontend UI, matching logic)
-- [ ] Verification and user testing
-- [ ] Deploy v1 MVP
+- [ ] Phase 3 frontend UI
+- [ ] Final verification and deployment prep
 
 ---
 
 ## Key Decisions Made
 
-| Decision        | Value           | Rationale                           |
-| --------------- | --------------- | ----------------------------------- |
-| Primary User    | Idea Founders   | Most acute pain point               |
-| V1 Scope        | End-to-end flow | Tight 2-week timeline               |
-| AI Provider     | Vercel AI SDK   | Structured output, tool support     |
-| Parallelization | Sequential      | Single developer, focused execution |
-| Model Profile   | Balanced        | Good quality/cost ratio             |
+| Decision | Value | Rationale |
+| --- | --- | --- |
+| Primary User | Idea Founders | Most acute pain point |
+| V1 Scope | End-to-end flow | Tight 2-week timeline |
+| AI Provider | Vercel AI SDK + Gemini | Structured output, existing Phase 1 contract |
+| Matching weights | 40/15/15/15/15 | Locked F4.2 formula, scoringVersion v1 |
+| Match identity | `{ ideaId, userId }` | One snapshot per idea/candidate |
+| Availability fallback | 0.5 unknown | Idea has no hours/work-mode requirement |
 
 ---
 
 ## Context for Next Phase
 
-### Tech Stack Confirmed
+### Preserve Phase 1 + Wave 1 contracts
 
-- React 18 + Vite (frontend)
-- Node.js + Express (backend)
-- MongoDB (database)
-- Firebase Auth (already done)
-- Vercel AI SDK with Google Gemini
+- User model uses `firebaseUid`
+- Ideas use `createdBy`
+- AI analysis stays inline in `Idea.aiAnalysis`
+- Matching requires `Idea.aiAnalysis.isApproved === true`
+- Do not create a second candidate model
+- Do not modify frontend for remaining Phase 2 waves unless explicitly planned
 
-### Critical Path
+### Next Command
 
-1. **Phase 1:** Backend APIs + AI integration
-   - `/ideas` endpoints (create, read)
-   - AI analysis service (Vercel SDK integration)
-   - Matching algorithm (core logic)
-
-2. **Phase 2:** Frontend + Matching UI
-   - Idea creation form
-   - AI analysis display
-   - Candidate search & match display
-   - Invitation flow
-
-3. **Phase 3:** Team Formation + Dashboard
-   - Team creation
-   - Acceptance workflow
-   - Team dashboard
-
-### Known Risks
-
-- 2-week timeline is aggressive
-- Zero test coverage (will need to prioritize critical tests)
-- Exposed API keys flagged in concerns
-- CORS configuration needs hardening
+`/gsd-execute-phase 2 --wave 2` (or execute `02-02-PLAN.md` invitation lifecycle)
 
 ---
 
 ## Artifacts Generated
 
-| Artifact     | Location                | Purpose                           |
-| ------------ | ----------------------- | --------------------------------- |
-| PROJECT.md   | `.planning/PROJECT.md`  | Full project context and vision   |
-| config.json  | `.planning/config.json` | Workflow configuration            |
-| Codebase Map | `.planning/codebase/`   | Architecture and quality analysis |
-| STATE.md     | `.planning/STATE.md`    | This file — project memory        |
-
----
-
-## Questions for Planner
-
-When creating REQUIREMENTS.md and ROADMAP.md:
-
-1. **Feature Priorities:** Which features are must-have for v1 vs. nice-to-have?
-2. **Phase Splitting:** How to split AI analysis, matching, and UI into testable phases?
-3. **Data Requirements:** What seed data (student profiles, domain categories) do we need?
-4. **Testing Strategy:** What tests are critical for v1 given zero current coverage?
-
----
-
-## Checkpoints for Execution
-
-- **After Phase 1 Plan:** Verify AI extraction quality with sample ideas
-- **After Phase 1 Execution:** Matching algorithm scoring works with test data
-- **After Phase 2 Execution:** Full UI flow works end-to-end
-- **Final Verification:** Real user can create idea → see matches → form team
-
----
-
-**Next Command:** `/gsd-verify-work 1`, then `/gsd-plan-phase 2`
+| Artifact | Location | Purpose |
+| --- | --- | --- |
+| PROJECT.md | `.planning/PROJECT.md` | Vision and constraints |
+| ROADMAP.md | `.planning/ROADMAP.md` | Phase breakdown |
+| Phase 2 research | `.planning/phases/02-matching-engine-invitations/02-RESEARCH.md` | Matching/invitation design |
+| Wave 1 summary | `.planning/phases/02-matching-engine-invitations/02-01-SUMMARY.md` | Completed matching engine |
+| STATE.md | `.planning/STATE.md` | This file |
