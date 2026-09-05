@@ -28,6 +28,20 @@ const matchSchema = new mongoose.Schema(
       min: 0,
       max: 100,
     },
+    explanation: {
+      type: mongoose.Schema.Types.Mixed,
+      default: {},
+    },
+    scoringVersion: {
+      type: String,
+      default: 'v1',
+    },
+    requirementsSnapshot: {
+      type: mongoose.Schema.Types.Mixed,
+      default: {},
+    },
+    calculatedAt: Date,
+    refreshedAt: Date,
     locationMatch: {
       level: {
         type: String,
@@ -45,5 +59,6 @@ const matchSchema = new mongoose.Schema(
 
 matchSchema.index({ ideaId: 1, userId: 1 }, { unique: true });
 matchSchema.index({ userId: 1, status: 1 });
+matchSchema.index({ ideaId: 1, matchScore: -1, createdAt: -1, _id: 1 });
 
 module.exports = mongoose.model('Match', matchSchema);
