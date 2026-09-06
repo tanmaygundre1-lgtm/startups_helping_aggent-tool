@@ -124,8 +124,9 @@ Total: 10 business days
 ### Plans
 
 - [x] 02-01-PLAN.md — Deterministic matching, candidate search, and ranked score snapshots
-- [ ] 02-02-PLAN.md — Invitation lifecycle with conditional accept/decline/withdraw transitions
-- [ ] 02-03-PLAN.md — Transaction-backed one-team-per-idea formation and protected team reads
+- [x] 02-02-PLAN.md — Invitation lifecycle with conditional accept/decline/withdraw transitions
+- [x] 02-03-PLAN.md — Transaction-backed one-team-per-idea formation and protected team reads
+
 
 ### Requirements in Scope
 

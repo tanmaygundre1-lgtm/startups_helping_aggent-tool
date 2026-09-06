@@ -10,6 +10,7 @@ function App() {
   const [isLoggingIn, setIsLoggingIn] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
 
+  // temporary basisi
   useEffect(() => {
     // Listen for login/logout state changes
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
@@ -25,7 +26,13 @@ function App() {
     setErrorMessage("");
     setIsLoggingIn(true);
     try {
-      await loginWithGoogle();
+      // await loginWithGoogle();
+      const result = await loginWithGoogle();
+
+      // Firebase ID Token मिळवा
+      const token = await result.user.getIdToken();
+
+      console.log("Firebase Token:", token);
     } catch (error) {
       console.error("Login failed:", error);
       setErrorMessage(error.message || "Login failed. Please try again.");

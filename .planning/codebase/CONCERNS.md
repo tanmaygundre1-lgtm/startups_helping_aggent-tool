@@ -12,7 +12,8 @@
 
 **Current mitigation:** None - key is directly accessible to anyone viewing source code
 
-**Recommendations:** 
+**Recommendations:**
+
 - Move Firebase config to environment variables
 - Use `VITE_FIREBASE_*` prefix for env vars
 - Regenerate exposed API key immediately
@@ -27,6 +28,7 @@
 **Current mitigation:** None - `cors()` allows all origins
 
 **Recommendations:**
+
 - Restrict CORS to specific frontend domain(s)
 - Use `cors({ origin: process.env.FRONTEND_URL })`
 - Implement CSRF tokens for state-changing operations
@@ -40,6 +42,7 @@
 **Current mitigation:** Minimal MongoDB schema validation
 
 **Recommendations:**
+
 - Add request validation middleware (joi, zod, or express-validator)
 - Validate email format, URL format for profile images
 - Sanitize string inputs (trim, length limits)
@@ -54,6 +57,7 @@
 **Current mitigation:** None
 
 **Recommendations:**
+
 - Implement rate limiting middleware (express-rate-limit)
 - Set limits per IP and per user (e.g., 100 requests/15min)
 - Apply stricter limits to auth endpoints
@@ -67,6 +71,7 @@
 **Current mitigation:** Token fetched on each request, but errors not handled
 
 **Recommendations:**
+
 - Implement interceptor to detect 401 responses
 - Refresh token automatically before expiry
 - Handle refresh failures with logout
@@ -82,6 +87,7 @@
 **Current mitigation:** Limited indexes defined; only `_id`, `firebaseUid`, and compound index on Match model
 
 **Recommendations:**
+
 - Add index on `Idea.createdBy` for user profile queries
 - Add index on `Idea.category` for filtering
 - Add index on `Match.userId` for match listings
@@ -97,6 +103,7 @@
 **Current mitigation:** None
 
 **Recommendations:**
+
 - Implement Redis for user profiles and idea listings
 - Cache match results with TTL (5-15 minutes)
 - Cache user skills and interests
@@ -111,6 +118,7 @@
 **Current mitigation:** None - implementation not visible
 
 **Recommendations:**
+
 - Use MongoDB aggregation pipeline for complex scoring
 - Pre-compute and cache match scores
 - Implement batch processing for match generation
@@ -124,6 +132,7 @@
 **Current mitigation:** Unknown - endpoints not yet implemented
 
 **Recommendations:**
+
 - Add `limit` and `offset` query parameters to list endpoints
 - Set reasonable defaults (limit=20, max=100)
 - Implement cursor-based pagination for large datasets
@@ -140,6 +149,7 @@
 **Current mitigation:** None
 
 **Recommendations:**
+
 - Containerize backend (Docker)
 - Deploy behind load balancer
 - Separate read replicas for reporting
@@ -154,6 +164,7 @@
 **Current mitigation:** Mongoose default pool size (5)
 
 **Recommendations:**
+
 - Configure explicit pool size: `maxPoolSize: 10` for production
 - Monitor connection count under load
 - Implement connection timeout and retry logic
@@ -167,6 +178,7 @@
 **Current mitigation:** None
 
 **Recommendations:**
+
 - Implement job queue (Bull, RabbitMQ, or AWS SQS)
 - Move AI analysis to background jobs
 - Move bulk match scoring to async tasks
@@ -183,6 +195,7 @@
 **Current mitigation:** None
 
 **Recommendations:**
+
 - Add Jest for unit testing
 - Target 80%+ coverage for critical paths
 - Test authentication middleware
@@ -198,6 +211,7 @@
 **Current mitigation:** None - manual `test-dns.js` file present but incomplete
 
 **Recommendations:**
+
 - Add supertest for API integration testing
 - Test full auth flow (Firebase token → user sync)
 - Test duplicate user handling
@@ -212,6 +226,7 @@
 **Current mitigation:** None
 
 **Recommendations:**
+
 - Add Vitest + React Testing Library
 - Test auth flow and error states
 - Test logout functionality
@@ -228,6 +243,7 @@
 **Current mitigation:** Basic console.log statements
 
 **Recommendations:**
+
 - Replace console.log with structured logging (Winston or Pino)
 - Add request logging middleware with correlation IDs
 - Log auth attempts with IP and timestamp
@@ -242,6 +258,7 @@
 **Current mitigation:** None
 
 **Recommendations:**
+
 - Integrate Sentry for error tracking
 - Capture stack traces and context
 - Set up alerts for critical errors
@@ -256,6 +273,7 @@
 **Current mitigation:** `/api/health` endpoint only
 
 **Recommendations:**
+
 - Add Prometheus metrics (request counts, latency, errors)
 - Implement distributed tracing (Jaeger or Datadog)
 - Add database query metrics
@@ -272,6 +290,7 @@
 **Current mitigation:** None
 
 **Recommendations:**
+
 - Implement idea CRUD endpoints (create, read, list, update, delete)
 - Implement match list endpoint with filters
 - Implement match accept/reject endpoints
@@ -287,6 +306,7 @@
 **Current mitigation:** None
 
 **Recommendations:**
+
 - Add OpenAPI/Swagger documentation
 - Document all endpoints, request/response schemas
 - Document error codes and messages
@@ -301,6 +321,7 @@
 **Current mitigation:** None
 
 **Recommendations:**
+
 - Clarify if AI analysis is computed or user-supplied
 - If computed: implement external AI service integration
 - Add async job processing for AI analysis
@@ -315,6 +336,7 @@
 **Current mitigation:** None
 
 **Recommendations:**
+
 - Document scoring algorithm
 - Implement match generation logic
 - Test scoring with sample data
@@ -331,6 +353,7 @@
 **Current mitigation:** Fallback to `http://localhost:5000/api`
 
 **Recommendations:**
+
 - Set `VITE_API_URL` environment variable for production
 - Document required env vars for deployment
 - Add `.env.example` file with all required vars
@@ -344,6 +367,7 @@
 **Current mitigation:** None
 
 **Recommendations:**
+
 - Create `.env.example` in both backend and frontend
 - Document all required environment variables
 - Document default values
@@ -358,6 +382,7 @@
 **Current mitigation:** None
 
 **Recommendations:**
+
 - Add Dockerfile for backend
 - Add docker-compose for local development
 - Add .dockerignore to exclude node_modules
@@ -371,6 +396,7 @@
 **Current mitigation:** None
 
 **Recommendations:**
+
 - Add GitHub Actions workflow
 - Run tests on every PR
 - Build Docker images on merge
@@ -387,6 +413,7 @@
 **Current mitigation:** Works but inconsistent
 
 **Recommendations:**
+
 - Migrate backend to ESM for consistency
 - Use `"type": "module"` in backend package.json
 - Update all imports to ESM style
@@ -400,6 +427,7 @@
 **Current mitigation:** No lock file tracked in git
 
 **Recommendations:**
+
 - Review Express 5.x breaking changes from 4.x
 - Add package-lock.json or yarn.lock to git
 - Pin versions with `^` or `~` appropriately
@@ -414,6 +442,7 @@
 **Current mitigation:** Frontend has ESLint configured
 
 **Recommendations:**
+
 - Add ESLint to backend with shared config
 - Add Prettier for code formatting
 - Add pre-commit hooks (husky)
@@ -430,6 +459,7 @@
 **Current mitigation:** Currently using only Google OAuth
 
 **Recommendations:**
+
 - Add password validation (min 8 chars, complexity)
 - Hash passwords with bcrypt (cost=12)
 - Implement password reset flow
@@ -443,6 +473,7 @@
 **Current mitigation:** Google OAuth handles verification
 
 **Recommendations:**
+
 - Implement email verification flow when email signup is added
 - Send verification tokens via email
 - Require verification before certain features
@@ -456,6 +487,7 @@
 **Current mitigation:** None
 
 **Recommendations:**
+
 - Add `deletedAt` soft-delete field to models
 - Implement data retention policy (e.g., 2 years)
 - Add background job to hard-delete old data
@@ -472,6 +504,7 @@
 **Current mitigation:** None
 
 **Recommendations:**
+
 - Implement React Router v7 navigation
 - Add pages for user profile, idea list, matches
 - Add routing structure to handle future features
@@ -485,6 +518,7 @@
 **Current mitigation:** Currently limited to root component
 
 **Recommendations:**
+
 - Evaluate state management (Context API, Zustand, or Redux)
 - Implement user state store
 - Implement API data store
@@ -498,6 +532,7 @@
 **Current mitigation:** None
 
 **Recommendations:**
+
 - Migrate to TypeScript
 - Add tsconfig.json
 - Enable strict mode
@@ -512,6 +547,7 @@
 **Current mitigation:** Basic error message display
 
 **Recommendations:**
+
 - Create error boundary component
 - Add error toast notifications
 - Implement error recovery flows
@@ -528,6 +564,7 @@
 **Current mitigation:** None
 
 **Recommendations:**
+
 - Extract user sync to separate service class
 - Separate validation from sync logic
 - Add unit tests for sync edge cases
@@ -541,6 +578,7 @@
 **Current mitigation:** Catches duplicate key error but not foolproof
 
 **Recommendations:**
+
 - Add transaction or unique constraint at application level
 - Use MongoDB session transactions
 - Add integration test for concurrent logins
@@ -554,6 +592,7 @@
 **Current mitigation:** Somewhat generic, but MongoDB errors could leak info
 
 **Recommendations:**
+
 - Implement error translation layer
 - Log full errors internally, return generic messages to client
 - Never expose database schema or internal details
@@ -567,6 +606,7 @@
 **Current mitigation:** None
 
 **Recommendations:**
+
 - Generate UUID for each request
 - Pass request ID through logs and error tracking
 - Return request ID in error responses
@@ -605,4 +645,4 @@
 
 ---
 
-*Concerns audit: 2026-08-25*
+_Concerns audit: 2026-08-25_

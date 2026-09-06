@@ -28,11 +28,13 @@ Secondary users (v1.1+): Skilled students looking for startup opportunities
 ## Core Problem & Opportunity
 
 ### Problem
+
 - Founders waste time manually searching for teammates across LinkedIn, Discord, campus networks
 - No structured way to understand what skills a startup actually needs
 - Skills-to-role matching is ad-hoc and often relies on personal networks
 
 ### Opportunity
+
 - Centralized platform for team formation within college ecosystem
 - AI-powered skill analysis turns vague ideas into concrete team requirements
 - Algorithmic matching increases compatibility and success rate of formed teams
@@ -62,6 +64,7 @@ Candidates accept → Team formed
 ```
 
 ### V1 Core Features
+
 1. **Student Profile** — Skills, interests, domain preferences, availability, work mode (remote, in-person, hybrid)
 2. **Startup Idea Creation** — Founder enters idea, description, domain/category, vision
 3. **AI Skill/Role Analysis** — Extract required roles, skills, tech stack, priority levels, experience levels, team size
@@ -71,6 +74,7 @@ Candidates accept → Team formed
 7. **Team Dashboard** — View formed teams and team members
 
 ### Explicitly Out of V1 Scope
+
 - LinkedIn search integration
 - AI chatbot/concierge
 - Task management
@@ -95,12 +99,14 @@ Candidates accept → Team formed
 ## Current State
 
 ✅ **Complete:**
+
 - Authentication system (Firebase Auth)
 - Database connection (MongoDB)
 - Basic project structure (frontend: React/Vite, backend: Express)
 - User, Idea, Match models defined
 
 ❌ **Remaining:**
+
 - All feature endpoints and business logic
 - AI analysis integration
 - Matching algorithm
@@ -116,12 +122,15 @@ Candidates accept → Team formed
 ## Key Workflow Details
 
 ### 1. Founder Creates Startup Idea
+
 Input: Description, domain, vision, problem statement  
 Output: Idea record in DB
 
 ### 2. AI Analysis
+
 Input: Startup idea description + metadata  
 AI extracts:
+
 - **Team Roles** (e.g., Backend Developer, Frontend Developer, UI/UX Designer)
 - **Required Skills** (e.g., React, Node.js, Python)
 - **Skill Priority** (Must-have vs. Nice-to-have)
@@ -133,9 +142,11 @@ AI extracts:
 Founder reviews and can edit all suggestions before proceeding.
 
 ### 3. Generate Team & Matching
+
 System queries student database for candidates matching required skills.
 
 **Match Score Algorithm (0-100):**
+
 - Required Skill Match: 40% (how many required skills do they have)
 - Skill Level Match: 15% (compatibility between required and student's level)
 - Role Preference: 15% (does student want this role type)
@@ -143,12 +154,14 @@ System queries student database for candidates matching required skills.
 - Availability & Work Preference: 15% (can they commit, work mode alignment)
 
 Results show:
+
 - Candidate name, profile summary, skills
 - Match score (0-100)
 - **Why they matched:** Matched skills, missing skills, shared interests
 - CTA: "Send Invitation"
 
 ### 4. Invitation & Acceptance
+
 Founder sends invitation to candidate.  
 Candidate receives notification → can Accept or Decline.  
 When minimum team formed (or founder decides): Team created successfully.
@@ -158,6 +171,7 @@ When minimum team formed (or founder decides): Team created successfully.
 ## Success Criteria (End of V1, 2 Weeks)
 
 ✅ **Must Have (Day 14):**
+
 - [ ] End-to-end flow works: Idea → AI Analysis → Matching → Team formed
 - [ ] AI correctly extracts roles and skills from idea descriptions
 - [ ] Matching algorithm scores candidates with explainability
@@ -166,6 +180,7 @@ When minimum team formed (or founder decides): Team created successfully.
 - [ ] No critical bugs blocking the flow
 
 ✅ **Nice-to-Have (if time allows):**
+
 - [ ] Candidate search/filtering UI polish
 - [ ] Better match explanations
 - [ ] Rate/feedback on matches
@@ -199,6 +214,7 @@ When minimum team formed (or founder decides): Team created successfully.
 ## Codebase Map Reference
 
 See `.planning/codebase/` for detailed analysis:
+
 - **STACK.md** — Tech stack breakdown (React 18, Node.js, MongoDB, Firebase)
 - **ARCHITECTURE.md** — Frontend-backend communication patterns, data flow
 - **STRUCTURE.md** — Directory organization, key files
@@ -207,6 +223,7 @@ See `.planning/codebase/` for detailed analysis:
 - **CONCERNS.md** — 40+ concerns flagged: exposed API keys, CORS issues, security gaps, testing gaps
 
 ### Critical Concerns for V1
+
 - [ ] Exposed API keys — Audit Firebase config, secure before launch
 - [ ] CORS configuration — Verify allowed origins before production
 - [ ] No test coverage — Plan to add tests after MVP is feature-complete

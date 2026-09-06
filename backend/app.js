@@ -6,6 +6,7 @@ const ideaRoutes = require('./routes/ideaRoutes');
 const aiRoutes = require('./routes/aiRoutes');
 const matchingRoutes = require('./routes/matchingRoutes');
 const invitationRoutes = require('./routes/invitationRoutes');
+const teamRoutes = require('./routes/teamRoutes');
 
 const app = express();
 
@@ -16,6 +17,7 @@ app.use('/api/ideas', ideaRoutes);
 app.use('/api/ideas', aiRoutes);
 app.use('/api/candidates', matchingRoutes);
 app.use('/api/invitations', invitationRoutes);
+app.use('/api/teams', teamRoutes);
 
 app.get('/api/health', (req, res) => {
   res.status(200).json({ status: 'ok', message: 'Backend is running' });

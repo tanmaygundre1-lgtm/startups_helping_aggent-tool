@@ -30,5 +30,6 @@ const invitationSchema = new mongoose.Schema(
 invitationSchema.index({ ideaId: 1, toCandidate: 1 }, { unique: true });
 invitationSchema.index({ fromFounder: 1, status: 1 });
 invitationSchema.index({ toCandidate: 1, status: 1 });
+invitationSchema.index({ teamId: 1, status: 1 });
 
 module.exports = mongoose.model('Invitation', invitationSchema);

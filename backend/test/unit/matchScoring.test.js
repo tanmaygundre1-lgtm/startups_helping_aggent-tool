@@ -74,3 +74,41 @@ test('is deterministic and does not mutate inputs', () => {
   assert.deepEqual(first, second);
   assert.equal(JSON.stringify({ candidate, requirements }), original);
 });
+
+test('handles top-level requiredSkills and requiredRoles fallbacks when rolesAndSkills is empty', () => {
+  const candidate = {
+    skills: [{ name: 'Node.js', level: 'Intermediate' }],
+    targetRoles: ['Backend Developer'],
+    domainInterests: ['EdTech'],
+  };
+  const requirements = {
+    domain: 'EdTech',
+    requiredSkills: ['Node.js'],
+    requiredRoles: ['Backend Developer'],
+  };
+  const result = scoreCandidate(candidate, requirements);
+  assert.equal(result.matchedSkills[0], 'Node.js');
+  assert.equal(result.roleMatches[0], 'Backend Developer');
+  assert.equal(result.sharedDomains[0], 'EdTech');
+  assert.equal(result.score, 92.5);
+});
+
+test('performs flexible domain and role matching for candidates', () => {
+  const candidate = {
+    skills: [{ name: 'React', level: 'Advanced' }],
+    targetRoles: ['Full Stack Developer'],
+    domainInterests: ['EdTech'],
+  };
+  const requirements = {
+    domain: 'EdTech / AI Platform',
+    rolesAndSkills: [
+      { role: 'Frontend Developer', skills: ['React'], experienceLevel: 'Intermediate', priority: 'must-have' },
+    ],
+  };
+  const result = scoreCandidate(candidate, requirements);
+  assert.equal(result.roleMatches.length, 1);
+  assert.equal(result.sharedDomains.length, 1);
+  assert.equal(result.score, 92.5);
+});
+
+

@@ -1,0 +1,544 @@
+[{
+  "_id": {
+    "$oid": "6a9ce41688cce36295a13cce"
+  },
+  "userId": {
+    "$oid": "6a9aed3181437f68db1d6e8f"
+  },
+  "ideaId": {
+    "$oid": "6a9ce417552bc4fa61f5c340"
+  },
+  "__v": 0,
+  "calculatedAt": {
+    "$date": "2026-09-06T03:55:05.566Z"
+  },
+  "createdAt": {
+    "$date": "2026-09-06T03:55:05.224Z"
+  },
+  "explanation": {
+    "score": 92.5,
+    "matchedSkills": [
+      "Node.js",
+      "MongoDB"
+    ],
+    "missingSkills": [],
+    "niceToHaveSkills": [],
+    "sharedDomains": [
+      "EdTech"
+    ],
+    "roleMatches": [
+      "Backend Developer"
+    ],
+    "components": {
+      "skills": 40,
+      "level": 15,
+      "role": 15,
+      "domain": 15,
+      "availability": 7.5
+    },
+    "scoringVersion": "v1",
+    "availabilityFallback": true
+  },
+  "matchScore": 92.5,
+  "matchedSkills": [
+    "Node.js",
+    "MongoDB"
+  ],
+  "refreshedAt": {
+    "$date": "2026-09-06T03:55:05.566Z"
+  },
+  "requirementsSnapshot": {
+    "roles": [
+      {
+        "role": "Backend Developer",
+        "skills": [
+          "Node.js",
+          "MongoDB"
+        ],
+        "experienceLevel": "Intermediate",
+        "priority": "must-have"
+      }
+    ],
+    "mustHave": [
+      "Node.js",
+      "MongoDB"
+    ],
+    "niceToHave": []
+  },
+  "scoringVersion": "v1",
+  "status": "pending",
+  "updatedAt": {
+    "$date": "2026-09-06T03:55:05.567Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "6a9ce41688cce36295a13ccf"
+  },
+  "userId": {
+    "$oid": "6a9ce418552bc4fa61f5c343"
+  },
+  "ideaId": {
+    "$oid": "6a9ce417552bc4fa61f5c340"
+  },
+  "__v": 0,
+  "calculatedAt": {
+    "$date": "2026-09-06T03:55:05.622Z"
+  },
+  "createdAt": {
+    "$date": "2026-09-06T03:55:05.289Z"
+  },
+  "explanation": {
+    "score": 92.5,
+    "matchedSkills": [
+      "Node.js",
+      "MongoDB"
+    ],
+    "missingSkills": [],
+    "niceToHaveSkills": [],
+    "sharedDomains": [
+      "EdTech"
+    ],
+    "roleMatches": [
+      "Backend Developer"
+    ],
+    "components": {
+      "skills": 40,
+      "level": 15,
+      "role": 15,
+      "domain": 15,
+      "availability": 7.5
+    },
+    "scoringVersion": "v1",
+    "availabilityFallback": true
+  },
+  "matchScore": 92.5,
+  "matchedSkills": [
+    "Node.js",
+    "MongoDB"
+  ],
+  "refreshedAt": {
+    "$date": "2026-09-06T03:55:05.622Z"
+  },
+  "requirementsSnapshot": {
+    "roles": [
+      {
+        "role": "Backend Developer",
+        "skills": [
+          "Node.js",
+          "MongoDB"
+        ],
+        "experienceLevel": "Intermediate",
+        "priority": "must-have"
+      }
+    ],
+    "mustHave": [
+      "Node.js",
+      "MongoDB"
+    ],
+    "niceToHave": []
+  },
+  "scoringVersion": "v1",
+  "status": "pending",
+  "updatedAt": {
+    "$date": "2026-09-06T03:55:05.622Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "6a9cfc3f88cce36295a13e01"
+  },
+  "userId": {
+    "$oid": "6a9aed3181437f68db1d6e8f"
+  },
+  "ideaId": {
+    "$oid": "6a9bbc3dab47b6b9040c9378"
+  },
+  "__v": 0,
+  "calculatedAt": {
+    "$date": "2026-09-06T05:38:10.827Z"
+  },
+  "createdAt": {
+    "$date": "2026-09-06T05:38:10.831Z"
+  },
+  "explanation": {
+    "score": 7.5,
+    "matchedSkills": [],
+    "missingSkills": [
+      "Python",
+      "NLP",
+      "Recommendation Systems",
+      "Scikit-Learn",
+      "FastAPI",
+      "Figma",
+      "User Research",
+      "Wireframing",
+      "Prototyping",
+      "Design Systems",
+      "Community Building",
+      "Campus Outreach",
+      "Social Media Marketing",
+      "Growth Hacking"
+    ],
+    "niceToHaveSkills": [
+      "React"
+    ],
+    "sharedDomains": [],
+    "roleMatches": [],
+    "components": {
+      "skills": 0,
+      "level": 0,
+      "role": 0,
+      "domain": 0,
+      "availability": 7.5
+    },
+    "scoringVersion": "v1",
+    "availabilityFallback": true
+  },
+  "matchScore": 7.5,
+  "matchedSkills": [],
+  "refreshedAt": {
+    "$date": "2026-09-06T05:38:10.827Z"
+  },
+  "requirementsSnapshot": {
+    "roles": [
+      {
+        "role": "AI/ML Engineer",
+        "skills": [
+          "Python",
+          "NLP",
+          "Recommendation Systems",
+          "Scikit-Learn",
+          "FastAPI"
+        ],
+        "experienceLevel": "Intermediate",
+        "priority": "must-have"
+      },
+      {
+        "role": "UI/UX Designer",
+        "skills": [
+          "Figma",
+          "User Research",
+          "Wireframing",
+          "Prototyping",
+          "Design Systems"
+        ],
+        "experienceLevel": "Intermediate",
+        "priority": "must-have"
+      },
+      {
+        "role": "Growth & Campus Marketing Lead",
+        "skills": [
+          "Community Building",
+          "Campus Outreach",
+          "Social Media Marketing",
+          "Growth Hacking"
+        ],
+        "experienceLevel": "Intermediate",
+        "priority": "must-have"
+      },
+      {
+        "role": "Frontend Developer",
+        "skills": [
+          "React",
+          "TypeScript",
+          "Tailwind CSS",
+          "REST APIs"
+        ],
+        "experienceLevel": "Beginner",
+        "priority": "nice-to-have"
+      }
+    ],
+    "mustHave": [
+      "Python",
+      "NLP",
+      "Recommendation Systems",
+      "Scikit-Learn",
+      "FastAPI",
+      "Figma",
+      "User Research",
+      "Wireframing",
+      "Prototyping",
+      "Design Systems",
+      "Community Building",
+      "Campus Outreach",
+      "Social Media Marketing",
+      "Growth Hacking"
+    ],
+    "niceToHave": [
+      "React",
+      "TypeScript",
+      "Tailwind CSS",
+      "REST APIs"
+    ]
+  },
+  "scoringVersion": "v1",
+  "status": "pending",
+  "updatedAt": {
+    "$date": "2026-09-06T05:38:10.831Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "6a9cfc3f88cce36295a13e02"
+  },
+  "userId": {
+    "$oid": "6a9ce418552bc4fa61f5c343"
+  },
+  "ideaId": {
+    "$oid": "6a9bbc3dab47b6b9040c9378"
+  },
+  "__v": 0,
+  "calculatedAt": {
+    "$date": "2026-09-06T05:38:11.026Z"
+  },
+  "createdAt": {
+    "$date": "2026-09-06T05:38:11.027Z"
+  },
+  "explanation": {
+    "score": 7.5,
+    "matchedSkills": [],
+    "missingSkills": [
+      "Python",
+      "NLP",
+      "Recommendation Systems",
+      "Scikit-Learn",
+      "FastAPI",
+      "Figma",
+      "User Research",
+      "Wireframing",
+      "Prototyping",
+      "Design Systems",
+      "Community Building",
+      "Campus Outreach",
+      "Social Media Marketing",
+      "Growth Hacking"
+    ],
+    "niceToHaveSkills": [],
+    "sharedDomains": [],
+    "roleMatches": [],
+    "components": {
+      "skills": 0,
+      "level": 0,
+      "role": 0,
+      "domain": 0,
+      "availability": 7.5
+    },
+    "scoringVersion": "v1",
+    "availabilityFallback": true
+  },
+  "matchScore": 7.5,
+  "matchedSkills": [],
+  "refreshedAt": {
+    "$date": "2026-09-06T05:38:11.026Z"
+  },
+  "requirementsSnapshot": {
+    "roles": [
+      {
+        "role": "AI/ML Engineer",
+        "skills": [
+          "Python",
+          "NLP",
+          "Recommendation Systems",
+          "Scikit-Learn",
+          "FastAPI"
+        ],
+        "experienceLevel": "Intermediate",
+        "priority": "must-have"
+      },
+      {
+        "role": "UI/UX Designer",
+        "skills": [
+          "Figma",
+          "User Research",
+          "Wireframing",
+          "Prototyping",
+          "Design Systems"
+        ],
+        "experienceLevel": "Intermediate",
+        "priority": "must-have"
+      },
+      {
+        "role": "Growth & Campus Marketing Lead",
+        "skills": [
+          "Community Building",
+          "Campus Outreach",
+          "Social Media Marketing",
+          "Growth Hacking"
+        ],
+        "experienceLevel": "Intermediate",
+        "priority": "must-have"
+      },
+      {
+        "role": "Frontend Developer",
+        "skills": [
+          "React",
+          "TypeScript",
+          "Tailwind CSS",
+          "REST APIs"
+        ],
+        "experienceLevel": "Beginner",
+        "priority": "nice-to-have"
+      }
+    ],
+    "mustHave": [
+      "Python",
+      "NLP",
+      "Recommendation Systems",
+      "Scikit-Learn",
+      "FastAPI",
+      "Figma",
+      "User Research",
+      "Wireframing",
+      "Prototyping",
+      "Design Systems",
+      "Community Building",
+      "Campus Outreach",
+      "Social Media Marketing",
+      "Growth Hacking"
+    ],
+    "niceToHave": [
+      "React",
+      "TypeScript",
+      "Tailwind CSS",
+      "REST APIs"
+    ]
+  },
+  "scoringVersion": "v1",
+  "status": "pending",
+  "updatedAt": {
+    "$date": "2026-09-06T05:38:11.027Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "6a9cfc3f88cce36295a13e03"
+  },
+  "userId": {
+    "$oid": "6a9ce418552bc4fa61f5c344"
+  },
+  "ideaId": {
+    "$oid": "6a9bbc3dab47b6b9040c9378"
+  },
+  "__v": 0,
+  "calculatedAt": {
+    "$date": "2026-09-06T05:38:11.088Z"
+  },
+  "createdAt": {
+    "$date": "2026-09-06T05:38:11.088Z"
+  },
+  "explanation": {
+    "score": 7.5,
+    "matchedSkills": [],
+    "missingSkills": [
+      "Python",
+      "NLP",
+      "Recommendation Systems",
+      "Scikit-Learn",
+      "FastAPI",
+      "Figma",
+      "User Research",
+      "Wireframing",
+      "Prototyping",
+      "Design Systems",
+      "Community Building",
+      "Campus Outreach",
+      "Social Media Marketing",
+      "Growth Hacking"
+    ],
+    "niceToHaveSkills": [],
+    "sharedDomains": [],
+    "roleMatches": [],
+    "components": {
+      "skills": 0,
+      "level": 0,
+      "role": 0,
+      "domain": 0,
+      "availability": 7.5
+    },
+    "scoringVersion": "v1",
+    "availabilityFallback": true
+  },
+  "matchScore": 7.5,
+  "matchedSkills": [],
+  "refreshedAt": {
+    "$date": "2026-09-06T05:38:11.088Z"
+  },
+  "requirementsSnapshot": {
+    "roles": [
+      {
+        "role": "AI/ML Engineer",
+        "skills": [
+          "Python",
+          "NLP",
+          "Recommendation Systems",
+          "Scikit-Learn",
+          "FastAPI"
+        ],
+        "experienceLevel": "Intermediate",
+        "priority": "must-have"
+      },
+      {
+        "role": "UI/UX Designer",
+        "skills": [
+          "Figma",
+          "User Research",
+          "Wireframing",
+          "Prototyping",
+          "Design Systems"
+        ],
+        "experienceLevel": "Intermediate",
+        "priority": "must-have"
+      },
+      {
+        "role": "Growth & Campus Marketing Lead",
+        "skills": [
+          "Community Building",
+          "Campus Outreach",
+          "Social Media Marketing",
+          "Growth Hacking"
+        ],
+        "experienceLevel": "Intermediate",
+        "priority": "must-have"
+      },
+      {
+        "role": "Frontend Developer",
+        "skills": [
+          "React",
+          "TypeScript",
+          "Tailwind CSS",
+          "REST APIs"
+        ],
+        "experienceLevel": "Beginner",
+        "priority": "nice-to-have"
+      }
+    ],
+    "mustHave": [
+      "Python",
+      "NLP",
+      "Recommendation Systems",
+      "Scikit-Learn",
+      "FastAPI",
+      "Figma",
+      "User Research",
+      "Wireframing",
+      "Prototyping",
+      "Design Systems",
+      "Community Building",
+      "Campus Outreach",
+      "Social Media Marketing",
+      "Growth Hacking"
+    ],
+    "niceToHave": [
+      "React",
+      "TypeScript",
+      "Tailwind CSS",
+      "REST APIs"
+    ]
+  },
+  "scoringVersion": "v1",
+  "status": "pending",
+  "updatedAt": {
+    "$date": "2026-09-06T05:38:11.088Z"
+  }
+}]

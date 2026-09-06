@@ -341,5 +341,24 @@ test(
       assert.ok(!Object.hasOwn(res.body.match, 'email'));
       assert.ok(!Object.hasOwn(res.body.match, 'firebaseUid'));
     }
+
+    {
+      // Verify getCandidateMatch dynamically creates snapshot when no Match exists yet
+      await Match.deleteMany({ ideaId: approvedIdea._id, userId: partialCandidate._id });
+      const res = createMockRes();
+      await getCandidateMatch(
+        {
+          user: { uid: partialCandidate.firebaseUid },
+          params: { ideaId: approvedIdea._id.toString() },
+          query: {},
+        },
+        res,
+      );
+      assert.equal(res.statusCode, 200);
+      assert.equal(res.body.success, true);
+      assert.equal(String(res.body.match.ideaId), String(approvedIdea._id));
+      assert.ok(res.body.match.explanation);
+    }
   },
 );
+

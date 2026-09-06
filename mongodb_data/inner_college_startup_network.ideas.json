@@ -1,0 +1,315 @@
+[{
+  "_id": {
+    "$oid": "6a9aed3181437f68db1d6e90"
+  },
+  "createdBy": {
+    "$oid": "6a9aed3181437f68db1d6e8e"
+  },
+  "title": "[SEED] Campus Team Matching Platform",
+  "description": "Help student founders find teammates by analyzing a startup idea, extracting required roles and skills, and matching college students who can join the team.",
+  "category": "SaaS",
+  "domain": "EdTech",
+  "problemStatement": "Students with ideas cannot find the right teammates on campus.",
+  "targetUsers": "College student founders",
+  "requiredSkills": [
+    "React",
+    "Node.js",
+    "MongoDB"
+  ],
+  "requiredRoles": [],
+  "stage": "concept",
+  "status": "approved",
+  "aiAnalysis": {
+    "rolesAndSkills": [
+      {
+        "role": "Backend Developer",
+        "skills": [
+          "Node.js",
+          "MongoDB",
+          "REST API"
+        ],
+        "priority": "must-have",
+        "count": 1,
+        "experienceLevel": "Intermediate"
+      },
+      {
+        "role": "Frontend Developer",
+        "skills": [
+          "React",
+          "TailwindCSS"
+        ],
+        "priority": "must-have",
+        "count": 1,
+        "experienceLevel": "Intermediate"
+      }
+    ],
+    "techStack": [
+      "React",
+      "Node.js",
+      "MongoDB",
+      "Firebase"
+    ],
+    "domain": "EdTech",
+    "teamSize": 3,
+    "keyRequirements": [
+      "Authentication",
+      "Matching algorithm",
+      "Invitation flow"
+    ],
+    "nextSteps": [
+      "Complete founder profile",
+      "Analyze idea",
+      "Invite candidates"
+    ],
+    "analyzedAt": {
+      "$date": "2026-09-04T16:09:21.452Z"
+    },
+    "isEdited": false,
+    "isApproved": true,
+    "approvedAt": {
+      "$date": "2026-09-04T16:09:21.452Z"
+    }
+  },
+  "createdAt": {
+    "$date": "2026-09-04T16:09:21.472Z"
+  },
+  "updatedAt": {
+    "$date": "2026-09-04T16:09:21.472Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6a9bbc3dab47b6b9040c9378"
+  },
+  "createdBy": {
+    "$oid": "6a9bb29fab47b6b9040c9377"
+  },
+  "title": "StartupLink",
+  "description": "An AI-powered platform that helps college students turn startup ideas into real execution teams by skill matching.",
+  "category": "EdTech",
+  "domain": "AI / Education",
+  "problemStatement": "Students with ideas struggle to find skilled teammates, while skilled students struggle to find projects.",
+  "targetUsers": "College students and early-stage student founders",
+  "requiredSkills": [
+    "React",
+    "Node.js",
+    "MongoDB",
+    "AI / ML"
+  ],
+  "requiredRoles": [],
+  "stage": "concept",
+  "status": "matching",
+  "aiAnalysis": {
+    "rolesAndSkills": [
+      {
+        "role": "AI/ML Engineer",
+        "skills": [
+          "Python",
+          "NLP",
+          "Recommendation Systems",
+          "Scikit-Learn",
+          "FastAPI"
+        ],
+        "priority": "must-have",
+        "count": 1,
+        "experienceLevel": "Intermediate"
+      },
+      {
+        "role": "UI/UX Designer",
+        "skills": [
+          "Figma",
+          "User Research",
+          "Wireframing",
+          "Prototyping",
+          "Design Systems"
+        ],
+        "priority": "must-have",
+        "count": 1,
+        "experienceLevel": "Intermediate"
+      },
+      {
+        "role": "Growth & Campus Marketing Lead",
+        "skills": [
+          "Community Building",
+          "Campus Outreach",
+          "Social Media Marketing",
+          "Growth Hacking"
+        ],
+        "priority": "must-have",
+        "count": 1,
+        "experienceLevel": "Intermediate"
+      },
+      {
+        "role": "Frontend Developer",
+        "skills": [
+          "React",
+          "TypeScript",
+          "Tailwind CSS",
+          "REST APIs"
+        ],
+        "priority": "nice-to-have",
+        "count": 1,
+        "experienceLevel": "Beginner"
+      }
+    ],
+    "techStack": [
+      "React",
+      "Node.js",
+      "Express",
+      "MongoDB",
+      "Google Gemini API"
+    ],
+    "domain": "EdTech / AI",
+    "teamSize": 3,
+    "keyRequirements": [
+      "Build NLP-driven skill matching algorithm",
+      "Design intuitive mobile-responsive user interface for college students",
+      "Implement secure authentication and profile verification",
+      "Establish university campus outreach and student network"
+    ],
+    "nextSteps": [
+      "Build an MVP focused on skill-based matching for a single campus",
+      "Conduct user testing with 100 student entrepreneurs",
+      "Partner with university entrepreneurship clubs for initial traction",
+      "Iterate algorithm based on match success rate"
+    ],
+    "analyzedAt": {
+      "$date": "2026-09-05T07:02:13.054Z"
+    },
+    "isEdited": true,
+    "isApproved": true,
+    "approvedAt": {
+      "$date": "2026-09-05T07:08:09.905Z"
+    }
+  },
+  "createdAt": {
+    "$date": "2026-09-05T06:52:45.600Z"
+  },
+  "updatedAt": {
+    "$date": "2026-09-05T07:08:09.932Z"
+  },
+  "__v": 1
+},
+{
+  "_id": {
+    "$oid": "6a9ce417552bc4fa61f5c340"
+  },
+  "createdBy": {
+    "$oid": "6a9ce417552bc4fa61f5c33e"
+  },
+  "title": "Approved Matching Idea",
+  "description": "A long enough description for an approved matching idea fixture.",
+  "domain": "EdTech",
+  "requiredSkills": [],
+  "requiredRoles": [],
+  "stage": "concept",
+  "status": "matching",
+  "aiAnalysis": {
+    "rolesAndSkills": [
+      {
+        "role": "Backend Developer",
+        "skills": [
+          "Node.js",
+          "MongoDB"
+        ],
+        "priority": "must-have",
+        "count": 1,
+        "experienceLevel": "Intermediate"
+      }
+    ],
+    "domain": "EdTech",
+    "isApproved": true,
+    "techStack": [],
+    "keyRequirements": [],
+    "nextSteps": [],
+    "isEdited": false
+  },
+  "createdAt": {
+    "$date": "2026-09-06T03:55:03.877Z"
+  },
+  "updatedAt": {
+    "$date": "2026-09-06T03:55:03.877Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6a9ce418552bc4fa61f5c341"
+  },
+  "createdBy": {
+    "$oid": "6a9ce417552bc4fa61f5c33e"
+  },
+  "title": "Unapproved Idea",
+  "description": "A long enough description for an unapproved matching idea fixture.",
+  "domain": "EdTech",
+  "requiredSkills": [],
+  "requiredRoles": [],
+  "stage": "concept",
+  "status": "analyzed",
+  "aiAnalysis": {
+    "rolesAndSkills": [
+      {
+        "role": "Backend Developer",
+        "skills": [
+          "Node.js"
+        ],
+        "priority": "must-have",
+        "count": 1,
+        "experienceLevel": "Beginner"
+      }
+    ],
+    "isApproved": false,
+    "techStack": [],
+    "keyRequirements": [],
+    "nextSteps": [],
+    "isEdited": false
+  },
+  "createdAt": {
+    "$date": "2026-09-06T03:55:04.029Z"
+  },
+  "updatedAt": {
+    "$date": "2026-09-06T03:55:04.029Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6a9ce418552bc4fa61f5c342"
+  },
+  "createdBy": {
+    "$oid": "6a9ce417552bc4fa61f5c33f"
+  },
+  "title": "Foreign Idea",
+  "description": "A long enough description for a non-owned matching idea fixture.",
+  "domain": "EdTech",
+  "requiredSkills": [],
+  "requiredRoles": [],
+  "stage": "concept",
+  "status": "matching",
+  "aiAnalysis": {
+    "rolesAndSkills": [
+      {
+        "role": "Backend Developer",
+        "skills": [
+          "Node.js"
+        ],
+        "priority": "must-have",
+        "count": 1,
+        "experienceLevel": "Beginner"
+      }
+    ],
+    "isApproved": true,
+    "techStack": [],
+    "keyRequirements": [],
+    "nextSteps": [],
+    "isEdited": false
+  },
+  "createdAt": {
+    "$date": "2026-09-06T03:55:04.121Z"
+  },
+  "updatedAt": {
+    "$date": "2026-09-06T03:55:04.121Z"
+  },
+  "__v": 0
+}]

@@ -83,11 +83,14 @@ const searchMatches = async (req, res) => {
     const candidates = await User.find(query).select(publicCandidateFields).lean();
     const requirements = {
       ...idea.aiAnalysis,
-      domain: idea.domain || idea.aiAnalysis.domain,
+      domain: idea.domain || idea.aiAnalysis?.domain,
+      requiredSkills: idea.requiredSkills || [],
+      requiredRoles: idea.requiredRoles || [],
       availability: idea.availability,
       workPreference: idea.workPreference,
       hoursPerWeek: idea.hoursPerWeek,
     };
+
     const matches = [];
     for (const candidate of candidates) {
       const explanation = scoreCandidate(candidate, requirements);
@@ -145,8 +148,40 @@ const getCandidateMatch = async (req, res) => {
     if (!mongoose.Types.ObjectId.isValid(ideaId)) return res.status(400).json({ success: false, message: 'Invalid idea ID format' });
     const user = await getAuthenticatedUser(req);
     if (!user) return res.status(401).json({ success: false, message: 'User profile not found' });
-    const match = await Match.findOne({ ideaId, userId: user._id }).select('ideaId matchScore explanation scoringVersion calculatedAt refreshedAt').lean();
-    if (!match) return res.status(404).json({ success: false, message: 'Match not found' });
+    let match = await Match.findOne({ ideaId, userId: user._id }).select('ideaId matchScore explanation scoringVersion calculatedAt refreshedAt').lean();
+
+    if (!match) {
+      const idea = await Idea.findById(ideaId).lean();
+      if (!idea) return res.status(404).json({ success: false, message: 'Idea not found' });
+
+      const requirements = {
+        ...(idea.aiAnalysis || {}),
+        domain: idea.domain || idea.aiAnalysis?.domain,
+        requiredSkills: idea.requiredSkills || [],
+        requiredRoles: idea.requiredRoles || [],
+        availability: idea.availability,
+        workPreference: idea.workPreference,
+        hoursPerWeek: idea.hoursPerWeek,
+      };
+
+      const explanation = scoreCandidate(user, requirements);
+      match = await Match.findOneAndUpdate(
+        { ideaId: idea._id, userId: user._id },
+        {
+          $set: {
+            matchedSkills: explanation.matchedSkills,
+            matchScore: explanation.score,
+            explanation,
+            scoringVersion: explanation.scoringVersion,
+            requirementsSnapshot: flattenRequirements(requirements),
+            calculatedAt: new Date(),
+            refreshedAt: new Date(),
+          },
+        },
+        { upsert: true, returnDocument: 'after', setDefaultsOnInsert: true },
+      ).lean();
+    }
+
     return res.status(200).json({ success: true, match });
   } catch (error) {
     console.error('[ERROR] GET /candidates/matches/:ideaId:', error.message);

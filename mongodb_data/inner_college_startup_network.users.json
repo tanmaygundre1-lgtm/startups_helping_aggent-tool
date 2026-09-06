@@ -1,0 +1,370 @@
+[{
+  "_id": {
+    "$oid": "6a87113c2e826816d751288b"
+  },
+  "firebaseUid": "9pOhPXryg6NdqFX90VkRRL62KW92",
+  "name": "Tanmay Gundre",
+  "email": "tanmaygundre1@gmail.com",
+  "profileImage": "https://lh3.googleusercontent.com/a/ACg8ocIfjpHP_ngT9zSRb3GaRzYen8yKpSj527VDXQwFICdMLIBZEosN=s96-c",
+  "college": {
+    "name": ""
+  },
+  "location": {
+    "city": "",
+    "state": "",
+    "region": ""
+  },
+  "skills": [],
+  "interests": [],
+  "profileCompleted": false,
+  "createdAt": {
+    "$date": "2026-08-20T14:37:48.560Z"
+  },
+  "updatedAt": {
+    "$date": "2026-08-20T14:37:48.560Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6a9aed3181437f68db1d6e8e"
+  },
+  "firebaseUid": "seed-founder-uid",
+  "name": "Sarah Founder",
+  "email": "founder@test.com",
+  "profileType": "founder",
+  "foundedBefore": false,
+  "companyStage": "",
+  "college": {
+    "name": "Test University"
+  },
+  "location": {
+    "city": "Pune",
+    "state": "Maharashtra",
+    "region": "West"
+  },
+  "interests": [
+    "EdTech",
+    "AI"
+  ],
+  "bio": "Student founder building an AI team-matching platform for campus startups.",
+  "expertiseAreas": [
+    "AI",
+    "Web Development"
+  ],
+  "lookingFor": [
+    "Backend Developer",
+    "UI/UX Designer"
+  ],
+  "targetRoles": [],
+  "qualifications": [],
+  "domainInterests": [],
+  "availability": "",
+  "workPreference": "",
+  "profileCompleted": true,
+  "skills": [],
+  "createdAt": {
+    "$date": "2026-09-04T16:09:21.283Z"
+  },
+  "updatedAt": {
+    "$date": "2026-09-04T16:09:21.283Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6a9aed3181437f68db1d6e8f"
+  },
+  "firebaseUid": "seed-candidate-uid",
+  "name": "Alex Developer",
+  "email": "candidate@test.com",
+  "profileType": "candidate",
+  "foundedBefore": false,
+  "companyStage": "",
+  "college": {
+    "name": "Test University"
+  },
+  "location": {
+    "city": "Pune",
+    "state": "Maharashtra",
+    "region": "West"
+  },
+  "skills": [
+    {
+      "name": "Node.js",
+      "level": "Advanced"
+    },
+    {
+      "name": "React",
+      "level": "Intermediate"
+    },
+    {
+      "name": "MongoDB",
+      "level": "Intermediate"
+    }
+  ],
+  "interests": [
+    "startups",
+    "open source"
+  ],
+  "expertiseAreas": [],
+  "lookingFor": [],
+  "targetRoles": [
+    "Backend Developer",
+    "Full Stack Developer"
+  ],
+  "qualifications": [],
+  "domainInterests": [
+    "EdTech",
+    "AI"
+  ],
+  "availability": "part-time",
+  "hoursPerWeek": 15,
+  "workPreference": "hybrid",
+  "profileCompleted": true,
+  "createdAt": {
+    "$date": "2026-09-04T16:09:21.365Z"
+  },
+  "updatedAt": {
+    "$date": "2026-09-04T16:09:21.365Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6a9bb29fab47b6b9040c9377"
+  },
+  "firebaseUid": "6m1cZeI6bjbR7znQ7qIGV2HPnpS2",
+  "name": "Tanmay Gundre",
+  "email": "gundretanmay1@gmail.com",
+  "profileImage": "https://lh3.googleusercontent.com/a/ACg8ocJNp2iRKUC6XoZzeCJIbWcjFzWl1TcPpy-H8XM3axwAF8COLjDn=s96-c",
+  "profileType": "founder",
+  "foundedBefore": false,
+  "companyStage": "",
+  "college": {
+    "name": ""
+  },
+  "location": {
+    "city": "",
+    "state": "",
+    "region": ""
+  },
+  "skills": [
+    {
+      "name": "JavaScript",
+      "level": "Intermediate"
+    },
+    {
+      "name": "React",
+      "level": "Beginner"
+    }
+  ],
+  "interests": [
+    "AI",
+    "Startups",
+    "Web Development"
+  ],
+  "expertiseAreas": [
+    "JavaScript",
+    "React",
+    "Node.js"
+  ],
+  "lookingFor": [
+    "Frontend Developer",
+    "Backend Developer",
+    "AI/ML Developer"
+  ],
+  "targetRoles": [],
+  "qualifications": [],
+  "domainInterests": [],
+  "availability": "",
+  "workPreference": "",
+  "profileCompleted": true,
+  "createdAt": {
+    "$date": "2026-09-05T06:11:43.617Z"
+  },
+  "updatedAt": {
+    "$date": "2026-09-05T06:22:57.295Z"
+  },
+  "__v": 1,
+  "bio": "MCA student and aspiring startup founder interested in web development and AI."
+},
+{
+  "_id": {
+    "$oid": "6a9ce417552bc4fa61f5c33e"
+  },
+  "firebaseUid": "test-founder-1788666903375-74266",
+  "name": "Test Founder",
+  "email": "founder-1788666903375-74266@example.com",
+  "profileType": "founder",
+  "foundedBefore": false,
+  "companyStage": "",
+  "interests": [],
+  "bio": "Building StartupLink",
+  "expertiseAreas": [],
+  "lookingFor": [],
+  "targetRoles": [],
+  "qualifications": [],
+  "domainInterests": [],
+  "availability": "",
+  "workPreference": "",
+  "profileCompleted": true,
+  "skills": [],
+  "createdAt": {
+    "$date": "2026-09-06T03:55:03.455Z"
+  },
+  "updatedAt": {
+    "$date": "2026-09-06T03:55:03.455Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6a9ce417552bc4fa61f5c33f"
+  },
+  "firebaseUid": "test-other-founder-1788666903375-74266",
+  "name": "Other Founder",
+  "email": "other-founder-1788666903375-74266@example.com",
+  "profileType": "founder",
+  "foundedBefore": false,
+  "companyStage": "",
+  "interests": [],
+  "bio": "Other idea",
+  "expertiseAreas": [],
+  "lookingFor": [],
+  "targetRoles": [],
+  "qualifications": [],
+  "domainInterests": [],
+  "availability": "",
+  "workPreference": "",
+  "profileCompleted": true,
+  "skills": [],
+  "createdAt": {
+    "$date": "2026-09-06T03:55:03.647Z"
+  },
+  "updatedAt": {
+    "$date": "2026-09-06T03:55:03.647Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6a9ce418552bc4fa61f5c343"
+  },
+  "firebaseUid": "test-candidate-strong-1788666903375-74266",
+  "name": "Strong Candidate",
+  "email": "strong-1788666903375-74266@example.com",
+  "profileType": "candidate",
+  "foundedBefore": false,
+  "companyStage": "",
+  "skills": [
+    {
+      "name": "Node.js",
+      "level": "Advanced"
+    },
+    {
+      "name": "MongoDB",
+      "level": "Intermediate"
+    }
+  ],
+  "interests": [],
+  "expertiseAreas": [],
+  "lookingFor": [],
+  "targetRoles": [
+    "Backend Developer"
+  ],
+  "qualifications": [],
+  "domainInterests": [
+    "EdTech"
+  ],
+  "availability": "part-time",
+  "hoursPerWeek": 20,
+  "workPreference": "hybrid",
+  "profileCompleted": true,
+  "createdAt": {
+    "$date": "2026-09-06T03:55:04.209Z"
+  },
+  "updatedAt": {
+    "$date": "2026-09-06T03:55:04.209Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6a9ce418552bc4fa61f5c344"
+  },
+  "firebaseUid": "test-candidate-partial-1788666903375-74266",
+  "name": "Partial Candidate",
+  "email": "partial-1788666903375-74266@example.com",
+  "profileType": "candidate",
+  "foundedBefore": false,
+  "companyStage": "",
+  "skills": [
+    {
+      "name": "Node.js",
+      "level": "Beginner"
+    }
+  ],
+  "interests": [],
+  "expertiseAreas": [],
+  "lookingFor": [],
+  "targetRoles": [
+    "Frontend Developer"
+  ],
+  "qualifications": [],
+  "domainInterests": [
+    "FinTech"
+  ],
+  "availability": "full-time",
+  "hoursPerWeek": 40,
+  "workPreference": "remote",
+  "profileCompleted": true,
+  "createdAt": {
+    "$date": "2026-09-06T03:55:04.271Z"
+  },
+  "updatedAt": {
+    "$date": "2026-09-06T03:55:04.271Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6a9ce418552bc4fa61f5c345"
+  },
+  "firebaseUid": "test-candidate-incomplete-1788666903375-74266",
+  "name": "Incomplete Candidate",
+  "email": "incomplete-1788666903375-74266@example.com",
+  "profileType": "candidate",
+  "foundedBefore": false,
+  "companyStage": "",
+  "skills": [
+    {
+      "name": "Node.js",
+      "level": "Advanced"
+    },
+    {
+      "name": "MongoDB",
+      "level": "Advanced"
+    }
+  ],
+  "interests": [],
+  "expertiseAreas": [],
+  "lookingFor": [],
+  "targetRoles": [
+    "Backend Developer"
+  ],
+  "qualifications": [],
+  "domainInterests": [
+    "EdTech"
+  ],
+  "availability": "",
+  "workPreference": "",
+  "profileCompleted": false,
+  "createdAt": {
+    "$date": "2026-09-06T03:55:04.341Z"
+  },
+  "updatedAt": {
+    "$date": "2026-09-06T03:55:04.341Z"
+  },
+  "__v": 0
+}]
