@@ -3,6 +3,9 @@ import { useAuth } from "../hooks/useAuth";
 import LoginPage from "../pages/auth/LoginPage";
 import WelcomePage from "../pages/onboarding/WelcomePage";
 import ApplicationEntryPage from "../pages/ApplicationEntryPage";
+import RoleSelectionPage from "../pages/onboarding/RoleSelectionPage";
+import FounderOnboarding from "../pages/onboarding/FounderOnboarding";
+import CandidateOnboarding from "../pages/onboarding/CandidateOnboarding";
 import LoadingState from "../components/common/LoadingState";
 import ErrorState from "../components/common/ErrorState";
 import ProtectedRoute from "./ProtectedRoute";
@@ -52,6 +55,9 @@ const AppRoutes = () => (
     />
     <Route element={<ProtectedRoute />}>
       <Route path="/onboarding/welcome" element={<WelcomePage />} />
+      <Route path="/onboarding/role" element={<RoleSelectionPage />} />
+      <Route path="/onboarding/founder" element={<FounderOnboarding />} />
+      <Route path="/onboarding/candidate" element={<CandidateOnboarding />} />
       <Route path="/app" element={<ApplicationEntryPage />} />
     </Route>
     <Route path="/" element={<RootEntry />} />

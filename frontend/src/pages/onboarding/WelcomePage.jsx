@@ -13,9 +13,9 @@ const WelcomePage = () => {
         <p>
           Your account is connected. Onboarding will be added in the next phase.
         </p>
-        <div className="action-row">
-          <Link className="primary-button" to="/app">
-            Enter application
+         <div className="action-row">
+          <Link className="primary-button" to="/onboarding/role">
+            Get Started
           </Link>
           <Button variant="secondary" onClick={logout}>
             Sign out
