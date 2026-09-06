@@ -4,7 +4,6 @@
 **Phase:** Phase 3 - Frontend UI & Integration  
 **Workflow Status:** Phase 2 (matching, invitations, team formation, and gap fixes) complete; ready for Phase 3
 
-
 ---
 
 ## Current State
@@ -32,14 +31,14 @@
 
 ## Key Decisions Made
 
-| Decision | Value | Rationale |
-| --- | --- | --- |
-| Primary User | Idea Founders | Most acute pain point |
-| V1 Scope | End-to-end flow | Tight 2-week timeline |
-| AI Provider | Vercel AI SDK + Gemini | Structured output, existing Phase 1 contract |
-| Matching weights | 40/15/15/15/15 | Locked F4.2 formula, scoringVersion v1 |
-| Match identity | `{ ideaId, userId }` | One snapshot per idea/candidate |
-| Availability fallback | 0.5 unknown | Idea has no hours/work-mode requirement |
+| Decision              | Value                  | Rationale                                    |
+| --------------------- | ---------------------- | -------------------------------------------- |
+| Primary User          | Idea Founders          | Most acute pain point                        |
+| V1 Scope              | End-to-end flow        | Tight 2-week timeline                        |
+| AI Provider           | Vercel AI SDK + Gemini | Structured output, existing Phase 1 contract |
+| Matching weights      | 40/15/15/15/15         | Locked F4.2 formula, scoringVersion v1       |
+| Match identity        | `{ ideaId, userId }`   | One snapshot per idea/candidate              |
+| Availability fallback | 0.5 unknown            | Idea has no hours/work-mode requirement      |
 
 ---
 
@@ -62,10 +61,10 @@
 
 ## Artifacts Generated
 
-| Artifact | Location | Purpose |
-| --- | --- | --- |
-| PROJECT.md | `.planning/PROJECT.md` | Vision and constraints |
-| ROADMAP.md | `.planning/ROADMAP.md` | Phase breakdown |
-| Phase 2 research | `.planning/phases/02-matching-engine-invitations/02-RESEARCH.md` | Matching/invitation design |
-| Wave 1 summary | `.planning/phases/02-matching-engine-invitations/02-01-SUMMARY.md` | Completed matching engine |
-| STATE.md | `.planning/STATE.md` | This file |
+| Artifact         | Location                                                           | Purpose                    |
+| ---------------- | ------------------------------------------------------------------ | -------------------------- |
+| PROJECT.md       | `.planning/PROJECT.md`                                             | Vision and constraints     |
+| ROADMAP.md       | `.planning/ROADMAP.md`                                             | Phase breakdown            |
+| Phase 2 research | `.planning/phases/02-matching-engine-invitations/02-RESEARCH.md`   | Matching/invitation design |
+| Wave 1 summary   | `.planning/phases/02-matching-engine-invitations/02-01-SUMMARY.md` | Completed matching engine  |
+| STATE.md         | `.planning/STATE.md`                                               | This file                  |

@@ -127,7 +127,6 @@ Total: 10 business days
 - [x] 02-02-PLAN.md — Invitation lifecycle with conditional accept/decline/withdraw transitions
 - [x] 02-03-PLAN.md — Transaction-backed one-team-per-idea formation and protected team reads
 
-
 ### Requirements in Scope
 
 - F4.1: Search & filter candidates
