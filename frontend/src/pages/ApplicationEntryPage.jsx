@@ -1,22 +1,19 @@
 import { useAuth } from "../hooks/useAuth";
+import AppLayout from "../components/layout/AppLayout";
+import FounderDashboard from "./dashboard/FounderDashboard";
+import CandidateDashboard from "./dashboard/CandidateDashboard";
 
 const ApplicationEntryPage = () => {
-  const { backendUser, logout } = useAuth();
+  const { profileType } = useAuth();
 
   return (
-    <main className="state-page">
-      <div className="state-panel">
-        <span className="state-kicker">Application ready</span>
-        <h1>Welcome back{backendUser?.name ? `, ${backendUser.name}` : ""}.</h1>
-        <p>
-          Your authenticated application area is ready for the next product
-          phase.
-        </p>
-        <button className="secondary-button" type="button" onClick={logout}>
-          Sign out
-        </button>
-      </div>
-    </main>
+    <AppLayout>
+      {profileType === "founder" ? (
+        <FounderDashboard />
+      ) : (
+        <CandidateDashboard />
+      )}
+    </AppLayout>
   );
 };
 
