@@ -6,9 +6,29 @@ const createProfile = async (req, res) => {
     if (profileType !== 'founder') {
       return res.status(400).json({ error: 'profileType must be founder', code: 'INVALID_PROFILE_TYPE' });
     }
-    if (await User.exists({ firebaseUid: req.user.uid })) {
-      return res.status(409).json({ error: 'Profile already exists', code: 'PROFILE_EXISTS' });
+
+    const existingUser = await User.findOne({ firebaseUid: req.user.uid });
+    if (existingUser) {
+      existingUser.profileType = profileType;
+      existingUser.companyStage = companyStage ?? existingUser.companyStage ?? '';
+      existingUser.expertiseAreas = expertiseAreas ?? existingUser.expertiseAreas ?? [];
+      existingUser.lookingFor = lookingFor ?? existingUser.lookingFor ?? [];
+      existingUser.yearsExperience = yearsExperience ?? existingUser.yearsExperience;
+      existingUser.bio = bio ?? existingUser.bio;
+      existingUser.name = req.user.name || existingUser.name || req.user.email || req.user.uid;
+
+      const hasBasics = existingUser.name && existingUser.profileType;
+      const hasFounderFields = existingUser.profileType === 'founder' && existingUser.bio;
+      existingUser.profileCompleted = hasBasics && hasFounderFields;
+      await existingUser.save();
+
+      return res.status(200).json({
+        success: true,
+        message: 'Profile updated successfully',
+        user: existingUser,
+      });
     }
+
     const user = await User.create({ firebaseUid: req.user.uid, email: req.user.email, name: req.user.name || req.user.email || req.user.uid, profileType, companyStage, expertiseAreas, lookingFor, yearsExperience, bio });
     console.log(`[PROFILE] founder created: ${user.firebaseUid}`);
     return res.status(201).json({ userId: user._id, profileType: user.profileType, companyStage: user.companyStage, message: 'Profile created' });
@@ -24,9 +44,30 @@ const createCandidateProfile = async (req, res) => {
     if (!Array.isArray(skills) || !Array.isArray(targetRoles)) {
       return res.status(400).json({ error: 'skills and targetRoles must be arrays', code: 'INVALID_PROFILE' });
     }
-    if (await User.exists({ firebaseUid: req.user.uid })) {
-      return res.status(409).json({ error: 'Profile already exists', code: 'PROFILE_EXISTS' });
+
+    const existingUser = await User.findOne({ firebaseUid: req.user.uid });
+    if (existingUser) {
+      existingUser.profileType = 'candidate';
+      existingUser.targetRoles = targetRoles;
+      existingUser.skills = skills;
+      existingUser.availability = availability ?? existingUser.availability ?? '';
+      existingUser.location = location ?? existingUser.location ?? { city: '', state: '', region: '' };
+      existingUser.experience = experience ?? existingUser.experience;
+      existingUser.qualifications = qualifications ?? existingUser.qualifications ?? [];
+      existingUser.name = req.user.name || existingUser.name || req.user.email || req.user.uid;
+
+      const hasBasics = existingUser.name && existingUser.profileType;
+      const hasCandidateFields = existingUser.profileType === 'candidate' && existingUser.skills.length > 0;
+      existingUser.profileCompleted = hasBasics && hasCandidateFields;
+      await existingUser.save();
+
+      return res.status(200).json({
+        success: true,
+        message: 'Candidate profile updated successfully',
+        user: existingUser,
+      });
     }
+
     const user = await User.create({ firebaseUid: req.user.uid, email: req.user.email, name: req.user.name || req.user.email || req.user.uid, profileType: 'candidate', targetRoles, skills, availability, location, experience, qualifications });
     return res.status(201).json({ userId: user._id, profileType: user.profileType, message: 'Candidate profile created' });
   } catch (error) {

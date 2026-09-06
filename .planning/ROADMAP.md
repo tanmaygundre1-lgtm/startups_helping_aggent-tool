@@ -201,84 +201,42 @@ Total: 10 business days
 
 ## Phase 3: Frontend UI & Integration
 
-**Duration:** Days 11-14 (4 days)  
-**Status:** Blocked (waits for Phase 2)  
+**Duration:** Days 6-10 (Concurrent with Phase 2)
+**Status:** Planned
 **Owner:** Developer (autonomous)
 
 ### Objectives
 
-- Build founder and candidate UIs
-- Connect frontend to backend APIs
-- Enable end-to-end user flows
-- Final testing and polish
+- Develop React frontend for StartupLink V1
+- Integrate profile creation and idea creation with backend API
+
+### Plans
+
+- [ ] 03-01-PLAN.md — React/Vite/Header/API Setup
+- [ ] 03-02-PLAN.md — Onboarding/Idea Forms
 
 ### Requirements in Scope
 
-- F6.1: Founder dashboard
-- F6.2: Candidate discovery
-- All frontend display for F1-F5 requirements
-
-### Key Tasks
-
-1. **Founder UI** (Days 11-12)
-   - [ ] Profile creation form (signup continuation)
-   - [ ] Idea creation form with description, domain dropdown
-   - [ ] AI analysis trigger and result display
-   - [ ] Edit analysis form (let founder customize roles/skills)
-   - [ ] Candidate search results with filters
-   - [ ] Match score display with explanation (matched skills, missing skills)
-   - [ ] "Send Invitation" flow
-   - [ ] Founder dashboard showing:
-     - My ideas (list with status)
-     - My analyses
-     - Pending invitations sent (with status)
-     - My teams (with member list)
-   - [ ] Team view (show team members, roles, profiles)
-
-2. **Candidate UI** (Day 13)
-   - [ ] Profile creation form (skills checkboxes, level select, interests)
-   - [ ] Discovery/browse page showing open recruitments
-   - [ ] Invitation inbox (pending invitations)
-   - [ ] Accept/decline invitation flow
-   - [ ] View startup idea details before accepting
-   - [ ] My teams dashboard (teams joined)
-   - [ ] Team member profiles
-
-3. **Polish & Integration** (Day 14)
-   - [ ] Error handling UI (error messages, retry buttons)
-   - [ ] Loading states (spinners, skeleton screens)
-   - [ ] Mobile responsiveness (test on phone)
-   - [ ] Navigation between pages
-   - [ ] Session persistence (stay logged in)
-   - [ ] Logout flow
-   - [ ] End-to-end testing: Full flow from signup → idea → team
-   - [ ] Bug fixes from testing
-   - [ ] Documentation of any manual workarounds
+- FE-01: Setup React/Vite
+- FE-02: Implement Core UI Components
+- FE-03: API and Auth Configuration
+- FE-04: Founder/Candidate Onboarding
+- FE-05: Idea Creation
 
 ### Success Criteria
 
-- [ ] All core UI screens built and connected to backend
-- [ ] Founder can complete full flow: Profile → Idea → Analyze → Match → Invite → Team
-- [ ] Candidate can view invitations and join team
-- [ ] Dashboard displays correct data
-- [ ] No 404 errors or broken links
-- [ ] Mobile responsive (readable on phone)
-- [ ] Manual end-to-end testing passed
-
-### Risks & Mitigations
-
-| Risk                                           | Mitigation                                                    |
-| ---------------------------------------------- | ------------------------------------------------------------- |
-| Frontend development slower than expected      | Prioritize founder flow first, candidate UI second            |
-| API response format mismatches UI expectations | Communicate frontend/backend schema early, mock API if needed |
-| Time runs out before all UI complete           | Have a "MVP-minimum UI" vs "polished UI" scope                |
+- [ ] React project is buildable and runs via Vite
+- [ ] Header and global components follow UI-SPEC
+- [ ] Founder/Candidate can create profile on UI
+- [ ] Founder can create startup ideas via UI
+- [ ] All forms submit valid JSON to backend APIs
+- [ ] API service layer handles tokens and errors
 
 ### Deliverables
 
-- React components in `frontend/src/` (pages, components)
-- API integration via axios/fetch
-- Styling with TailwindCSS
-- `.planning/PHASE-3-NOTES.md` (UI decisions, UX notes)
+- React frontend code in `frontend/`
+- Component library based on design tokens
+- Service layer for API abstraction
 - Commit: "feat: Phase 3 frontend UI and integration"
 
 ### Test Data & Scenarios

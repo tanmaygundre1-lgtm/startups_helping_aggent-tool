@@ -9,8 +9,6 @@ import {
   ensureAuthPersistence,
   googleProvider,
 } from "../config/firebase-config";
-import { syncCurrentUser } from "./api";
-
 let googleLoginPromise = null;
 
 const getGoogleLoginError = (error) => {
@@ -23,26 +21,16 @@ const getGoogleLoginError = (error) => {
   return messages[error?.code] || error?.message || "Google login failed. Please try again.";
 };
 
-const authenticateAndSync = async (firebaseAuthentication) => {
+const authenticate = async (firebaseAuthentication) => {
   await ensureAuthPersistence();
-  const result = await firebaseAuthentication();
-
-  try {
-    await syncCurrentUser(result.user);
-    return result;
-  } catch (error) {
-    error.authenticated = true;
-    error.message =
-      "Authentication succeeded, but MongoDB user synchronization failed. Please try again.";
-    throw error;
-  }
+  return firebaseAuthentication();
 };
 
 export const signup = async (email, password) =>
-  authenticateAndSync(() => createUserWithEmailAndPassword(auth, email, password));
+  authenticate(() => createUserWithEmailAndPassword(auth, email, password));
 
 export const login = async (email, password) =>
-  authenticateAndSync(() => signInWithEmailAndPassword(auth, email, password));
+  authenticate(() => signInWithEmailAndPassword(auth, email, password));
 
 /**
  * Logs in a user using Google Authentication via Popup.
@@ -50,9 +38,13 @@ export const login = async (email, password) =>
 export const loginWithGoogle = async () => {
   if (googleLoginPromise) return googleLoginPromise;
 
-  googleLoginPromise = authenticateAndSync(() =>
+  googleLoginPromise = authenticate(() =>
     signInWithPopup(auth, googleProvider),
   )
+    .then((result) => {
+      console.log("[AUTH DEBUG] Firebase login successful", result.user.uid);
+      return result;
+    })
     .catch((error) => {
       const loginError = new Error(getGoogleLoginError(error));
       loginError.code = error?.code;
