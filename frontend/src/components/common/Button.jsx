@@ -1,14 +1,15 @@
 const Button = ({
   children,
-  type = 'button',
-  variant = 'primary',
+  type = "button",
+  variant = "primary",
   disabled = false,
   onClick,
-  className = '',
+  className = "",
   ...props
 }) => {
-  const baseClass = variant === 'secondary' ? 'secondary-button' : 'primary-button';
-  
+  const baseClass =
+    variant === "secondary" ? "secondary-button" : "primary-button";
+
   return (
     <button
       type={type}
