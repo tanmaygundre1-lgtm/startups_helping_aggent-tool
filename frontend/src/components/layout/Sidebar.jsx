@@ -26,19 +26,39 @@ const Sidebar = () => {
       <nav className="nav-menu">
         {profileType === "founder" ? (
           <>
-            <NavLink to="/app" style={navLinkStyle} end>Overview</NavLink>
-            <NavLink to="/app/ideas" style={navLinkStyle}>My Ideas</NavLink>
-            <NavLink to="/app/talent" style={navLinkStyle}>Discover Talent</NavLink>
-            <NavLink to="/app/team" style={navLinkStyle}>Team</NavLink>
-            <NavLink to="/app/invitations" style={navLinkStyle}>Invitations</NavLink>
+            <NavLink to="/app" style={navLinkStyle} end>
+              Overview
+            </NavLink>
+            <NavLink to="/app/ideas" style={navLinkStyle}>
+              My Ideas
+            </NavLink>
+            <NavLink to="/app/talent" style={navLinkStyle}>
+              Discover Talent
+            </NavLink>
+            <NavLink to="/app/team" style={navLinkStyle}>
+              Team
+            </NavLink>
+            <NavLink to="/app/invitations" style={navLinkStyle}>
+              Invitations
+            </NavLink>
           </>
         ) : (
           <>
-            <NavLink to="/app" style={navLinkStyle} end>Overview</NavLink>
-            <NavLink to="/app/explore" style={navLinkStyle}>Explore Startups</NavLink>
-            <NavLink to="/app/matches" style={navLinkStyle}>Matches</NavLink>
-            <NavLink to="/app/team" style={navLinkStyle}>My Team</NavLink>
-            <NavLink to="/app/invitations" style={navLinkStyle}>Invitations</NavLink>
+            <NavLink to="/app" style={navLinkStyle} end>
+              Overview
+            </NavLink>
+            <NavLink to="/app/explore" style={navLinkStyle}>
+              Explore Startups
+            </NavLink>
+            <NavLink to="/app/matches" style={navLinkStyle}>
+              Matches
+            </NavLink>
+            <NavLink to="/app/team" style={navLinkStyle}>
+              My Team
+            </NavLink>
+            <NavLink to="/app/invitations" style={navLinkStyle}>
+              Invitations
+            </NavLink>
           </>
         )}
       </nav>
