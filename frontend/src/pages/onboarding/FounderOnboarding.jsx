@@ -41,11 +41,13 @@ const FounderOnboarding = () => {
         {step === 1 && (
           <>
             <h1>About You</h1>
-            <Input 
-              label="Bio" 
-              placeholder="Tell us about yourself..." 
-              value={formData.bio} 
-              onChange={(e) => setFormData({...formData, bio: e.target.value})} 
+            <Input
+              label="Bio"
+              placeholder="Tell us about yourself..."
+              value={formData.bio}
+              onChange={(e) =>
+                setFormData({ ...formData, bio: e.target.value })
+              }
             />
             <Button onClick={handleNext}>Next</Button>
           </>
@@ -53,14 +55,21 @@ const FounderOnboarding = () => {
         {step === 2 && (
           <>
             <h1>Startup Details</h1>
-            <Input 
-              label="Years of Experience" 
+            <Input
+              label="Years of Experience"
               type="number"
-              value={formData.yearsExperience} 
-              onChange={(e) => setFormData({...formData, yearsExperience: Number(e.target.value)})} 
+              value={formData.yearsExperience}
+              onChange={(e) =>
+                setFormData({
+                  ...formData,
+                  yearsExperience: Number(e.target.value),
+                })
+              }
             />
             <div className="action-row">
-              <Button variant="secondary" onClick={handleBack}>Back</Button>
+              <Button variant="secondary" onClick={handleBack}>
+                Back
+              </Button>
               <Button onClick={handleSubmit} disabled={loading}>
                 {loading ? "Saving..." : "Submit Profile"}
               </Button>
