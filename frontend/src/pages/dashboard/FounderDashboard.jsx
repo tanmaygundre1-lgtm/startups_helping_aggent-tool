@@ -39,7 +39,9 @@ const FounderDashboard = () => {
           marginBottom: "var(--space-lg)",
         }}
       >
-        <Button onClick={() => navigate("/app/ideas/create")}>+ Create New Idea</Button>
+        <Button onClick={() => navigate("/app/ideas/create")}>
+          + Create New Idea
+        </Button>
         <Button variant="secondary">Discover Talent</Button>
       </div>
 
@@ -52,21 +54,44 @@ const FounderDashboard = () => {
       >
         <Card>
           <h3>My Ideas ({ideas.length})</h3>
-          {loading ? <p>Loading ideas...</p> : ideas.length === 0 ? (
+          {loading ? (
+            <p>Loading ideas...</p>
+          ) : ideas.length === 0 ? (
             <>
               <p>You haven't created a startup idea yet.</p>
-              <Button style={{ marginTop: 'var(--space-sm)' }} variant="secondary" onClick={() => navigate("/app/ideas/create")}>Create your first idea</Button>
+              <Button
+                style={{ marginTop: "var(--space-sm)" }}
+                variant="secondary"
+                onClick={() => navigate("/app/ideas/create")}
+              >
+                Create your first idea
+              </Button>
             </>
           ) : (
-             <ul style={{ listStyle: 'none', padding: 0 }}>
-               {ideas.slice(0, 3).map(idea => (
-                 <li key={idea._id} style={{ marginBottom: 'var(--space-sm)' }}>
-                   <a href={`/app/ideas/${idea._id}`} style={{ textDecoration: 'none', color: 'var(--ink)', fontWeight: 600 }}>{idea.title}</a>
-                   <p style={{ fontSize: '0.8rem', color: 'var(--muted)' }}>{idea.category} • {idea.status}</p>
-                 </li>
-               ))}
-               {ideas.length > 3 && <Button variant="ghost" onClick={() => navigate("/app/ideas")}>View all</Button>}
-             </ul>
+            <ul style={{ listStyle: "none", padding: 0 }}>
+              {ideas.slice(0, 3).map((idea) => (
+                <li key={idea._id} style={{ marginBottom: "var(--space-sm)" }}>
+                  <a
+                    href={`/app/ideas/${idea._id}`}
+                    style={{
+                      textDecoration: "none",
+                      color: "var(--ink)",
+                      fontWeight: 600,
+                    }}
+                  >
+                    {idea.title}
+                  </a>
+                  <p style={{ fontSize: "0.8rem", color: "var(--muted)" }}>
+                    {idea.category} • {idea.status}
+                  </p>
+                </li>
+              ))}
+              {ideas.length > 3 && (
+                <Button variant="ghost" onClick={() => navigate("/app/ideas")}>
+                  View all
+                </Button>
+              )}
+            </ul>
           )}
         </Card>
         <Card>

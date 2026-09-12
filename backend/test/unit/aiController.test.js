@@ -1,0 +1,155 @@
+const test = require('node:test');
+const assert = require('node:assert/strict');
+
+const User = require('../../models/User');
+const Idea = require('../../models/Idea');
+const ai = require('../../config/vercelAI');
+const { enhanceIdea, analyzeIdea, updateAnalysis } = require('../../controllers/aiController');
+
+const owner = { _id: 'owner-id', firebaseUid: 'owner-uid' };
+const otherUser = { _id: 'other-id', firebaseUid: 'other-uid' };
+
+const enhancedOutput = {
+  enhancedTitle: 'Refined Campus Marketplace',
+  refinedDescription: 'A clear marketplace that connects campus sellers with students who need affordable goods.',
+  problem: 'Students struggle to find affordable second-hand goods locally.',
+  solution: 'A verified campus marketplace.',
+  targetAudience: 'College students',
+  valueProposition: 'Trusted local student exchange.',
+  coreWorkflow: 'Students list, discover, and arrange exchanges.',
+};
+
+const analysisOutput = {
+  evidence: {
+    problem: { clearlyDefined: true, frequency: 'high', severity: 'medium', explanation: 'Clear recurring need.' },
+    audience: { clearlyDefined: true, primaryAudience: 'Students', secondaryAudience: 'Campus groups', accessibility: 'high' },
+    market: { reach: 'medium', monetizable: true, explanation: 'Campus network effect.' },
+    feasibility: { technicalComplexity: 'medium', resourceRequirement: 'low', mvpFeasibility: 'high', explanation: 'Standard marketplace MVP.' },
+    differentiation: { similarSolutionsKnown: true, hasUniqueValue: true, differentiationStrength: 'medium', explanation: 'Campus verification.' },
+    monetization: { possible: true, models: ['transaction fee'], explanation: 'Marketplace fee.' },
+    execution: { ideaClarity: 'high', scopeClarity: 'medium' },
+    limits: { assumptions: ['Students use app'], risks: ['Low liquidity'], limitations: ['No market research'] },
+  },
+  rolesAndSkills: [{ role: 'Frontend Developer', skills: ['ReactJS'], priority: 'must-have', count: 1, experienceLevel: 'Intermediate' }],
+  techStack: ['React.js', 'NodeJS'],
+  domain: 'Marketplace',
+  teamSize: 2,
+  keyRequirements: ['Campus verification'],
+  nextSteps: ['Validate with student interviews'],
+};
+
+function response() {
+  return {
+    statusCode: null,
+    body: null,
+    status(code) { this.statusCode = code; return this; },
+    json(body) { this.body = body; return this; },
+  };
+}
+
+function createIdea(overrides = {}) {
+  return {
+    _id: 'idea-id',
+    createdBy: owner._id,
+    title: 'Raw Campus Marketplace',
+    description: 'A campus marketplace where students can buy and sell useful second-hand goods locally.',
+    status: 'draft',
+    category: 'Marketplace',
+    domain: 'Marketplace',
+    requiredSkills: ['React'],
+    original: undefined,
+    enhanced: undefined,
+    aiAnalysis: undefined,
+    save: async function save() { return this; },
+    ...overrides,
+  };
+}
+
+function mockDatabase(idea, user = owner) {
+  const originalFindOne = User.findOne;
+  const originalFindById = Idea.findById;
+  User.findOne = async () => user;
+  Idea.findById = async () => idea;
+  return () => {
+    User.findOne = originalFindOne;
+    Idea.findById = originalFindById;
+  };
+}
+
+test('enhance endpoint persists enhanced version and preserves original idea', async () => {
+  const idea = createIdea();
+  const restore = mockDatabase(idea);
+  const originalGenerate = ai.generateEnhancement;
+  ai.generateEnhancement = async () => enhancedOutput;
+
+  try {
+    const res = response();
+    await enhanceIdea({ user: { uid: owner.firebaseUid }, params: { ideaId: idea._id }, body: {} }, res);
+
+    assert.equal(res.statusCode, 200);
+    assert.equal(res.body.success, true);
+    assert.equal(idea.original.title, 'Raw Campus Marketplace');
+    assert.equal(idea.original.description.startsWith('A campus marketplace'), true);
+    assert.equal(idea.enhanced.title, enhancedOutput.enhancedTitle);
+    assert.equal(idea.status, 'enhanced');
+  } finally {
+    ai.generateEnhancement = originalGenerate;
+    restore();
+  }
+});
+
+test('enhance endpoint rejects non-owner', async () => {
+  const idea = createIdea({ createdBy: otherUser._id });
+  const restore = mockDatabase(idea);
+  try {
+    const res = response();
+    await enhanceIdea({ user: { uid: owner.firebaseUid }, params: { ideaId: idea._id }, body: {} }, res);
+    assert.equal(res.statusCode, 403);
+  } finally {
+    restore();
+  }
+});
+
+test('analyze endpoint persists evidence, normalized skills, deterministic scoring, and analyzes enhanced text', async () => {
+  const idea = createIdea({ enhanced: { title: 'Final Enhanced Title', description: enhancedOutput.refinedDescription } });
+  const restore = mockDatabase(idea);
+  const originalGenerate = ai.generateAnalysis;
+  let receivedInput;
+  ai.generateAnalysis = async (input) => {
+    receivedInput = input;
+    return analysisOutput;
+  };
+
+  try {
+    const res = response();
+    await analyzeIdea({ user: { uid: owner.firebaseUid }, params: { ideaId: idea._id } }, res);
+
+    assert.equal(res.statusCode, 200);
+    assert.equal(receivedInput.title, 'Final Enhanced Title');
+    assert.equal(idea.status, 'analyzed');
+    assert.equal(idea.aiAnalysis.scoring.version, 'v1');
+    assert.equal(idea.aiAnalysis.rolesAndSkills[0].skills[0], 'React');
+    assert.equal(idea.aiAnalysis.techStack[0], 'React');
+  } finally {
+    ai.generateAnalysis = originalGenerate;
+    restore();
+  }
+});
+
+test('approve analysis transitions an owned analyzed idea to matching', async () => {
+  const idea = createIdea({
+    status: 'analyzed',
+    aiAnalysis: { rolesAndSkills: [], techStack: [], isApproved: false, isEdited: false },
+  });
+  const restore = mockDatabase(idea);
+  try {
+    const res = response();
+    await updateAnalysis({ user: { uid: owner.firebaseUid }, params: { ideaId: idea._id }, body: { approve: true } }, res);
+    assert.equal(res.statusCode, 200);
+    assert.equal(idea.status, 'matching');
+    assert.equal(idea.aiAnalysis.isApproved, true);
+    assert.ok(idea.aiAnalysis.approvedAt instanceof Date);
+  } finally {
+    restore();
+  }
+});

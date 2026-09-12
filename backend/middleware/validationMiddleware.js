@@ -92,6 +92,29 @@ const validateIdeaCreate = (req, res, next) => {
   return next();
 };
 
+const TITLE_MAX = 200;
+const DESCRIPTION_MAX = 4000;
+
+const validateIdeaEnhance = (req, res, next) => {
+  const { title, description } = req.body || {};
+
+  if (title !== undefined && (typeof title !== 'string' || title.trim().length < 3 || title.trim().length > TITLE_MAX)) {
+    return res.status(400).json({
+      success: false,
+      message: `If provided, title must be ${3}-${TITLE_MAX} characters`,
+    });
+  }
+
+  if (description !== undefined && (typeof description !== 'string' || description.trim().length < 20 || description.trim().length > DESCRIPTION_MAX)) {
+    return res.status(400).json({
+      success: false,
+      message: `If provided, description must be ${20}-${DESCRIPTION_MAX} characters`,
+    });
+  }
+
+  return next();
+};
+
 const validateAnalysisUpdate = (req, res, next) => {
   const { rolesAndSkills, teamSize } = req.body;
 
@@ -126,6 +149,9 @@ module.exports = {
   validateObjectId,
   validateProfileUpdate,
   validateIdeaCreate,
+  validateIdeaEnhance,
   validateAnalysisUpdate,
   isValidObjectId,
+  TITLE_MAX,
+  DESCRIPTION_MAX,
 };

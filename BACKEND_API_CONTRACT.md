@@ -400,21 +400,38 @@ Success response:
 
 ## 5) Idea APIs
 
-### POST /api/ideas
+/_
+`GET /api/ideas/discover` — Browse ideas for candidates.
+`POST /api/ideas/` — Create idea.
+`GET /api/ideas/` — List my ideas.
+`GET /api/ideas/:ideaId` — Get idea.
+`PUT /api/ideas/:ideaId` — Update idea.
+`DELETE /api/ideas/:ideaId` — Delete idea.
+_/
 
-Request body:
+### GET /api/ideas/discover
 
-```json
-{
-  "title": "AI founder matching app",
-  "description": "A platform to match startup founders with technical co-founders.",
-  "category": "B2B SaaS",
-  "domain": "AI",
-  "problemStatement": "Founders struggle to find trustworthy technical partners.",
-  "targetUsers": "Early-stage founders",
-  "requiredSkills": ["Product", "Machine Learning", "Frontend"]
-}
-```
+Purpose: Allows candidates to browse all startup ideas that have achieved `approved` status from the AI analysis pipeline.
+
+### POST /api/ideas/
+
+Purpose: Enables a founder to create a new startup idea document. The backend automatically assigns the authenticated user as the creator.
+
+### GET /api/ideas/
+
+Purpose: Fetches a list of startup ideas created by the currently authenticated founder.
+
+### GET /api/ideas/:ideaId
+
+Purpose: Retrieves the full details of a specific startup idea by its unique identifier.
+
+### PUT /api/ideas/:ideaId
+
+Purpose: Allows the owner of an idea to update its details like title, description, skills, etc.
+
+### DELETE /api/ideas/:ideaId
+
+Purpose: Allows the owner to delete an idea provided it has not yet received an approved AI analysis.
 
 Validation rules:
 
@@ -445,33 +462,6 @@ Status codes:
 - `400` invalid title/description
 - `404` user not found
 - `500` server failure
-
-### GET /api/ideas
-
-Query params: `status`, `limit`, `skip`
-
-Response:
-
-```json
-{
-  "success": true,
-  "ideas": [
-    {
-      "_id": "ObjectId",
-      "title": "...",
-      "description": "...",
-      "category": "...",
-      "domain": "...",
-      "status": "draft",
-      "aiAnalysis": {
-        "isApproved": false
-      },
-      "createdAt": "ISO date"
-    }
-  ],
-  "total": 1
-}
-```
 
 ### GET /api/ideas/discover
 
@@ -535,256 +525,367 @@ Validation rules:
 - `400` if idea has an approved analysis
 - `403` if not owner
 
-## 6) Matching APIs
+## 6.1) Enhanced Idea and Deterministic Analysis APIs
+
+### Method
+`POST`
+
+### Route
+`/api/ideas/:ideaId/enhance`
+
+### Purpose
+Uses the configured Vercel AI SDK provider to transform the stored founder idea into a clearer, structured concept. It improves clarity, problem framing, solution explanation, audience, value proposition, and core workflow. It does **not** score, validate the market, or claim absolute novelty.
+
+### Authentication
+Firebase Bearer token required.
+
+### Authorization
+Only the owner of `ideaId` may enhance the idea.
+
+### Request Body
+Optional overrides; omitted fields use the stored raw idea:
+
+```json
+{
+  "title": "Optional raw title, 3-200 characters",
+  "description": "Optional raw description, 20-4000 characters"
+}
+```
+
+### Query Parameters
+None.
+
+### Validation
+- `ideaId` must be a valid Mongo ObjectId.
+- Optional `title` must be a string from 3 to 200 characters.
+- Optional `description` must be a string from 20 to 4000 characters.
+- Founder text is delimited and treated as data, not model instructions.
+
+### Success Response
+`200 OK`
+
+```json
+{
+  "success": true,
+  "enhancedIdea": {
+    "title": "Refined concept title",
+    "description": "Refined description",
+    "problem": "Problem statement",
+    "solution": "Solution explanation",
+    "targetAudience": "Primary audience",
+    "valueProposition": "Why it is useful",
+    "coreWorkflow": "Primary workflow",
+    "updatedAt": "ISO-8601 date"
+  }
+}
+```
+
+### Error Responses
+- `400` invalid object ID or input length
+- `401` missing/invalid Firebase token
+- `403` authenticated user does not own the idea
+- `404` user or idea not found
+- `502` AI provider/schema operation failed; no provider details are returned
+- `500` server failure
+
+### Side Effects
+- Saves original title/description into `idea.original` if an older idea has no snapshot.
+- Replaces `idea.enhanced` with structured enhancement output.
+- Sets status to `enhancing` while processing, then `enhanced` on success.
+
+### Database Changes
+Updates `original`, `enhanced`, and `status` in the existing `Idea` document. The raw `title` and `description` remain preserved.
+
+---
+
+### Method
+`POST`
+
+### Route
+`/api/ideas/:ideaId/analyze`
+
+### Purpose
+Analyzes the founder's final text—using `idea.enhanced.title` and `idea.enhanced.description` when present, otherwise the raw idea. AI returns structured evidence and team requirements only. The backend computes all final numeric scores and verdicts deterministically.
+
+### Authentication
+Firebase Bearer token required.
+
+### Authorization
+Only the owner of `ideaId` may analyze the idea.
+
+### Request Body
+None.
+
+### Query Parameters
+None.
+
+### Validation
+- `ideaId` must be a valid Mongo ObjectId.
+- The stored idea text is bounded before it is passed to the AI provider.
+- AI output must match the server-side Zod schema for evidence, roles, and requirements.
+- AI-only differentiation is not proof of real-world novelty or uniqueness.
+
+### Success Response
+`200 OK`
+
+```json
+{
+  "success": true,
+  "message": "Idea analyzed successfully",
+  "analysis": {
+    "evidence": {
+      "problem": { "clearlyDefined": true, "frequency": "high", "severity": "medium", "explanation": "..." },
+      "audience": { "clearlyDefined": true, "primaryAudience": "...", "secondaryAudience": "...", "accessibility": "high" },
+      "market": { "reach": "medium", "monetizable": true, "explanation": "..." },
+      "feasibility": { "technicalComplexity": "medium", "resourceRequirement": "low", "mvpFeasibility": "high", "explanation": "..." },
+      "differentiation": { "similarSolutionsKnown": true, "hasUniqueValue": true, "differentiationStrength": "medium", "explanation": "..." },
+      "monetization": { "possible": true, "models": ["..."], "explanation": "..." },
+      "execution": { "ideaClarity": "high", "scopeClarity": "medium" },
+      "limits": { "assumptions": [], "risks": [], "limitations": [] }
+    },
+    "scoring": {
+      "version": "v1",
+      "overallScore": 72,
+      "breakdown": {
+        "problemStrength": 85,
+        "marketPotential": 72,
+        "feasibility": 75,
+        "differentiation": 55,
+        "executionReadiness": 80
+      },
+      "verdict": "PROMISING"
+    },
+    "rolesAndSkills": [
+      {
+        "role": "Frontend Developer",
+        "skills": ["React"],
+        "priority": "must-have",
+        "count": 1,
+        "experienceLevel": "Intermediate"
+      }
+    ],
+    "isApproved": false
+  }
+}
+```
+
+### Error Responses
+- `400` invalid object ID
+- `401` missing/invalid Firebase token
+- `403` authenticated user does not own the idea
+- `404` user or idea not found
+- `502` provider call or schema validation failed
+- `500` server failure
+
+### Side Effects
+- Sets idea status to `analyzing` while generating evidence.
+- Stores structured evidence, normalized skills, deterministic scoring, and team requirements.
+- Sets status to `analyzed` on success; restores `enhanced` or `draft` on AI failure.
+
+### Database Changes
+Updates `Idea.aiAnalysis` and `Idea.status`. GET analysis never recomputes this saved result.
+
+---
+
+### Method
+`GET`
+
+### Route
+`/api/ideas/:ideaId/analysis`
+
+### Purpose
+Returns the stored analysis only; it never calls AI or recomputes scores.
+
+### Authentication
+Firebase Bearer token required.
+
+### Authorization
+The owner may read any stored analysis. Other authenticated users may read only an approved analysis.
+
+### Request Body
+None.
+
+### Query Parameters
+None.
+
+### Success Response
+`200 OK` with `{ "success": true, "analysis": { ... } }`, or `analysis: null` when no analysis is stored.
+
+### Error Responses
+- `400` invalid object ID
+- `401` missing/invalid Firebase token
+- `403` non-owner reads unapproved analysis
+- `404` idea not found
+- `500` server failure
+
+### Side Effects
+None.
+
+### Database Changes
+None.
+
+---
+
+### Method
+`PUT`
+
+### Route
+`/api/ideas/:ideaId/analysis`
+
+### Purpose
+Lets the idea owner update supported team-requirement fields and/or approve a previously stored analysis.
+
+### Authentication
+Firebase Bearer token required.
+
+### Authorization
+Only the owner of `ideaId` may update or approve analysis.
+
+### Request Body
+
+```json
+{
+  "rolesAndSkills": [{ "role": "Frontend Developer", "skills": ["React"], "priority": "must-have", "count": 1, "experienceLevel": "Intermediate" }],
+  "techStack": ["React", "Node.js"],
+  "domain": "SaaS",
+  "teamSize": 2,
+  "keyRequirements": ["..."],
+  "nextSteps": ["..."],
+  "approve": true
+}
+```
+
+### Query Parameters
+None.
+
+### Validation
+- `ideaId` must be a valid Mongo ObjectId.
+- `rolesAndSkills`, when supplied, must be a non-empty array with a role field per entry.
+- `teamSize`, when supplied, must be at least 1.
+- An existing analysis is required before approval.
+- Skill aliases are normalized against the canonical taxonomy when safely recognized.
+
+### Success Response
+`200 OK` with `{ "success": true, "message": "Analysis approved", "analysis": { ... } }`.
+
+### Error Responses
+- `400` invalid input or no existing analysis to approve
+- `401` missing/invalid Firebase token
+- `403` non-owner
+- `404` user or idea not found
+- `500` server failure
+
+### Side Effects
+When `approve: true`, sets `aiAnalysis.isApproved = true`, saves `approvedAt`, and transitions the idea to `matching`.
+
+### Database Changes
+Updates allowed `aiAnalysis` fields; approval modifies `aiAnalysis.isApproved`, `aiAnalysis.approvedAt`, and `Idea.status`.
+
+## Idea Scoring Model
+
+### Version
+`v1`
+
+### Principle
+AI produces structured evidence only. The backend computes every score and verdict using deterministic rules. Given the same evidence, the result is identical.
+
+### Dimensions and Weights
+
+| Dimension | Weight | Deterministic evidence inputs |
+| --- | ---: | --- |
+| Problem Strength | 25% | `clearlyDefined`, problem frequency, severity |
+| Market Potential | 25% | market reach, monetizable flag, audience definition/accessibility |
+| Feasibility | 25% | MVP feasibility, technical complexity, resource requirement |
+| Differentiation | 15% | unique value flag, differentiation strength, similar solutions flag |
+| Execution Readiness | 10% | idea clarity and scope clarity |
+
+### Rule Summary
+- Each dimension is deterministically mapped to a score from `0` to `100`.
+- Evidence enums map as follows where applicable: high/large = higher points; medium = intermediate points; low/small = lower points.
+- For feasibility, lower technical complexity and resource requirement receive higher MVP-feasibility points.
+- The weighted score is computed from exact dimension scores and rounded once for stored `overallScore`.
+- No model-generated `overallScore`, `aiScore`, or verdict is accepted.
+
+### Verdict Thresholds
+
+| Overall score | Verdict |
+| ---: | --- |
+| 80–100 | `STRONG_POTENTIAL` |
+| 65–79 | `PROMISING` |
+| 45–64 | `NEEDS_REFINEMENT` |
+| 0–44 | `HIGH_RISK` |
+
+## 7) Matching APIs
+
+/_
+`GET /api/candidates/search/with-scores` — Ranked candidate search.
+`GET /api/candidates/matches/:ideaId` — Get candidate match for idea.
+_/
 
 ### GET /api/candidates/search/with-scores
 
-Purpose: ranked, scored candidate search for a founder-owned idea.
-
-Query params:
-
-```text
-ideaId=ObjectId
-skills=React,Node.js
-level=Advanced
-domain=AI
-workMode=remote
-availability=full-time
-sort=best
-page=1
-limit=10
-minScore=40
-```
-
-Validation rules:
-
-- `ideaId` must be valid Mongo ObjectId
-- Authenticated user must own the idea
-- Idea must exist and have approved AI analysis
-- `minScore` is clamped to `0..100`
-- `page` and `limit` are bounded
-
-Success response:
-
-```json
-{
-  "success": true,
-  "matches": [
-    {
-      "matchId": "ObjectId",
-      "candidate": {
-        "id": "ObjectId",
-        "name": "Jane",
-        "profileImage": "https://...",
-        "college": { "name": "" },
-        "location": { "city": "", "state": "", "region": "" },
-        "skills": [{ "name": "React", "level": "Advanced" }],
-        "targetRoles": ["Frontend Engineer"],
-        "domainInterests": ["AI"],
-        "availability": "full-time",
-        "workPreference": "remote",
-        "hoursPerWeek": 20
-      },
-      "score": 87,
-      "explanation": {
-        "matchedSkills": ["React"],
-        "missingSkills": ["System Design"],
-        "score": 87
-      },
-      "invitationStatus": null,
-      "createdAt": "ISO date"
-    }
-  ],
-  "pagination": {
-    "page": 1,
-    "limit": 10,
-    "total": 1,
-    "totalPages": 1
-  },
-  "sort": "best",
-  "minScore": 40
-}
-```
+Purpose: Allows a founder to search for candidates who match the skills and requirements defined in their startup idea, returned with compatibility scores.
 
 ### GET /api/candidates/matches/:ideaId
 
-Purpose: get the current authenticated candidate’s match score for a specific idea.
+Purpose: Returns the compatibility match score and explanation for the currently authenticated candidate against a specific startup idea.
 
-Response:
+## 8) Invitation APIs
 
-```json
-{
-  "success": true,
-  "match": {
-    "_id": "ObjectId",
-    "ideaId": "ObjectId",
-    "userId": "ObjectId",
-    "matchScore": 78,
-    "explanation": {
-      "matchedSkills": ["React"],
-      "missingSkills": ["Machine Learning"]
-    },
-    "scoringVersion": "v1",
-    "calculatedAt": "ISO date",
-    "refreshedAt": "ISO date"
-  }
-}
-```
+/_
+`POST /api/invitations/` — Send invitation.
+`GET /api/invitations/` — List invitations.
+`GET /api/invitations/:invitationId` — Get invitation.
+`PUT /api/invitations/:invitationId/accept` — Accept.
+`PUT /api/invitations/:invitationId/decline` — Decline.
+`PUT /api/invitations/:invitationId/withdraw` — Withdraw.
+_/
 
-Status codes:
+### POST /api/invitations/
 
-- `400` invalid idea ID
-- `401` no profile
-- `404` idea not found
-- `500` match generation failure
+Purpose: Enables a founder to send an invitation to a candidate to join their startup team for a specific idea.
 
-## 7) Invitation APIs
+### GET /api/invitations/
 
-### POST /api/invitations
+Purpose: Lists all invitations sent by or received by the currently authenticated user (can be filtered by direction and status).
 
-Request body:
+### GET /api/invitations/:invitationId
 
-```json
-{
-  "ideaId": "ObjectId",
-  "candidateId": "ObjectId",
-  "role": "Frontend Engineer",
-  "message": "We would love to have you on the project."
-}
-```
-
-Validation rules:
-
-- `ideaId` and `candidateId` must be valid Mongo IDs
-- `role` must be a string with minimum length 2
-- Founder must own the idea
-- Idea must have approved AI analysis
-- Candidate must be a completed candidate profile and not the founder
-- Candidate must have an existing match snapshot for the idea
-- Invitation cannot already be Pending/Accepted
-- Withdrawn invitation cannot be reopened
-
-Success responses:
-
-- `201` created invitation
-- `200` updated invitation when reusing an existing record
-
-Typical response:
-
-```json
-{
-  "success": true,
-  "invitation": {
-    "_id": "ObjectId",
-    "ideaId": "ObjectId",
-    "fromFounder": "ObjectId",
-    "toCandidate": "ObjectId",
-    "role": "Frontend Engineer",
-    "status": "Pending"
-  }
-}
-```
-
-### GET /api/invitations
-
-Query params:
-
-- `status` = `Pending | Accepted | Declined | Withdrawn`
-- `direction` = `sent | received`
-
-Response:
-
-```json
-{
-  "success": true,
-  "invitations": [
-    {
-      "_id": "ObjectId",
-      "ideaId": {
-        "_id": "ObjectId",
-        "title": "...",
-        "domain": "...",
-        "status": "matching"
-      },
-      "fromFounder": { "_id": "ObjectId", "name": "Jane" },
-      "toCandidate": { "_id": "ObjectId", "name": "Sam" },
-      "role": "Frontend Engineer",
-      "status": "Pending"
-    }
-  ]
-}
-```
+Purpose: Retrieves details of a specific invitation record.
 
 ### PUT /api/invitations/:invitationId/accept
 
-Transition rules:
-
-- Only the candidate on the invitation can accept
-- Only `Pending` invitations can be accepted
-- Returns `200` with updated invitation
-- If already accepted, returns idempotent `200`
+Purpose: Allows a candidate to accept an invitation, transitioning its status to `Accepted`.
 
 ### PUT /api/invitations/:invitationId/decline
 
-Same as accept but for decline.
+Purpose: Allows a candidate to decline an invitation, transitioning its status to `Declined`.
 
 ### PUT /api/invitations/:invitationId/withdraw
 
-Only the founder can withdraw; it sets `status: "Withdrawn"`.
+Purpose: Allows a founder to withdraw an invitation before it is acted upon, transitioning its status to `Withdrawn`.
 
-## 8) Team APIs
+## 9) Team APIs
 
-### POST /api/teams
+/_
+`POST /api/teams/` — Create team.
+`GET /api/teams/` — List teams.
+`GET /api/teams/:teamId` — Get team.
+_/
 
-Request body:
+### POST /api/teams/
 
-```json
-{
-  "ideaId": "ObjectId",
-  "name": "Team Alpha"
-}
-```
+Purpose: Creates a new team record for a startup idea once candidates have accepted invitations to join.
 
-Validation rules:
+### GET /api/teams/
 
-- `ideaId` must be valid ObjectId
-- `name` must be 2-120 characters
-- Authenticated user must own the idea
-- A team already exists for the idea -> `409`
-- At least one accepted invitation is required -> `409 NO_ACCEPTED_INVITATIONS`
-
-Success response:
-
-```json
-{
-  "success": true,
-  "team": {
-    "_id": "ObjectId",
-    "ideaId": "ObjectId",
-    "founderId": { "_id": "ObjectId", "name": "Jane" },
-    "name": "Team Alpha",
-    "members": [
-      {
-        "userId": { "_id": "ObjectId", "name": "Sam" },
-        "role": "Frontend Engineer",
-        "invitationId": "ObjectId",
-        "joinedAt": "ISO date"
-      }
-    ],
-    "status": "Active"
-  }
-}
-```
-
-### GET /api/teams
-
-Lists all teams where the current user is founder or member.
+Purpose: Lists all teams that the currently authenticated user is a founder or member of.
 
 ### GET /api/teams/:teamId
 
-Returns one team if the current user is authorized.
+Purpose: Retrieves details of a specific team, including all members and the founder.
 
-## 9) Frontend integration notes
+## 10) Frontend integration notes
 
 The backend is the source of truth for routing and schema. The following must match the backend exactly:
 

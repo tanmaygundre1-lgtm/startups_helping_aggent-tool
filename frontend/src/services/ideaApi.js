@@ -10,7 +10,12 @@ export const getMyIdeas = async () => {
   return response.data;
 };
 
-export const getIdeaById = async (ideaId) => {
-  const response = await client.get(`/ideas/${ideaId}`);
+export const deleteIdea = async (ideaId) => {
+  const response = await client.delete(`/ideas/${ideaId}`);
+  return response.data;
+};
+
+export const updateIdea = async (ideaId, ideaData) => {
+  const response = await client.put(`/ideas/${ideaId}`, ideaData);
   return response.data;
 };

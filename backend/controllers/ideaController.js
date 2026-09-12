@@ -18,16 +18,23 @@ const createIdea = async (req, res) => {
       return res.status(400).json({ success: false, message: 'Description is required (min 20 characters)' });
     }
 
+    const trimmedTitle = title.trim();
+    const trimmedDescription = description.trim();
     const idea = await Idea.create({
       createdBy: user._id,
-      title: title.trim(),
-      description: description.trim(),
+      title: trimmedTitle,
+      description: trimmedDescription,
       category: category?.trim() || '',
       domain: domain?.trim() || '',
       problemStatement: problemStatement?.trim() || '',
       targetUsers: targetUsers?.trim() || '',
       requiredSkills: requiredSkills || [],
       status: 'draft',
+      original: {
+        title: trimmedTitle,
+        description: trimmedDescription,
+        capturedAt: new Date(),
+      },
     });
 
     return res.status(201).json({

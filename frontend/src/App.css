@@ -153,3 +153,7 @@ button:disabled {
   border-bottom: 1px solid var(--line);
   padding: 0 var(--space-lg);
 }
+
+.mar-t {
+  margin-top: var(--space-md);
+}

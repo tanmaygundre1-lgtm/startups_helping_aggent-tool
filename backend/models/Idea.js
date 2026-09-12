@@ -58,11 +58,42 @@ const ideaSchema = new mongoose.Schema(
     fundingStage: { type: String, trim: true },
     status: {
       type: String,
-      enum: ['draft', 'analyzing', 'analyzed', 'matching', 'team-forming', 'complete'],
+      enum: ['draft', 'enhancing', 'enhanced', 'analyzing', 'analyzed', 'matching', 'team-forming', 'complete'],
       default: 'draft',
+    },
+    original: {
+      title: { type: String, trim: true },
+      description: { type: String, trim: true },
+      capturedAt: { type: Date },
+    },
+    enhanced: {
+      title: { type: String, trim: true },
+      description: { type: String, trim: true },
+      problem: { type: String, trim: true },
+      solution: { type: String, trim: true },
+      targetAudience: { type: String, trim: true },
+      valueProposition: { type: String, trim: true },
+      coreWorkflow: { type: String, trim: true },
+      updatedAt: { type: Date },
     },
     // AI analysis results stored inline for quick access
     aiAnalysis: {
+      evidence: { type: mongoose.Schema.Types.Mixed, default: undefined },
+      scoring: {
+        version: { type: String, trim: true },
+        overallScore: { type: Number, min: 0, max: 100 },
+        breakdown: {
+          problemStrength: { type: Number, min: 0, max: 100 },
+          marketPotential: { type: Number, min: 0, max: 100 },
+          feasibility: { type: Number, min: 0, max: 100 },
+          differentiation: { type: Number, min: 0, max: 100 },
+          executionReadiness: { type: Number, min: 0, max: 100 },
+        },
+        verdict: {
+          type: String,
+          enum: ['STRONG_POTENTIAL', 'PROMISING', 'NEEDS_REFINEMENT', 'HIGH_RISK'],
+        },
+      },
       rolesAndSkills: [roleRequirementSchema],
       techStack: [{ type: String, trim: true }],
       domain: { type: String, trim: true },
