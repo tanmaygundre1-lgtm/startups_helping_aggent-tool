@@ -4,7 +4,7 @@ import AppLayout from "../../components/layout/AppLayout";
 import Button from "../../components/common/Button";
 import Input from "../../components/common/Input";
 import Card from "../../components/common/Card";
-import { enhanceIdea } from "../../services/ideaApi";
+import { enhanceIdea, updateIdea } from "../../services/ideaApi";
 
 const EnhanceIdeaPage = () => {
   const { ideaId } = useParams();
@@ -36,6 +36,22 @@ const EnhanceIdeaPage = () => {
       isMounted = false;
     };
   }, [ideaId, enhanced]);
+
+  const persistEnhancedIdea = async () => {
+    if (!ideaId || !enhanced) return;
+
+    setLoading(true);
+    try {
+      await updateIdea(ideaId, { enhanced });
+      setError("");
+    } catch (err) {
+      const message = err.message || "Could not save your edits.";
+      setError(message);
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const updateField = (field, value) => {
     setEnhanced((current) => ({
@@ -108,9 +124,14 @@ const EnhanceIdeaPage = () => {
           proceeding to analysis.
         </p>
         <form
-          onSubmit={(e) => {
+          onSubmit={async (e) => {
             e.preventDefault();
-            navigate(`/app/ideas/${ideaId}/analysis`);
+            try {
+              await persistEnhancedIdea();
+              navigate(`/app/ideas/${ideaId}/analysis`);
+            } catch {
+              // leave the user on the page if the save failed
+            }
           }}
         >
           <Card>
@@ -179,7 +200,18 @@ const EnhanceIdeaPage = () => {
             >
               Back
             </Button>
-            <Button variant="secondary" type="button">
+            <Button
+              variant="secondary"
+              type="button"
+              disabled={loading}
+              onClick={async () => {
+                try {
+                  await persistEnhancedIdea();
+                } catch {
+                  // stay on the page if the save failed
+                }
+              }}
+            >
               Save Changes
             </Button>
             <Button type="submit" style={{ flex: 1 }}>

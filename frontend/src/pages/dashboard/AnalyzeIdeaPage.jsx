@@ -4,7 +4,7 @@ import AppLayout from "../../components/layout/AppLayout";
 import Button from "../../components/common/Button";
 import Card from "../../components/common/Card";
 import Badge from "../../components/common/Badge";
-import { analyzeIdea } from "../../services/ideaApi";
+import { analyzeIdea, approveAnalysis } from "../../services/ideaApi";
 
 const AnalyzeIdeaPage = () => {
   const { ideaId } = useParams();
@@ -333,16 +333,10 @@ const AnalyzeIdeaPage = () => {
           <Button
             onClick={async () => {
               try {
-                const res = await fetch(`/api/ideas/${ideaId}/analysis`, {
-                  method: "PUT",
-                  headers: { "Content-Type": "application/json" },
-                  body: JSON.stringify({ approve: true }),
-                });
-                if (res.ok) {
-                  window.location.reload();
-                }
-              } catch {
-                alert("Failed to approve");
+                await approveAnalysis(ideaId, true);
+                window.location.reload();
+              } catch (err) {
+                alert(err.message || "Failed to approve");
               }
             }}
           >

@@ -114,11 +114,33 @@ const updateIdea = async (req, res) => {
       return res.status(403).json({ success: false, message: 'Not authorized to update this idea' });
     }
 
-    const allowedFields = ['title', 'description', 'category', 'domain', 'problemStatement', 'targetUsers', 'requiredSkills'];
+    const allowedFields = ['title', 'description', 'category', 'domain', 'problemStatement', 'targetUsers', 'requiredSkills', 'enhanced'];
     const updates = {};
     for (const field of allowedFields) {
       if (req.body[field] !== undefined) {
-        updates[field] = req.body[field];
+        if (field === 'enhanced') {
+          const enhancedInput = req.body.enhanced;
+          if (!enhancedInput || typeof enhancedInput !== 'object' || Array.isArray(enhancedInput)) {
+            return res.status(400).json({ success: false, message: 'Enhanced idea must be an object' });
+          }
+
+          const normalizedEnhanced = {};
+          const enhancedKeys = ['title', 'description', 'problem', 'solution', 'targetAudience', 'valueProposition', 'coreWorkflow'];
+
+          for (const key of enhancedKeys) {
+            if (enhancedInput[key] !== undefined) {
+              normalizedEnhanced[key] = typeof enhancedInput[key] === 'string' ? enhancedInput[key].trim() : enhancedInput[key];
+            }
+          }
+
+          updates.enhanced = {
+            ...(idea.enhanced || {}),
+            ...normalizedEnhanced,
+            updatedAt: new Date(),
+          };
+        } else {
+          updates[field] = req.body[field];
+        }
       }
     }
 

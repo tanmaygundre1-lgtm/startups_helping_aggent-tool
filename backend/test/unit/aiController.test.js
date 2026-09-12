@@ -5,6 +5,7 @@ const User = require('../../models/User');
 const Idea = require('../../models/Idea');
 const ai = require('../../config/vercelAI');
 const { enhanceIdea, analyzeIdea, updateAnalysis } = require('../../controllers/aiController');
+const { updateIdea } = require('../../controllers/ideaController');
 
 const owner = { _id: 'owner-id', firebaseUid: 'owner-uid' };
 const otherUser = { _id: 'other-id', firebaseUid: 'other-uid' };
@@ -106,6 +107,43 @@ test('enhance endpoint rejects non-owner', async () => {
     await enhanceIdea({ user: { uid: owner.firebaseUid }, params: { ideaId: idea._id }, body: {} }, res);
     assert.equal(res.statusCode, 403);
   } finally {
+    restore();
+  }
+});
+
+test('idea update persists enhanced concept edits for the founder flow', async () => {
+  const idea = createIdea({ status: 'enhanced' });
+  const restore = mockDatabase(idea);
+  const originalFindByIdAndUpdate = Idea.findByIdAndUpdate;
+  const enhancedEdit = {
+    title: 'Updated enhanced title',
+    description: 'Updated enhanced description with enough detail for analysis.',
+    problem: 'The original problem statement is clearer after founder review.',
+    solution: 'The founder fixes the concept during review before analysis.',
+    targetAudience: 'Startup founders',
+    valueProposition: 'Faster refinement before team formation.',
+    coreWorkflow: 'Review, refine, analyze, approve.',
+  };
+
+  Idea.findByIdAndUpdate = async (_id, updates) => {
+    Object.assign(idea, updates);
+    return idea;
+  };
+
+  try {
+    const res = response();
+    await updateIdea({
+      user: { uid: owner.firebaseUid },
+      params: { ideaId: idea._id },
+      body: { enhanced: enhancedEdit },
+    }, res);
+
+    assert.equal(res.statusCode, 200);
+    assert.equal(idea.enhanced.title, enhancedEdit.title);
+    assert.equal(idea.enhanced.description, enhancedEdit.description);
+    assert.equal(idea.enhanced.targetAudience, enhancedEdit.targetAudience);
+  } finally {
+    Idea.findByIdAndUpdate = originalFindByIdAndUpdate;
     restore();
   }
 });
