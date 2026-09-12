@@ -5,6 +5,8 @@ import WelcomePage from "../pages/onboarding/WelcomePage";
 import ApplicationEntryPage from "../pages/ApplicationEntryPage";
 import IdeasPage from "../pages/dashboard/IdeasPage";
 import CreateIdeaPage from "../pages/dashboard/CreateIdeaPage";
+import EnhanceIdeaPage from "../pages/dashboard/EnhanceIdeaPage";
+import AnalyzeIdeaPage from "../pages/dashboard/AnalyzeIdeaPage";
 import FeaturePage from "../pages/FeaturePage";
 import RoleSelectionPage from "../pages/onboarding/RoleSelectionPage";
 import FounderOnboarding from "../pages/onboarding/FounderOnboarding";
@@ -64,11 +66,40 @@ const AppRoutes = () => (
       <Route path="/app" element={<ApplicationEntryPage />} />
       <Route path="/app/ideas" element={<IdeasPage />} />
       <Route path="/app/ideas/create" element={<CreateIdeaPage />} />
-      <Route path="/app/talent" element={<FeaturePage title="Discover Talent" description="Find team members." />} />
-      <Route path="/app/team" element={<FeaturePage title="Team" description="Manage your team." />} />
-      <Route path="/app/invitations" element={<FeaturePage title="Invitations" description="Manage invitations." />} />
-      <Route path="/app/explore" element={<FeaturePage title="Explore Startups" description="Find opportunities." />} />
-      <Route path="/app/matches" element={<FeaturePage title="Matches" description="View matches." />} />
+      <Route path="/app/ideas/:ideaId/enhance" element={<EnhanceIdeaPage />} />
+      <Route path="/app/ideas/:ideaId/analysis" element={<AnalyzeIdeaPage />} />
+      <Route
+        path="/app/talent"
+        element={
+          <FeaturePage
+            title="Discover Talent"
+            description="Find team members."
+          />
+        }
+      />
+      <Route
+        path="/app/team"
+        element={<FeaturePage title="Team" description="Manage your team." />}
+      />
+      <Route
+        path="/app/invitations"
+        element={
+          <FeaturePage title="Invitations" description="Manage invitations." />
+        }
+      />
+      <Route
+        path="/app/explore"
+        element={
+          <FeaturePage
+            title="Explore Startups"
+            description="Find opportunities."
+          />
+        }
+      />
+      <Route
+        path="/app/matches"
+        element={<FeaturePage title="Matches" description="View matches." />}
+      />
     </Route>
     <Route path="/" element={<RootEntry />} />
     <Route path="*" element={<Navigate to="/" replace />} />

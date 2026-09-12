@@ -528,21 +528,27 @@ Validation rules:
 ## 6.1) Enhanced Idea and Deterministic Analysis APIs
 
 ### Method
+
 `POST`
 
 ### Route
+
 `/api/ideas/:ideaId/enhance`
 
 ### Purpose
+
 Uses the configured Vercel AI SDK provider to transform the stored founder idea into a clearer, structured concept. It improves clarity, problem framing, solution explanation, audience, value proposition, and core workflow. It does **not** score, validate the market, or claim absolute novelty.
 
 ### Authentication
+
 Firebase Bearer token required.
 
 ### Authorization
+
 Only the owner of `ideaId` may enhance the idea.
 
 ### Request Body
+
 Optional overrides; omitted fields use the stored raw idea:
 
 ```json
@@ -553,15 +559,18 @@ Optional overrides; omitted fields use the stored raw idea:
 ```
 
 ### Query Parameters
+
 None.
 
 ### Validation
+
 - `ideaId` must be a valid Mongo ObjectId.
 - Optional `title` must be a string from 3 to 200 characters.
 - Optional `description` must be a string from 20 to 4000 characters.
 - Founder text is delimited and treated as data, not model instructions.
 
 ### Success Response
+
 `200 OK`
 
 ```json
@@ -581,6 +590,7 @@ None.
 ```
 
 ### Error Responses
+
 - `400` invalid object ID or input length
 - `401` missing/invalid Firebase token
 - `403` authenticated user does not own the idea
@@ -589,43 +599,54 @@ None.
 - `500` server failure
 
 ### Side Effects
+
 - Saves original title/description into `idea.original` if an older idea has no snapshot.
 - Replaces `idea.enhanced` with structured enhancement output.
 - Sets status to `enhancing` while processing, then `enhanced` on success.
 
 ### Database Changes
+
 Updates `original`, `enhanced`, and `status` in the existing `Idea` document. The raw `title` and `description` remain preserved.
 
 ---
 
 ### Method
+
 `POST`
 
 ### Route
+
 `/api/ideas/:ideaId/analyze`
 
 ### Purpose
+
 Analyzes the founder's final text—using `idea.enhanced.title` and `idea.enhanced.description` when present, otherwise the raw idea. AI returns structured evidence and team requirements only. The backend computes all final numeric scores and verdicts deterministically.
 
 ### Authentication
+
 Firebase Bearer token required.
 
 ### Authorization
+
 Only the owner of `ideaId` may analyze the idea.
 
 ### Request Body
+
 None.
 
 ### Query Parameters
+
 None.
 
 ### Validation
+
 - `ideaId` must be a valid Mongo ObjectId.
 - The stored idea text is bounded before it is passed to the AI provider.
 - AI output must match the server-side Zod schema for evidence, roles, and requirements.
 - AI-only differentiation is not proof of real-world novelty or uniqueness.
 
 ### Success Response
+
 `200 OK`
 
 ```json
@@ -634,12 +655,40 @@ None.
   "message": "Idea analyzed successfully",
   "analysis": {
     "evidence": {
-      "problem": { "clearlyDefined": true, "frequency": "high", "severity": "medium", "explanation": "..." },
-      "audience": { "clearlyDefined": true, "primaryAudience": "...", "secondaryAudience": "...", "accessibility": "high" },
-      "market": { "reach": "medium", "monetizable": true, "explanation": "..." },
-      "feasibility": { "technicalComplexity": "medium", "resourceRequirement": "low", "mvpFeasibility": "high", "explanation": "..." },
-      "differentiation": { "similarSolutionsKnown": true, "hasUniqueValue": true, "differentiationStrength": "medium", "explanation": "..." },
-      "monetization": { "possible": true, "models": ["..."], "explanation": "..." },
+      "problem": {
+        "clearlyDefined": true,
+        "frequency": "high",
+        "severity": "medium",
+        "explanation": "..."
+      },
+      "audience": {
+        "clearlyDefined": true,
+        "primaryAudience": "...",
+        "secondaryAudience": "...",
+        "accessibility": "high"
+      },
+      "market": {
+        "reach": "medium",
+        "monetizable": true,
+        "explanation": "..."
+      },
+      "feasibility": {
+        "technicalComplexity": "medium",
+        "resourceRequirement": "low",
+        "mvpFeasibility": "high",
+        "explanation": "..."
+      },
+      "differentiation": {
+        "similarSolutionsKnown": true,
+        "hasUniqueValue": true,
+        "differentiationStrength": "medium",
+        "explanation": "..."
+      },
+      "monetization": {
+        "possible": true,
+        "models": ["..."],
+        "explanation": "..."
+      },
       "execution": { "ideaClarity": "high", "scopeClarity": "medium" },
       "limits": { "assumptions": [], "risks": [], "limitations": [] }
     },
@@ -670,6 +719,7 @@ None.
 ```
 
 ### Error Responses
+
 - `400` invalid object ID
 - `401` missing/invalid Firebase token
 - `403` authenticated user does not own the idea
@@ -678,40 +728,51 @@ None.
 - `500` server failure
 
 ### Side Effects
+
 - Sets idea status to `analyzing` while generating evidence.
 - Stores structured evidence, normalized skills, deterministic scoring, and team requirements.
 - Sets status to `analyzed` on success; restores `enhanced` or `draft` on AI failure.
 
 ### Database Changes
+
 Updates `Idea.aiAnalysis` and `Idea.status`. GET analysis never recomputes this saved result.
 
 ---
 
 ### Method
+
 `GET`
 
 ### Route
+
 `/api/ideas/:ideaId/analysis`
 
 ### Purpose
+
 Returns the stored analysis only; it never calls AI or recomputes scores.
 
 ### Authentication
+
 Firebase Bearer token required.
 
 ### Authorization
+
 The owner may read any stored analysis. Other authenticated users may read only an approved analysis.
 
 ### Request Body
+
 None.
 
 ### Query Parameters
+
 None.
 
 ### Success Response
+
 `200 OK` with `{ "success": true, "analysis": { ... } }`, or `analysis: null` when no analysis is stored.
 
 ### Error Responses
+
 - `400` invalid object ID
 - `401` missing/invalid Firebase token
 - `403` non-owner reads unapproved analysis
@@ -719,33 +780,48 @@ None.
 - `500` server failure
 
 ### Side Effects
+
 None.
 
 ### Database Changes
+
 None.
 
 ---
 
 ### Method
+
 `PUT`
 
 ### Route
+
 `/api/ideas/:ideaId/analysis`
 
 ### Purpose
+
 Lets the idea owner update supported team-requirement fields and/or approve a previously stored analysis.
 
 ### Authentication
+
 Firebase Bearer token required.
 
 ### Authorization
+
 Only the owner of `ideaId` may update or approve analysis.
 
 ### Request Body
 
 ```json
 {
-  "rolesAndSkills": [{ "role": "Frontend Developer", "skills": ["React"], "priority": "must-have", "count": 1, "experienceLevel": "Intermediate" }],
+  "rolesAndSkills": [
+    {
+      "role": "Frontend Developer",
+      "skills": ["React"],
+      "priority": "must-have",
+      "count": 1,
+      "experienceLevel": "Intermediate"
+    }
+  ],
   "techStack": ["React", "Node.js"],
   "domain": "SaaS",
   "teamSize": 2,
@@ -756,9 +832,11 @@ Only the owner of `ideaId` may update or approve analysis.
 ```
 
 ### Query Parameters
+
 None.
 
 ### Validation
+
 - `ideaId` must be a valid Mongo ObjectId.
 - `rolesAndSkills`, when supplied, must be a non-empty array with a role field per entry.
 - `teamSize`, when supplied, must be at least 1.
@@ -766,9 +844,11 @@ None.
 - Skill aliases are normalized against the canonical taxonomy when safely recognized.
 
 ### Success Response
+
 `200 OK` with `{ "success": true, "message": "Analysis approved", "analysis": { ... } }`.
 
 ### Error Responses
+
 - `400` invalid input or no existing analysis to approve
 - `401` missing/invalid Firebase token
 - `403` non-owner
@@ -776,30 +856,35 @@ None.
 - `500` server failure
 
 ### Side Effects
+
 When `approve: true`, sets `aiAnalysis.isApproved = true`, saves `approvedAt`, and transitions the idea to `matching`.
 
 ### Database Changes
+
 Updates allowed `aiAnalysis` fields; approval modifies `aiAnalysis.isApproved`, `aiAnalysis.approvedAt`, and `Idea.status`.
 
 ## Idea Scoring Model
 
 ### Version
+
 `v1`
 
 ### Principle
+
 AI produces structured evidence only. The backend computes every score and verdict using deterministic rules. Given the same evidence, the result is identical.
 
 ### Dimensions and Weights
 
-| Dimension | Weight | Deterministic evidence inputs |
-| --- | ---: | --- |
-| Problem Strength | 25% | `clearlyDefined`, problem frequency, severity |
-| Market Potential | 25% | market reach, monetizable flag, audience definition/accessibility |
-| Feasibility | 25% | MVP feasibility, technical complexity, resource requirement |
-| Differentiation | 15% | unique value flag, differentiation strength, similar solutions flag |
-| Execution Readiness | 10% | idea clarity and scope clarity |
+| Dimension           | Weight | Deterministic evidence inputs                                       |
+| ------------------- | -----: | ------------------------------------------------------------------- |
+| Problem Strength    |    25% | `clearlyDefined`, problem frequency, severity                       |
+| Market Potential    |    25% | market reach, monetizable flag, audience definition/accessibility   |
+| Feasibility         |    25% | MVP feasibility, technical complexity, resource requirement         |
+| Differentiation     |    15% | unique value flag, differentiation strength, similar solutions flag |
+| Execution Readiness |    10% | idea clarity and scope clarity                                      |
 
 ### Rule Summary
+
 - Each dimension is deterministically mapped to a score from `0` to `100`.
 - Evidence enums map as follows where applicable: high/large = higher points; medium = intermediate points; low/small = lower points.
 - For feasibility, lower technical complexity and resource requirement receive higher MVP-feasibility points.
@@ -808,12 +893,12 @@ AI produces structured evidence only. The backend computes every score and verdi
 
 ### Verdict Thresholds
 
-| Overall score | Verdict |
-| ---: | --- |
-| 80–100 | `STRONG_POTENTIAL` |
-| 65–79 | `PROMISING` |
-| 45–64 | `NEEDS_REFINEMENT` |
-| 0–44 | `HIGH_RISK` |
+| Overall score | Verdict            |
+| ------------: | ------------------ |
+|        80–100 | `STRONG_POTENTIAL` |
+|         65–79 | `PROMISING`        |
+|         45–64 | `NEEDS_REFINEMENT` |
+|          0–44 | `HIGH_RISK`        |
 
 ## 7) Matching APIs
 
