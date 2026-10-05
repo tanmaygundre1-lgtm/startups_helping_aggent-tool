@@ -71,6 +71,18 @@ Typical failure payload:
 
 ## 3.1) Shared app routes
 
+The Express application in `backend/app.js` mounts these routers under the `/api` prefix:
+
+| Route prefix | Router | Main resources |
+| --- | --- | --- |
+| `/api/users` | `backend/routes/userRoutes.js` | User sync, profiles, public profiles, candidate search |
+| `/api/ideas` | `backend/routes/ideaRoutes.js` and `backend/routes/aiRoutes.js` | Idea CRUD/discovery, enhancement, analysis, invitation-message generation |
+| `/api/candidates` | `backend/routes/matchingRoutes.js` | Scored candidate search and candidate match lookup |
+| `/api/invitations` | `backend/routes/invitationRoutes.js` | Invitation create, read, list, and lifecycle transitions |
+| `/api/teams` | `backend/routes/teamRoutes.js` | Team create/list/read and member addition |
+
+`GET /api/health` is public. `GET /api/auth/me` is separately registered in `backend/app.js` and requires Firebase authentication.
+
 ### GET /api/health
 
 Purpose: simple backend liveness check for local or deployment health monitoring.
@@ -381,64 +393,7 @@ Failure statuses:
 - `404` user not found
 - `500` DB failure
 
-### GET /api/candidates/search/with-scores (Extended)
-
-When used from the Generate Team flow, the response includes matching context:
-
-```json
-{
-  "success": true,
-  "matches": [
-    {
-      "matchId": "ObjectId",
-      "candidate": {
-        "id": "ObjectId",
-        "name": "string",
-        "profileImage": "string",
-        "college": { "name": "string" },
-        "location": { "city": "string", "state": "string", "region": "string" },
-        "skills": [
-          { "name": "string", "level": "Beginner|Intermediate|Advanced" }
-        ],
-        "interests": ["string"],
-        "targetRoles": ["string"],
-        "domainInterests": ["string"],
-        "availability": "full-time|part-time|flexible",
-        "workPreference": "remote|in-person|hybrid",
-        "hoursPerWeek": 20,
-        "createdAt": "ISO date"
-      },
-      "score": 92.5,
-      "explanation": {
-        "score": 92.5,
-        "matchedSkills": ["React", "Node.js", "MongoDB"],
-        "missingSkills": ["TypeScript"],
-        "niceToHaveSkills": ["Figma"],
-        "sharedDomains": ["EdTech"],
-        "roleMatches": ["Full Stack Developer"],
-        "components": {
-          "skills": 32.0,
-          "level": 15.0,
-          "role": 15.0,
-          "domain": 15.0,
-          "availability": 7.5
-        },
-        "recommendationReason": "3 of 4 required skills matched. preferred role matches. domain interests align. availability is compatible.",
-        "scoringVersion": "v1",
-        "availabilityFallback": false
-      },
-      "matchedRoles": ["Full Stack Developer"],
-      "invitationStatus": "Pending|Accepted|Declined|Withdrawn|Team Member|null",
-      "invitationId": "ObjectId|null",
-      "teamId": "ObjectId|null",
-      "createdAt": "ISO date"
-    }
-  ],
-  "pagination": { "page": 1, "limit": 20, "total": 24, "totalPages": 2 },
-  "sort": "best",
-  "minScore": 40
-}
-```
+The scored candidate-search response and query contract are documented in Section 7, where the live `/api/candidates` matching route is defined.
 
 ### POST /api/users/candidates/search
 
@@ -554,13 +509,55 @@ Error statuses:
 - `502` provider generation failure
 - `500` unexpected server error
 
-### GET /api/ideas/discover
-
-Purpose: Allows candidates to browse all startup ideas that have achieved `approved` status from the AI analysis pipeline.
-
 ### POST /api/ideas/
 
-Purpose: Enables a founder to create a new startup idea document. The backend automatically assigns the authenticated user as the creator.
+Purpose: Creates a draft idea owned by the authenticated user. The request passes through `validateIdeaCreate` before the controller persists it.
+
+Request body:
+
+```json
+{
+  "title": "AI founder matching app",
+  "description": "A detailed description of the startup concept, its audience, and the problem it addresses.",
+  "category": "Education",
+  "domain": "EdTech",
+  "problemStatement": "Optional problem statement",
+  "targetUsers": "Optional target users",
+  "requiredSkills": ["React", "Node.js"]
+}
+```
+
+Validation rules:
+
+- `title` is required and must be at least 3 characters
+- `description` is required and must be at least 20 characters
+- `requiredSkills` may be an array or omitted
+- The backend creates one record with `status: "draft"`.
+- `original.title`, `original.description`, and `original.capturedAt` are saved at creation.
+- `enhanced` and `aiAnalysis` remain unset until later workflow actions.
+
+Success response (`201`):
+
+```json
+{
+  "success": true,
+  "message": "Idea created successfully",
+  "idea": {
+    "_id": "ObjectId",
+    "createdBy": "ObjectId",
+    "title": "AI founder matching app",
+    "description": "...",
+    "status": "draft",
+    "original": {
+      "title": "AI founder matching app",
+      "description": "...",
+      "capturedAt": "ISO date"
+    }
+  }
+}
+```
+
+Error statuses: `400` invalid title/description, `401` missing/invalid Firebase token, `404` user not found, `500` server failure.
 
 ### GET /api/ideas/
 
@@ -683,42 +680,6 @@ Error statuses:
 - `404` user or idea not found
 - `500` update failure
 
-### DELETE /api/ideas/:ideaId
-
-Purpose: Allows the owner to delete an idea provided it has not yet received an approved AI analysis.
-
-Validation rules:
-
-- `title` is required and must be at least 3 characters
-- `description` is required and must be at least 20 characters
-- `requiredSkills` may be an array or omitted
-- The backend creates one record with `status: "draft"`.
-- `original.title`, `original.description`, and `original.capturedAt` are saved at creation.
-- `enhanced` and `aiAnalysis` remain unset until later workflow actions.
-
-Success response:
-
-```json
-{
-  "success": true,
-  "message": "Idea created successfully",
-  "idea": {
-    "_id": "ObjectId",
-    "createdBy": "ObjectId",
-    "title": "AI founder matching app",
-    "description": "...",
-    "status": "draft"
-  }
-}
-```
-
-Status codes:
-
-- `201` created
-- `400` invalid title/description
-- `404` user not found
-- `500` server failure
-
 ### GET /api/ideas/discover
 
 Protected candidate-facing idea discovery endpoint.
@@ -756,11 +717,19 @@ Success response:
 
 ### DELETE /api/ideas/:ideaId
 
-Validation rules:
+Purpose: Deletes an idea owned by the authenticated user only if its analysis has not been approved.
 
-- Only the idea owner can delete
-- `400` if idea has an approved analysis
-- `403` if not owner
+Authentication: Firebase Bearer token required. The route validates `ideaId` as a MongoDB ObjectId.
+
+Success response (`200`): `{ "success": true, "message": "Idea deleted successfully" }`.
+
+Error statuses:
+
+- `400` invalid ID or analysis is already approved
+- `401` missing/invalid Firebase token or user profile not found
+- `403` authenticated user does not own the idea
+- `404` idea not found
+- `500` server failure
 
 ## 5.1) Three-phase idea persistence contract
 
@@ -1588,4 +1557,6 @@ The backend is the source of truth for routing and schema. The following must ma
 - Invitation endpoints live under `/api/invitations`
 - Team endpoints live under `/api/teams`
 
-Any frontend route using `/api/profiles`, `/api/candidates`, `/api/users/candidates/search`, or a different profile payload shape is not aligned with the live implementation.
+Both candidate search routes are live and serve different uses: `POST /api/users/candidates/search` provides filtered profile search, while `GET /api/candidates/search/with-scores` performs idea-specific scoring. `/api/profiles` is not mounted. Frontend integrations must use the documented request and response shapes for the endpoint they call.
+
+Team completion is derived by the frontend from an approved idea's `aiAnalysis.rolesAndSkills` and actual `Team.members`. The backend does not return or persist a completion percentage, and accepted invitations alone are not team membership.
