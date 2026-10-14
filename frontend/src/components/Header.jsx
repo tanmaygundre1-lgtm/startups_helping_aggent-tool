@@ -20,7 +20,7 @@ const Header = () => {
           color: "var(--color-neutral-text)",
         }}
       >
-        StartupLink
+        idiaMate
       </Link>
       <div style={{ display: "flex", gap: "var(--spacing-md)" }}>
         <Link to="/dashboard">Dashboard</Link>

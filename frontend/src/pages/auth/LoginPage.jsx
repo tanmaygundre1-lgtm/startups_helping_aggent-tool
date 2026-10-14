@@ -22,7 +22,7 @@ const LoginPage = () => {
   return (
     <main className="auth-page">
       <section className="auth-panel">
-        <span className="state-kicker">StartupLink</span>
+        <span className="state-kicker">idiaMate</span>
         <h1>Build with the right people.</h1>
         <p className="auth-copy">
           Sign in to continue to your founder and candidate workspace.

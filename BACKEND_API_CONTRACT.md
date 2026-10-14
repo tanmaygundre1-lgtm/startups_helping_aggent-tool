@@ -73,13 +73,13 @@ Typical failure payload:
 
 The Express application in `backend/app.js` mounts these routers under the `/api` prefix:
 
-| Route prefix | Router | Main resources |
-| --- | --- | --- |
-| `/api/users` | `backend/routes/userRoutes.js` | User sync, profiles, public profiles, candidate search |
-| `/api/ideas` | `backend/routes/ideaRoutes.js` and `backend/routes/aiRoutes.js` | Idea CRUD/discovery, enhancement, analysis, invitation-message generation |
-| `/api/candidates` | `backend/routes/matchingRoutes.js` | Scored candidate search and candidate match lookup |
-| `/api/invitations` | `backend/routes/invitationRoutes.js` | Invitation create, read, list, and lifecycle transitions |
-| `/api/teams` | `backend/routes/teamRoutes.js` | Team create/list/read and member addition |
+| Route prefix       | Router                                                          | Main resources                                                            |
+| ------------------ | --------------------------------------------------------------- | ------------------------------------------------------------------------- |
+| `/api/users`       | `backend/routes/userRoutes.js`                                  | User sync, profiles, public profiles, candidate search                    |
+| `/api/ideas`       | `backend/routes/ideaRoutes.js` and `backend/routes/aiRoutes.js` | Idea CRUD/discovery, enhancement, analysis, invitation-message generation |
+| `/api/candidates`  | `backend/routes/matchingRoutes.js`                              | Scored candidate search and candidate match lookup                        |
+| `/api/invitations` | `backend/routes/invitationRoutes.js`                            | Invitation create, read, list, and lifecycle transitions                  |
+| `/api/teams`       | `backend/routes/teamRoutes.js`                                  | Team create/list/read and member addition                                 |
 
 `GET /api/health` is public. `GET /api/auth/me` is separately registered in `backend/app.js` and requires Firebase authentication.
 

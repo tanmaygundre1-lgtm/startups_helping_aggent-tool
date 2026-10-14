@@ -22,7 +22,7 @@ const Sidebar = () => {
 
   return (
     <aside className="app-sidebar">
-      <div className="brand">StartupLink</div>
+      <div className="brand">idiaMate</div>
       <nav className="nav-menu">
         {profileType === "founder" ? (
           <>

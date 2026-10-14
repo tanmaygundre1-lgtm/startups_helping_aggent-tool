@@ -13,16 +13,16 @@ This guide describes the active React application in `frontend/src`. It is based
 
 ## Application Layers
 
-| Layer | Location | Responsibility |
-| --- | --- | --- |
-| Bootstrap | `src/main.jsx`, `src/App.jsx` | Create the React root, initialize auth context, and install browser routing. |
-| Route guards and route table | `src/routes/` | Select page components, protect application routes, and redirect signed-in users based on profile completion. |
-| Pages | `src/pages/` | Own screen-level loading, error, and interaction state; compose shared and domain components. |
-| Shared UI | `src/components/common/`, `src/components/layout/` | Reusable buttons, cards, badges, status states, navigation, and application shell. |
-| Domain UI | `src/components/matching/`, `src/components/invitations/` | Candidate cards/modals/composers and invitation cards/details/actions. |
-| Auth and profile state | `src/context/`, `src/hooks/`, `src/services/authService.js` | Synchronize Firebase identity with the backend profile and expose it through `useAuth`. |
-| API access | `src/api/`, `src/services/` | Attach auth tokens, normalize request errors, and group backend calls by resource/workflow. |
-| Styling | `src/index.css`, `src/App.css` | Define global tokens, controls, app shell, and shared page styling. |
+| Layer                        | Location                                                    | Responsibility                                                                                                |
+| ---------------------------- | ----------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------- |
+| Bootstrap                    | `src/main.jsx`, `src/App.jsx`                               | Create the React root, initialize auth context, and install browser routing.                                  |
+| Route guards and route table | `src/routes/`                                               | Select page components, protect application routes, and redirect signed-in users based on profile completion. |
+| Pages                        | `src/pages/`                                                | Own screen-level loading, error, and interaction state; compose shared and domain components.                 |
+| Shared UI                    | `src/components/common/`, `src/components/layout/`          | Reusable buttons, cards, badges, status states, navigation, and application shell.                            |
+| Domain UI                    | `src/components/matching/`, `src/components/invitations/`   | Candidate cards/modals/composers and invitation cards/details/actions.                                        |
+| Auth and profile state       | `src/context/`, `src/hooks/`, `src/services/authService.js` | Synchronize Firebase identity with the backend profile and expose it through `useAuth`.                       |
+| API access                   | `src/api/`, `src/services/`                                 | Attach auth tokens, normalize request errors, and group backend calls by resource/workflow.                   |
+| Styling                      | `src/index.css`, `src/App.css`                              | Define global tokens, controls, app shell, and shared page styling.                                           |
 
 Most page data is held in component-local React state. `AuthContext` is the shared state source for the Firebase user, backend profile, profile type, loading/error state, and auth actions; there is no separate global data store.
 
@@ -30,29 +30,29 @@ Most page data is held in component-local React state. `AuthContext` is the shar
 
 `AppRoutes.jsx` is the canonical client-side route table. `ProtectedRoute` wraps onboarding and `/app` routes. `PublicRoute` controls `/login`. The root route selects login, onboarding, or the app based on auth and profile completion.
 
-| Path | Access | Page | Use |
-| --- | --- | --- | --- |
-| `/` | Public entry | `RootEntry` in `AppRoutes.jsx` | Redirect to login, onboarding, or `/app` according to auth/profile state. |
-| `/login` | Public | `pages/auth/LoginPage.jsx` | Google sign-in. Signed-in users are redirected onward. |
-| `/onboarding/welcome` | Protected | `pages/onboarding/WelcomePage.jsx` | Begin profile onboarding. |
-| `/onboarding/role` | Protected | `pages/onboarding/RoleSelectionPage.jsx` | Select founder or candidate flow. |
-| `/onboarding/founder` | Protected | `pages/onboarding/FounderOnboarding.jsx` | Collect founder profile details. |
-| `/onboarding/candidate` | Protected | `pages/onboarding/CandidateOnboarding.jsx` | Collect candidate profile, skills, roles, and availability. |
-| `/app` | Protected | `pages/ApplicationEntryPage.jsx` | Render the Founder or Candidate dashboard from `profileType`. |
-| `/app/ideas` | Protected | `pages/dashboard/IdeasPage.jsx` | List and manage the founder's ideas and resume their workflow. |
-| `/app/ideas/create` | Protected | `pages/dashboard/CreateIdeaPage.jsx` | Create an idea. |
-| `/app/ideas/:ideaId/raw` | Protected | `pages/dashboard/CreateIdeaPage.jsx` | Edit the raw idea for an existing ID. |
-| `/app/ideas/:ideaId/enhance` | Protected | `pages/dashboard/EnhanceIdeaPage.jsx` | Review and enhance the saved idea. |
-| `/app/ideas/:ideaId/analysis` | Protected | `pages/dashboard/AnalyzeIdeaPage.jsx` | View, edit, and approve analysis and role requirements. |
-| `/app/ideas/:ideaId/matching` | Protected | `pages/dashboard/GenerateTeamPage.jsx` | Run scored matching, inspect role groups, and invite candidates. An optional `?role=` query focuses the existing generated groups on a missing role. |
-| `/app/ideas/:ideaId` | Protected | `pages/dashboard/IdeaDetailPage.jsx` | View the saved idea, analysis, and workflow actions. |
-| `/app/talent` | Protected | `pages/FeaturePage.jsx` | Placeholder for founder talent discovery. |
-| `/app/founder-team` | Protected | `pages/dashboard/FounderTeamPage.jsx` | Create a team for an idea, view actual members, derive completion from approved roles and team members, and find candidates for missing roles. |
-| `/app/team` | Protected | `pages/dashboard/CandidateTeamPage.jsx` | View teams in which the authenticated candidate is a member. |
-| `/app/invitations` | Protected | `pages/dashboard/CandidateInvitationsPage.jsx` | List sent/received invitations and open invitation details. Direction depends on `profileType`. |
-| `/app/explore` | Protected | `pages/FeaturePage.jsx` | Candidate startup-exploration placeholder. |
-| `/app/matches` | Protected | `pages/FeaturePage.jsx` | Candidate matches placeholder. |
-| `*` | Any | `Navigate` in `AppRoutes.jsx` | Redirect unknown paths to `/`. |
+| Path                          | Access       | Page                                           | Use                                                                                                                                                  |
+| ----------------------------- | ------------ | ---------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `/`                           | Public entry | `RootEntry` in `AppRoutes.jsx`                 | Redirect to login, onboarding, or `/app` according to auth/profile state.                                                                            |
+| `/login`                      | Public       | `pages/auth/LoginPage.jsx`                     | Google sign-in. Signed-in users are redirected onward.                                                                                               |
+| `/onboarding/welcome`         | Protected    | `pages/onboarding/WelcomePage.jsx`             | Begin profile onboarding.                                                                                                                            |
+| `/onboarding/role`            | Protected    | `pages/onboarding/RoleSelectionPage.jsx`       | Select founder or candidate flow.                                                                                                                    |
+| `/onboarding/founder`         | Protected    | `pages/onboarding/FounderOnboarding.jsx`       | Collect founder profile details.                                                                                                                     |
+| `/onboarding/candidate`       | Protected    | `pages/onboarding/CandidateOnboarding.jsx`     | Collect candidate profile, skills, roles, and availability.                                                                                          |
+| `/app`                        | Protected    | `pages/ApplicationEntryPage.jsx`               | Render the Founder or Candidate dashboard from `profileType`.                                                                                        |
+| `/app/ideas`                  | Protected    | `pages/dashboard/IdeasPage.jsx`                | List and manage the founder's ideas and resume their workflow.                                                                                       |
+| `/app/ideas/create`           | Protected    | `pages/dashboard/CreateIdeaPage.jsx`           | Create an idea.                                                                                                                                      |
+| `/app/ideas/:ideaId/raw`      | Protected    | `pages/dashboard/CreateIdeaPage.jsx`           | Edit the raw idea for an existing ID.                                                                                                                |
+| `/app/ideas/:ideaId/enhance`  | Protected    | `pages/dashboard/EnhanceIdeaPage.jsx`          | Review and enhance the saved idea.                                                                                                                   |
+| `/app/ideas/:ideaId/analysis` | Protected    | `pages/dashboard/AnalyzeIdeaPage.jsx`          | View, edit, and approve analysis and role requirements.                                                                                              |
+| `/app/ideas/:ideaId/matching` | Protected    | `pages/dashboard/GenerateTeamPage.jsx`         | Run scored matching, inspect role groups, and invite candidates. An optional `?role=` query focuses the existing generated groups on a missing role. |
+| `/app/ideas/:ideaId`          | Protected    | `pages/dashboard/IdeaDetailPage.jsx`           | View the saved idea, analysis, and workflow actions.                                                                                                 |
+| `/app/talent`                 | Protected    | `pages/FeaturePage.jsx`                        | Placeholder for founder talent discovery.                                                                                                            |
+| `/app/founder-team`           | Protected    | `pages/dashboard/FounderTeamPage.jsx`          | Create a team for an idea, view actual members, derive completion from approved roles and team members, and find candidates for missing roles.       |
+| `/app/team`                   | Protected    | `pages/dashboard/CandidateTeamPage.jsx`        | View teams in which the authenticated candidate is a member.                                                                                         |
+| `/app/invitations`            | Protected    | `pages/dashboard/CandidateInvitationsPage.jsx` | List sent/received invitations and open invitation details. Direction depends on `profileType`.                                                      |
+| `/app/explore`                | Protected    | `pages/FeaturePage.jsx`                        | Candidate startup-exploration placeholder.                                                                                                           |
+| `/app/matches`                | Protected    | `pages/FeaturePage.jsx`                        | Candidate matches placeholder.                                                                                                                       |
+| `*`                           | Any          | `Navigate` in `AppRoutes.jsx`                  | Redirect unknown paths to `/`.                                                                                                                       |
 
 `ProtectedRoute` waits for auth initialization, redirects signed-out users to `/login`, and displays an auth error state when profile loading fails. It checks Firebase sign-in; the root entry and public route additionally use `profileCompleted` to choose the onboarding or app destination.
 
@@ -67,14 +67,14 @@ Most page data is held in component-local React state. `AuthContext` is the shar
 
 ## API Modules
 
-| Module | Use |
-| --- | --- |
-| `src/api/client.js` | Shared Axios instance, base URL, auth header, and error normalization. |
-| `src/api/userApi.js` | Sync, retrieve, update, and create user profiles. |
-| `src/services/ideaApi.js` | Create/list/get/update/delete ideas; invoke enhancement, analysis, and approval endpoints. |
-| `src/services/matchingApi.js` | Candidate search/matches, invitations, and team create/list/read/member-add operations. |
-| `src/services/authService.js` | Firebase sign-in, sign-up, persistence, and sign-out operations. |
-| `src/services/api.js` | Compatibility wrapper around the shared client and user-sync helper. Prefer the resource-specific API modules for new page work. |
+| Module                        | Use                                                                                                                              |
+| ----------------------------- | -------------------------------------------------------------------------------------------------------------------------------- |
+| `src/api/client.js`           | Shared Axios instance, base URL, auth header, and error normalization.                                                           |
+| `src/api/userApi.js`          | Sync, retrieve, update, and create user profiles.                                                                                |
+| `src/services/ideaApi.js`     | Create/list/get/update/delete ideas; invoke enhancement, analysis, and approval endpoints.                                       |
+| `src/services/matchingApi.js` | Candidate search/matches, invitations, and team create/list/read/member-add operations.                                          |
+| `src/services/authService.js` | Firebase sign-in, sign-up, persistence, and sign-out operations.                                                                 |
+| `src/services/api.js`         | Compatibility wrapper around the shared client and user-sync helper. Prefer the resource-specific API modules for new page work. |
 
 Pages should call these modules rather than construct Axios requests directly. Backend response envelopes are returned by each module as `response.data`; page components normalize the envelopes they consume.
 

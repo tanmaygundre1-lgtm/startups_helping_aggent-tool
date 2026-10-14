@@ -9,7 +9,7 @@ const RoleSelectionPage = () => {
     <main className="state-page">
       <div className="state-panel">
         <span className="state-kicker">Get Started</span>
-        <h1>What brings you to StartupLink?</h1>
+        <h1>What brings you to idiaMate?</h1>
 
         <div
           style={{
