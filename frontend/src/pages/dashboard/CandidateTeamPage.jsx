@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import AppLayout from "../../components/layout/AppLayout";
 import Badge from "../../components/common/Badge";
 import Button from "../../components/common/Button";
@@ -268,6 +269,12 @@ const CandidateTeamPage = () => {
                       )}
                     </div>
                   </div>
+                  <Link
+                    className="primary-button"
+                    to={`/app/teams/${team?._id}/chat`}
+                  >
+                    Open team chat
+                  </Link>
                 </Card>
               );
             })}

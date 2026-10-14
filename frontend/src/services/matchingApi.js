@@ -123,3 +123,15 @@ export const addTeamMember = async (teamId, candidateId) => {
   const response = await client.post(`/teams/${teamId}/members`, { candidateId });
   return response.data;
 };
+
+export const listTeamMessages = async (teamId, page = 1, limit = 50) => {
+  const response = await client.get(`/teams/${teamId}/messages`, {
+    params: { page, limit },
+  });
+  return response.data;
+};
+
+export const sendTeamMessage = async (teamId, content) => {
+  const response = await client.post(`/teams/${teamId}/messages`, { content });
+  return response.data;
+};

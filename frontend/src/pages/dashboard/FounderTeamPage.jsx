@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import AppLayout from "../../components/layout/AppLayout";
 import Badge from "../../components/common/Badge";
 import Button from "../../components/common/Button";
@@ -480,6 +480,12 @@ const FounderTeamPage = () => {
                           })}
                         </div>
                       )}
+                      <Link
+                        className="primary-button"
+                        to={`/app/teams/${team._id}/chat`}
+                      >
+                        Open team chat
+                      </Link>
                       <section style={{ marginTop: "var(--space-lg)" }}>
                         <h3 style={{ margin: "0 0 var(--space-sm)" }}>
                           Missing Roles

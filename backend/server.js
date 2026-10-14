@@ -1,16 +1,20 @@
+const http = require('http');
 const connectToDatabase = require('./config/db');
 const app = require('./app');
+const { createTeamChatSocketServer } = require('./sockets/teamChatSocket');
 
 const dotenv = require('dotenv');
 dotenv.config();
 
 const port = process.env.PORT || 5000;
+const httpServer = http.createServer(app);
+createTeamChatSocketServer(httpServer);
 
 const startServer = async () => {
   try {
     await connectToDatabase();
 
-    app.listen(port, () => {
+    httpServer.listen(port, () => {
       console.log(`Server running on port ${port}`);
     });
   } catch (error) {

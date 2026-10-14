@@ -157,3 +157,137 @@ button:disabled {
 .mar-t {
   margin-top: var(--space-md);
 }
+
+.chat-page {
+  width: min(100%, 960px);
+  margin: 0 auto;
+  padding: var(--space-lg);
+}
+
+.chat-header {
+  margin-bottom: var(--space-lg);
+}
+
+.chat-header h1 {
+  max-width: none;
+  margin: var(--space-sm) 0;
+  font-size: clamp(2rem, 5vw, 3.2rem);
+}
+
+.chat-header p {
+  margin: 0;
+}
+
+.chat-back-link {
+  color: var(--accent-dark);
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.chat-card {
+  display: flex;
+  min-height: 60vh;
+  flex-direction: column;
+}
+
+.chat-history {
+  display: grid;
+  flex: 1;
+  align-content: start;
+  gap: var(--space-md);
+  min-height: 280px;
+  max-height: 58vh;
+  overflow-y: auto;
+  padding: var(--space-sm) 0 var(--space-lg);
+}
+
+.chat-message {
+  width: min(82%, 620px);
+  padding: var(--space-md);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  background: var(--canvas);
+}
+
+.chat-message-own {
+  justify-self: end;
+  border-color: var(--accent);
+  background: var(--accent-soft);
+}
+
+.chat-message-meta,
+.chat-composer-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-sm);
+}
+
+.chat-message-meta {
+  color: var(--ink);
+  font-size: 0.88rem;
+}
+
+.chat-message-meta time,
+.chat-composer-footer span {
+  color: var(--muted);
+  font-size: 0.78rem;
+}
+
+.chat-message p {
+  margin: var(--space-sm) 0 0;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.chat-older-button {
+  align-self: center;
+  margin-bottom: var(--space-md);
+}
+
+.chat-state-text {
+  margin: auto;
+  text-align: center;
+}
+
+.chat-composer {
+  display: grid;
+  gap: var(--space-sm);
+  border-top: 1px solid var(--line);
+  padding-top: var(--space-md);
+}
+
+.chat-composer label {
+  font-weight: 700;
+}
+
+.chat-composer textarea {
+  width: 100%;
+  box-sizing: border-box;
+  resize: vertical;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  padding: var(--space-sm);
+  color: var(--ink);
+  background: var(--surface);
+  font: inherit;
+}
+
+.chat-composer textarea:focus {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+
+@media (max-width: 700px) {
+  .chat-page {
+    padding: var(--space-md);
+  }
+
+  .chat-card {
+    padding: var(--space-md);
+  }
+
+  .chat-message {
+    width: 92%;
+  }
+}
