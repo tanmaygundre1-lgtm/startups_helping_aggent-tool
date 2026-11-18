@@ -3,6 +3,7 @@ const Invitation = require('../models/Invitation');
 const Idea = require('../models/Idea');
 const User = require('../models/User');
 const Match = require('../models/Match');
+const Team = require('../models/Team');
 
 const safePopulate = [
   { path: 'ideaId', select: 'title domain status createdBy' },
@@ -12,6 +13,36 @@ const safePopulate = [
 
 const actor = (req) => User.findOne({ firebaseUid: req.user.uid });
 const validId = (value) => mongoose.Types.ObjectId.isValid(value);
+
+const addAcceptedCandidateToTeam = async (invitation, candidateId) => {
+  const team = await Team.findOne({ ideaId: invitation.ideaId }).select('_id').lean();
+  if (!team) return invitation;
+
+  await Team.findOneAndUpdate(
+    {
+      _id: team._id,
+      'members.userId': { $ne: candidateId },
+    },
+    {
+      $push: {
+        members: {
+          userId: candidateId,
+          role: invitation.role || 'Team member',
+          invitationId: invitation._id,
+          joinedAt: new Date(),
+        },
+      },
+    },
+    { new: true },
+  );
+
+  await Invitation.updateOne(
+    { _id: invitation._id, status: 'Accepted' },
+    { $set: { teamId: team._id } },
+  );
+
+  return { ...invitation, teamId: team._id };
+};
 
 const sendInvitation = async (req, res) => {
   try {
@@ -115,7 +146,12 @@ const transition = async (req, res, action) => {
   const terminal = action === 'accept' ? 'Accepted' : action === 'decline' ? 'Declined' : 'Withdrawn';
   const current = await Invitation.findOne({ _id: id, status: 'Pending' }).lean();
   if (!current) {
-    if (invitation.status === terminal) return res.status(200).json({ success: true, invitation, idempotent: true });
+    if (invitation.status === terminal) {
+      const acceptedInvitation = action === 'accept'
+        ? await addAcceptedCandidateToTeam(invitation, user._id)
+        : invitation;
+      return res.status(200).json({ success: true, invitation: acceptedInvitation, idempotent: true });
+    }
     return res.status(409).json({ success: false, message: 'Invitation is no longer pending', code: 'STALE_INVITATION' });
   }
 
@@ -132,7 +168,10 @@ const transition = async (req, res, action) => {
   ).lean();
 
   if (!updated) return res.status(409).json({ success: false, message: 'Invitation state changed; retry', code: 'STALE_INVITATION' });
-  return res.status(200).json({ success: true, invitation: updated });
+  const acceptedInvitation = action === 'accept'
+    ? await addAcceptedCandidateToTeam(updated, user._id)
+    : updated;
+  return res.status(200).json({ success: true, invitation: acceptedInvitation });
 };
 
 const acceptInvitation = (req, res) => transition(req, res, 'accept').catch((error) => { console.error(error); res.status(500).json({ success: false, message: 'Failed to accept invitation' }); });

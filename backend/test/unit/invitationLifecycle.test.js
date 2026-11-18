@@ -5,7 +5,13 @@ const Invitation = require('../../models/Invitation');
 const Idea = require('../../models/Idea');
 const User = require('../../models/User');
 const Match = require('../../models/Match');
-const { sendInvitation, listInvitations, withdrawInvitation } = require('../../controllers/invitationController');
+const Team = require('../../models/Team');
+const {
+  acceptInvitation,
+  sendInvitation,
+  listInvitations,
+  withdrawInvitation,
+} = require('../../controllers/invitationController');
 const migrateInvitationIndexes = require('../../scripts/migrateInvitationIndexes');
 
 const createMockRes = () => {
@@ -23,6 +29,76 @@ const createMockRes = () => {
   };
   return res;
 };
+
+test('accepting an invitation adds the candidate to an existing team', async () => {
+  const candidateId = '507f1f77bcf86cd799439012';
+  const ideaId = '507f1f77bcf86cd799439013';
+  const invitation = {
+    _id: '507f1f77bcf86cd799439014',
+    ideaId,
+    toCandidate: candidateId,
+    fromFounder: '507f1f77bcf86cd799439011',
+    role: 'Backend Developer',
+    status: 'Pending',
+  };
+  const team = { _id: '507f1f77bcf86cd799439015', ideaId, members: [] };
+  const originals = {
+    userFindOne: User.findOne,
+    invitationFindById: Invitation.findById,
+    invitationFindOne: Invitation.findOne,
+    invitationFindOneAndUpdate: Invitation.findOneAndUpdate,
+    invitationUpdateOne: Invitation.updateOne,
+    teamFindOne: Team.findOne,
+    teamFindOneAndUpdate: Team.findOneAndUpdate,
+  };
+  let teamUpdate;
+  let invitationTeamUpdate;
+
+  try {
+    User.findOne = () => ({ _id: candidateId, firebaseUid: 'candidate-firebase' });
+    Invitation.findById = () => ({ lean: async () => invitation });
+    Invitation.findOne = () => ({ lean: async () => invitation });
+    Invitation.findOneAndUpdate = (query, update) => ({
+      lean: async () => ({ ...invitation, ...update.$set }),
+    });
+    Invitation.updateOne = async (query, update) => {
+      invitationTeamUpdate = { query, update };
+    };
+    Team.findOne = () => ({
+      select() {
+        return this;
+      },
+      lean: async () => team,
+    });
+    Team.findOneAndUpdate = async (query, update) => {
+      teamUpdate = { query, update };
+      return team;
+    };
+
+    const res = createMockRes();
+    await acceptInvitation({
+      user: { uid: 'candidate-firebase' },
+      params: { invitationId: invitation._id },
+    }, res);
+
+    assert.equal(res.statusCode, 200);
+    assert.equal(res.body.invitation.status, 'Accepted');
+    assert.equal(String(res.body.invitation.teamId), team._id);
+    assert.deepEqual(teamUpdate.query['members.userId'], { $ne: candidateId });
+    assert.equal(teamUpdate.update.$push.members.userId, candidateId);
+    assert.equal(teamUpdate.update.$push.members.role, invitation.role);
+    assert.equal(teamUpdate.update.$push.members.invitationId, invitation._id);
+    assert.deepEqual(invitationTeamUpdate.update.$set, { teamId: team._id });
+  } finally {
+    User.findOne = originals.userFindOne;
+    Invitation.findById = originals.invitationFindById;
+    Invitation.findOne = originals.invitationFindOne;
+    Invitation.findOneAndUpdate = originals.invitationFindOneAndUpdate;
+    Invitation.updateOne = originals.invitationUpdateOne;
+    Team.findOne = originals.teamFindOne;
+    Team.findOneAndUpdate = originals.teamFindOneAndUpdate;
+  }
+});
 
 test('invitation lifecycle allows a new pending invite after a historical withdrawn record', async () => {
   const founder = { _id: '507f1f77bcf86cd799439011', firebaseUid: 'founder-firebase' };

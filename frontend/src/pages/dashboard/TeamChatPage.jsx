@@ -55,7 +55,12 @@ const mergeMessages = (currentMessages, nextMessages) => {
 
 const TeamChatPage = () => {
   const { teamId } = useParams();
-  const { profile, profileType } = useAuth();
+  const {
+    firebaseUser,
+    loading: authLoading,
+    profile,
+    profileType,
+  } = useAuth();
   const [team, setTeam] = useState(null);
   const [messages, setMessages] = useState([]);
   const [pagination, setPagination] = useState(null);
@@ -66,14 +71,39 @@ const TeamChatPage = () => {
   const [error, setError] = useState("");
   const [sendError, setSendError] = useState("");
   const [realtimeError, setRealtimeError] = useState("");
+  const [pollWarning, setPollWarning] = useState("");
+  const [isConnected, setIsConnected] = useState(false);
+  const [isJoined, setIsJoined] = useState(false);
   const socketRef = useRef(null);
   const joinedTeamRef = useRef(false);
   const connectedBeforeRef = useRef(false);
+  const teamIdRef = useRef(teamId);
+  const authRetryTimerRef = useRef(null);
+  const authRetryAttemptRef = useRef(0);
+  const pollFailuresRef = useRef(0);
+  const chatDebugEnabled = import.meta.env.VITE_CHAT_DEBUG === "true";
+  const realtimeStatus = realtimeError
+    || (authLoading
+      ? "Connecting to your account..."
+      : !auth.currentUser && !firebaseUser
+        ? "Not connected. Sign in to use team chat."
+        : !isConnected
+          ? "Reconnecting..."
+          : !isJoined
+            ? "Joining team chat..."
+            : "");
 
-  const loadMessages = useCallback(async (page = 1) => {
+  const loadMessages = useCallback(async (page = 1, { updatePagination = true } = {}) => {
     const messageResponse = await listTeamMessages(teamId, page, PAGE_SIZE);
-    setMessages((messageResponse?.messages || []).map(normalizeMessage));
-    setPagination(messageResponse?.pagination || null);
+    setMessages((currentMessages) =>
+      mergeMessages(
+        currentMessages,
+        (messageResponse?.messages || []).map(normalizeMessage),
+      ),
+    );
+    if (updatePagination) {
+      setPagination(messageResponse?.pagination || null);
+    }
   }, [teamId]);
 
   const loadChat = useCallback(async () => {
@@ -102,82 +132,170 @@ const TeamChatPage = () => {
     return () => window.clearTimeout(loadTask);
   }, [loadChat]);
 
+  const joinTeam = useCallback((socket, currentTeamId) => {
+    if (!socket?.connected || !currentTeamId) return;
+    joinedTeamRef.current = false;
+    setIsJoined(false);
+    socket.emit("team:join", { teamId: currentTeamId }, (response) => {
+      if (chatDebugEnabled) {
+        console.debug("[CHAT-DEBUG] team:join ack", {
+          teamId: currentTeamId,
+          response,
+        });
+      }
+      if (!response?.ok) {
+        joinedTeamRef.current = false;
+        setIsJoined(false);
+        setRealtimeError(response?.message || "Unable to join realtime team chat.");
+        return;
+      }
+
+      joinedTeamRef.current = true;
+      setIsJoined(true);
+      setRealtimeError("");
+      if (connectedBeforeRef.current) {
+        void loadMessages(1, { updatePagination: false }).catch((requestError) => {
+          console.error("[TEAM CHAT] Failed to recover recent messages:", requestError);
+          setPollWarning("Recent messages could not be refreshed.");
+        });
+      }
+      connectedBeforeRef.current = true;
+    });
+  }, [chatDebugEnabled, loadMessages]);
+
+  useEffect(() => {
+    teamIdRef.current = teamId;
+    if (socketRef.current?.connected) {
+      joinTeam(socketRef.current, teamId);
+    }
+  }, [joinTeam, teamId]);
+
   useEffect(() => {
     let active = true;
-    let socket;
+    if (authLoading) return () => { active = false; };
 
-    const connectRealtime = async () => {
-      const firebaseUser = auth.currentUser;
-      if (!firebaseUser) return;
+    const currentFirebaseUser = auth.currentUser || firebaseUser;
+    if (!currentFirebaseUser) return () => { active = false; };
 
-      try {
-        const token = await firebaseUser.getIdToken();
-        if (!active) return;
-
-        socket = io(getSocketUrl(), {
-          auth: { token },
-          transports: ["websocket", "polling"],
-        });
-        socketRef.current = socket;
-
-        socket.on("connect", () => {
-          socket.emit("team:join", { teamId }, async (response) => {
-            if (!response?.ok) {
-              joinedTeamRef.current = false;
-              setRealtimeError(response?.message || "Unable to join realtime team chat.");
-              return;
-            }
-
-            joinedTeamRef.current = true;
-            setRealtimeError("");
-            if (connectedBeforeRef.current) {
-              try {
-                await loadMessages(1);
-              } catch (requestError) {
-                setRealtimeError(requestError?.message || "Unable to recover recent messages.");
-              }
-            }
-            connectedBeforeRef.current = true;
+    const socket = io(getSocketUrl(), {
+      auth: (callback) => {
+        const currentUser = auth.currentUser || firebaseUser;
+        if (!currentUser) {
+          callback({});
+          return;
+        }
+        currentUser.getIdToken()
+          .then((token) => callback({ token }))
+          .catch((tokenError) => {
+            console.error("[TEAM CHAT] Failed to get Firebase ID token:", tokenError);
+            setRealtimeError("Unable to authenticate realtime chat.");
+            callback({});
           });
-        });
+      },
+      transports: ["websocket", "polling"],
+    });
+    socketRef.current = socket;
 
-        socket.on("team:message", (message) => {
-          setMessages((currentMessages) => mergeMessages(currentMessages, [
-            normalizeMessage(message),
-          ]));
-        });
-
-        socket.on("disconnect", () => {
-          joinedTeamRef.current = false;
-          setRealtimeError("Realtime connection lost. Reconnecting...");
-        });
-
-        socket.on("connect_error", (connectionError) => {
-          joinedTeamRef.current = false;
-          setRealtimeError(connectionError?.message || "Realtime chat is unavailable.");
-        });
-      } catch (connectionError) {
-        setRealtimeError(connectionError?.message || "Realtime chat is unavailable.");
+    socket.on("connect", () => {
+      if (chatDebugEnabled) {
+        console.debug("[CHAT-DEBUG] connect", { socketId: socket.id });
       }
-    };
+      authRetryAttemptRef.current = 0;
+      setIsConnected(true);
+      setRealtimeError("");
+      joinTeam(socket, teamIdRef.current);
+    });
 
-    void connectRealtime();
+    socket.on("team:message", (message) => {
+      if (chatDebugEnabled) {
+        console.debug("[CHAT-DEBUG] incoming team:message", message);
+      }
+      setMessages((currentMessages) =>
+        mergeMessages(currentMessages, [normalizeMessage(message)]),
+      );
+    });
+
+    socket.on("disconnect", (reason) => {
+      if (chatDebugEnabled) {
+        console.debug("[CHAT-DEBUG] disconnect", { reason });
+      }
+      joinedTeamRef.current = false;
+      setIsConnected(false);
+      setIsJoined(false);
+      setRealtimeError("Realtime connection lost. Reconnecting...");
+    });
+
+    socket.on("connect_error", (connectionError) => {
+      const code = connectionError?.data?.code;
+      if (chatDebugEnabled) {
+        console.debug("[CHAT-DEBUG] connect_error", {
+          message: connectionError?.message,
+          code,
+        });
+      }
+      joinedTeamRef.current = false;
+      setIsConnected(false);
+      setIsJoined(false);
+      setRealtimeError(connectionError?.message || "Realtime chat is unavailable.");
+
+      if (!["INVALID_TOKEN", "AUTH_REQUIRED"].includes(code)
+        || authRetryTimerRef.current
+        || authRetryAttemptRef.current >= 3) {
+        return;
+      }
+
+      const retryDelay = Math.min(500 * (2 ** authRetryAttemptRef.current), 4000);
+      authRetryAttemptRef.current += 1;
+      socket.disconnect();
+      authRetryTimerRef.current = window.setTimeout(async () => {
+        authRetryTimerRef.current = null;
+        try {
+          const user = auth.currentUser || firebaseUser;
+          if (!user) throw new Error("No signed-in Firebase user is available.");
+          await user.getIdToken(true);
+          if (active) socket.connect();
+        } catch (tokenError) {
+          console.error("[TEAM CHAT] Failed to refresh Firebase ID token:", tokenError);
+          if (active) {
+            setRealtimeError("Unable to refresh your chat authentication. Please sign in again.");
+          }
+        }
+      }, retryDelay);
+    });
+
     return () => {
       active = false;
       joinedTeamRef.current = false;
       socketRef.current = null;
-      socket?.disconnect();
+      if (authRetryTimerRef.current) {
+        window.clearTimeout(authRetryTimerRef.current);
+        authRetryTimerRef.current = null;
+      }
+      socket.disconnect();
     };
-  }, [loadMessages, teamId]);
+  }, [authLoading, chatDebugEnabled, firebaseUser, joinTeam]);
 
   useEffect(() => {
+    if (isConnected && isJoined) return undefined;
+
     const recoveryTimer = window.setInterval(() => {
       if (document.visibilityState === "hidden") return;
-      void loadMessages(1).catch(() => {});
+      void loadMessages(1, { updatePagination: false })
+        .then(() => {
+          pollFailuresRef.current = 0;
+          setPollWarning("");
+        })
+        .catch((requestError) => {
+          pollFailuresRef.current += 1;
+          console.error("[TEAM CHAT] Message history polling failed:", requestError);
+          if (pollFailuresRef.current >= 3) {
+            setPollWarning("Realtime chat is unavailable and recent messages could not be refreshed.");
+          }
+        });
     }, 5000);
 
     return () => window.clearInterval(recoveryTimer);
-  }, [loadMessages]);
+  }, [isConnected, isJoined, loadMessages]);
 
   const loadOlderMessages = async () => {
     if (
@@ -348,9 +466,14 @@ const TeamChatPage = () => {
               </p>
             )}
 
-            {realtimeError && (
+            {realtimeStatus && (
               <p className="chat-realtime-status" role="status">
-                {realtimeError}
+                {realtimeStatus}
+              </p>
+            )}
+            {pollWarning && (
+              <p className="chat-realtime-status" role="status">
+                {pollWarning}
               </p>
             )}
 
@@ -374,8 +497,11 @@ const TeamChatPage = () => {
               />
               <div className="chat-composer-footer">
                 <span>{content.length}/2000</span>
-                <Button type="submit" disabled={sending || !content.trim()}>
-                  {sending ? "Sending..." : "Send"}
+                <Button
+                  type="submit"
+                  disabled={sending || !content.trim() || !isJoined}
+                >
+                  {sending ? "Sending..." : !isJoined ? "Connecting..." : "Send"}
                 </Button>
               </div>
             </form>

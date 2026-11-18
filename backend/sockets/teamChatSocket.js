@@ -8,6 +8,7 @@ const User = require('../models/User');
 
 const MAX_MESSAGE_LENGTH = 2000;
 const MAX_CLIENT_MESSAGE_ID_LENGTH = 100;
+const isChatDebugEnabled = () => process.env.CHAT_DEBUG === 'true';
 
 const roomName = (teamId) => `team:${teamId}`;
 const isValidId = (value) => mongoose.Types.ObjectId.isValid(value);
@@ -66,28 +67,41 @@ const registerTeamChatHandlers = (io, options = {}) => {
 
   io.on('connection', (socket) => {
     socket.data.teamRooms = new Set();
+    if (isChatDebugEnabled()) {
+      console.log(`[CHAT-DEBUG] connection socketId=${socket.id} userId=${socket.user._id}`);
+    }
 
     socket.on('team:join', async (payload = {}, ack) => {
       const { teamId } = payload;
+      const debugJoin = (result) => {
+        if (isChatDebugEnabled()) {
+          console.log(`[CHAT-DEBUG] team:join userId=${socket.user._id} teamId=${teamId} result=${result}`);
+        }
+      };
       if (!isValidId(teamId)) {
+        debugJoin('INVALID_ID');
         return acknowledge(ack, { ok: false, code: 'INVALID_ID', message: 'Invalid team ID format' });
       }
 
       try {
         const access = await getTeamAccess(teamId, socket.user._id);
         if (!access.team) {
+          debugJoin('TEAM_NOT_FOUND');
           return acknowledge(ack, { ok: false, code: 'TEAM_NOT_FOUND', message: 'Team not found' });
         }
         if (!access.authorized) {
-          return acknowledge(ack, { ok: false, code: 'FORBIDDEN', message: 'Not authorized to access this team chat' });
+          debugJoin('FORBIDDEN');
+          return acknowledge(ack, { ok: false, code: 'FORBIDDEN', message: 'You are not a member of this team yet' });
         }
 
         const room = roomName(teamId);
         await socket.join(room);
         socket.data.teamRooms.add(teamId);
+        debugJoin('ok');
         return acknowledge(ack, { ok: true, teamId });
       } catch (error) {
         console.error('[SOCKET ERROR] team:join:', error.message);
+        debugJoin('CHAT_JOIN_FAILED');
         return acknowledge(ack, { ok: false, code: 'CHAT_JOIN_FAILED', message: 'Unable to join team chat' });
       }
     });
@@ -164,7 +178,12 @@ const registerTeamChatHandlers = (io, options = {}) => {
         }
 
         const responseMessage = await getMessageForResponse(chatMessage._id);
-  if (!responseMessage) throw new Error('Saved message could not be loaded');
+        if (!responseMessage) throw new Error('Saved message could not be loaded');
+        if (isChatDebugEnabled()) {
+          const roomSockets = await io.in(room).fetchSockets();
+          const userIds = roomSockets.map((roomSocket) => String(roomSocket.user?._id));
+          console.log(`[CHAT-DEBUG] team:message room=${room} users=${JSON.stringify(userIds)}`);
+        }
         io.to(room).emit('team:message', responseMessage);
         return acknowledge(ack, { ok: true, message: responseMessage });
       } catch (error) {
@@ -179,9 +198,15 @@ const registerTeamChatHandlers = (io, options = {}) => {
 
 const createTeamChatSocketServer = (httpServer, options = {}) => {
   const configuredOrigin = process.env.FRONTEND_URL || process.env.FRONTEND_ORIGIN;
+  const allowedOrigins = configuredOrigin
+    ? configuredOrigin.split(',').map((origin) => origin.trim()).filter(Boolean)
+    : [];
+  if (process.env.NODE_ENV !== 'production') {
+    allowedOrigins.push('http://localhost:5173', 'http://127.0.0.1:5173');
+  }
   const io = new Server(httpServer, {
     cors: {
-      origin: configuredOrigin || true,
+      origin: allowedOrigins.length ? allowedOrigins : true,
       methods: ['GET', 'POST'],
     },
   });

@@ -1,8 +1,8 @@
-import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { act, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { MemoryRouter, Route, Routes } from "react-router-dom";
 import { beforeEach, describe, expect, test, vi } from "vitest";
 
-const { mockSocket, mockSocketIo } = vi.hoisted(() => {
+const { mockFirebaseUser, mockSocket, mockSocketIo } = vi.hoisted(() => {
   const socket = {
     connected: true,
     handlers: {},
@@ -24,11 +24,20 @@ const { mockSocket, mockSocketIo } = vi.hoisted(() => {
     },
     disconnect() {},
   };
-  return { mockSocket: socket, mockSocketIo: vi.fn(() => socket) };
+  return {
+    mockFirebaseUser: {
+      uid: "firebase-user-1",
+      getIdToken: vi.fn().mockResolvedValue("firebase-token"),
+    },
+    mockSocket: socket,
+    mockSocketIo: vi.fn(() => socket),
+  };
 });
 
 vi.mock("../hooks/useAuth", () => ({
   useAuth: () => ({
+    firebaseUser: mockFirebaseUser,
+    loading: false,
     profile: { _id: "user-1", name: "Ava" },
     profileType: "candidate",
   }),
@@ -108,6 +117,7 @@ describe("TeamChatPage", () => {
       });
 
     renderChat();
+    await waitFor(() => expect(getTeam).toHaveBeenCalledTimes(1));
 
     expect(
       await screen.findByRole("heading", { name: "Campus Launchpad" }),
@@ -186,5 +196,38 @@ describe("TeamChatPage", () => {
     });
     expect(screen.queryByRole("article")).toBeNull();
     expect(composer.value).toBe("Unsent message");
+  });
+
+  test("keeps a realtime message received while history is loading", async () => {
+    let resolveHistory;
+    listTeamMessages.mockReturnValueOnce(
+      new Promise((resolve) => {
+        resolveHistory = resolve;
+      }),
+    );
+
+    renderChat();
+    await waitFor(() => {
+      expect(mockSocket.handlers["team:message"]).toBeDefined();
+      expect(resolveHistory).toBeDefined();
+    });
+
+    await act(async () => {
+      mockSocket.handlers["team:message"](
+        message("realtime-message", "Arrived in realtime"),
+      );
+    });
+    await act(async () => {
+      resolveHistory({
+        success: true,
+        messages: [message("history-message", "Loaded from history")],
+        pagination: { page: 1, limit: 50, total: 1, totalPages: 1 },
+      });
+    });
+
+    await waitFor(() => {
+      expect(screen.getByText("Arrived in realtime")).toBeDefined();
+      expect(screen.getByText("Loaded from history")).toBeDefined();
+    });
   });
 });

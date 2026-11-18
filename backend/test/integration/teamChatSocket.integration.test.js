@@ -28,6 +28,15 @@ const createFakeIo = () => {
     middleware: null,
     connectionHandler: null,
     emitted: [],
+    sockets: new Set(),
+    broadcast(room, event, payload, excludedSocket) {
+      this.emitted.push({ room, event, payload });
+      this.sockets.forEach((socket) => {
+        if (socket !== excludedSocket && socket.rooms.has(room)) {
+          socket.received.push({ event, payload });
+        }
+      });
+    },
     use(handler) {
       this.middleware = handler;
     },
@@ -36,37 +45,52 @@ const createFakeIo = () => {
     },
     to(room) {
       return {
-        emit: (event, payload) => this.emitted.push({ room, event, payload }),
+        emit: (event, payload) => this.broadcast(room, event, payload),
+      };
+    },
+    in(room) {
+      return {
+        fetchSockets: async () => [...this.sockets].filter((socket) => socket.rooms.has(room)),
       };
     },
   };
   return io;
 };
 
-const createFakeSocket = () => ({
-  id: 'socket-1',
-  handshake: { auth: {} },
-  rooms: new Set(['socket-1']),
-  data: {},
-  handlers: {},
-  joined: [],
-  left: [],
-  on(event, handler) {
-    this.handlers[event] = handler;
-  },
-  async join(room) {
-    this.rooms.add(room);
-    this.joined.push(room);
-  },
-  async leave(room) {
-    this.rooms.delete(room);
-    this.left.push(room);
-  },
-});
+const createFakeSocket = (io, userId, socketId) => {
+  const socket = {
+    id: socketId,
+    user: { _id: userId },
+    handshake: { auth: {} },
+    rooms: new Set([socketId]),
+    data: {},
+    handlers: {},
+    received: [],
+    joined: [],
+    left: [],
+    on(event, handler) {
+      this.handlers[event] = handler;
+    },
+    to(room) {
+      return {
+        emit: (event, payload) => io.broadcast(room, event, payload, this),
+      };
+    },
+    async join(room) {
+      this.rooms.add(room);
+      this.joined.push(room);
+    },
+    async leave(room) {
+      this.rooms.delete(room);
+      this.left.push(room);
+    },
+  };
+  io.sockets.add(socket);
+  return socket;
+};
 
 const setup = ({ team, userId = memberId, create, findById, findOne } = {}) => {
   const io = createFakeIo();
-  const socket = createFakeSocket();
   const restore = {
     teamFindById: Team.findById,
     messageCreate: ChatMessage.create,
@@ -79,12 +103,19 @@ const setup = ({ team, userId = memberId, create, findById, findOne } = {}) => {
     founderId,
     members: [{ userId: memberId }],
   });
-  ChatMessage.create = create || (async (document) => ({ _id: 'message-1', ...document }));
+  let lastCreatedMessage;
+  let messageSequence = 0;
+  const createMessage = create || (async (document) => ({
+    _id: `message-${++messageSequence}`,
+    ...document,
+  }));
+  ChatMessage.create = async (document) => {
+    lastCreatedMessage = await createMessage(document);
+    return lastCreatedMessage;
+  };
   ChatMessage.findById = findById || (() => createQuery({
-    _id: 'message-1',
-    teamId,
-    senderId: { _id: userId, name: 'Member' },
-    content: 'Hello team',
+    ...lastCreatedMessage,
+    senderId: { _id: lastCreatedMessage?.senderId || userId, name: 'Team member' },
   }));
   ChatMessage.findOne = findOne || (() => createQuery(null));
 
@@ -92,12 +123,18 @@ const setup = ({ team, userId = memberId, create, findById, findOne } = {}) => {
     verifyIdToken: async (token) => ({ uid: token }),
     findUserByFirebaseUid: async () => ({ _id: userId, firebaseUid: 'member-token' }),
   });
-  socket.user = { _id: userId, firebaseUid: 'member-token' };
-  io.connectionHandler(socket);
+  const connectSocket = (connectedUserId, socketId = `socket-${io.sockets.size + 1}`) => {
+    const socket = createFakeSocket(io, connectedUserId, socketId);
+    socket.firebaseUser = { uid: `firebase-${connectedUserId}` };
+    io.connectionHandler(socket);
+    return socket;
+  };
+  const socket = connectSocket(userId, 'socket-1');
 
   return {
     io,
     socket,
+    connectSocket,
     restoreAll() {
       Team.findById = restore.teamFindById;
       ChatMessage.create = restore.messageCreate;
@@ -156,6 +193,7 @@ test('non-members cannot join a team room or submit messages', async () => {
     let joinResponse;
     await context.socket.handlers['team:join']({ teamId }, (payload) => { joinResponse = payload; });
     assert.equal(joinResponse.code, 'FORBIDDEN');
+    assert.equal(joinResponse.message, 'You are not a member of this team yet');
     assert.deepEqual(context.socket.joined, []);
 
     context.socket.data.teamRooms.add(teamId);
@@ -166,6 +204,39 @@ test('non-members cannot join a team room or submit messages', async () => {
       (payload) => { messageResponse = payload; },
     );
     assert.equal(messageResponse.code, 'FORBIDDEN');
+  } finally {
+    context.restoreAll();
+  }
+});
+
+test('founder and candidate receive each other’s team messages in realtime', async () => {
+  const context = setup({ userId: founderId });
+  try {
+    const candidateSocket = context.connectSocket(memberId, 'candidate-socket');
+    let founderJoin;
+    let candidateJoin;
+    await context.socket.handlers['team:join']({ teamId }, (payload) => { founderJoin = payload; });
+    await candidateSocket.handlers['team:join']({ teamId }, (payload) => { candidateJoin = payload; });
+    assert.equal(founderJoin.ok, true);
+    assert.equal(candidateJoin.ok, true);
+
+    await context.socket.handlers['team:message'](
+      { teamId, content: 'Founder message', clientMessageId: 'founder-message-1' },
+      () => {},
+    );
+    assert.equal(
+      candidateSocket.received.some((entry) => entry.event === 'team:message' && entry.payload.content === 'Founder message'),
+      true,
+    );
+
+    await candidateSocket.handlers['team:message'](
+      { teamId, content: 'Candidate reply', clientMessageId: 'candidate-message-1' },
+      () => {},
+    );
+    assert.equal(
+      context.socket.received.some((entry) => entry.event === 'team:message' && entry.payload.content === 'Candidate reply'),
+      true,
+    );
   } finally {
     context.restoreAll();
   }
