@@ -537,6 +537,43 @@ button:disabled {
 .chat-empty-state strong { font-size: 15px; }
 .chat-empty-state p { margin: 5px 0 0; font-size: 13px; }
 
+.task-workspace { display: grid; gap: var(--space-lg); }
+.task-workspace-header { align-items: flex-end; }
+.task-workspace-header h1 { margin: 10px 0 8px; }
+.task-workspace-actions { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-sm); }
+.task-upload-button { position: relative; overflow: hidden; gap: 8px; cursor: pointer; }
+.task-upload-button input { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer; }
+.task-upload-button input:disabled { cursor: wait; }
+.task-message { margin: 0; color: var(--muted); }
+.task-message-error { color: var(--danger); }
+.task-summary-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: var(--space-md); }
+.task-summary-grid .card { display: grid; gap: 8px; }
+.task-summary-overall strong { font-size: 2rem; color: var(--primary); }
+.task-summary-person strong { font-size: 1rem; }
+.task-summary-person span, .task-summary-grid small { color: var(--muted); font-size: 0.85rem; }
+.task-progress-track { height: 8px; overflow: hidden; background: var(--line); border-radius: 999px; }
+.task-progress-track span { display: block; height: 100%; background: var(--primary); border-radius: inherit; transition: width 180ms ease; }
+.task-form-card h2, .task-import-preview h2, .task-grid-heading h2 { margin: 0; font-size: 1.15rem; }
+.task-create-form { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: var(--space-md); margin-top: var(--space-md); }
+.task-create-form label { display: grid; gap: 6px; color: var(--muted); font-size: 0.85rem; font-weight: 600; }
+.task-create-form input:not([type="checkbox"]), .task-create-form textarea, .task-create-form select { width: 100%; min-height: 40px; box-sizing: border-box; padding: 8px 10px; color: var(--ink); background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius-sm); font: inherit; }
+.task-create-form textarea { min-height: 40px; resize: vertical; }
+.task-create-form .task-checkbox-label { display: flex; align-items: center; gap: 8px; }
+.task-create-form > .button { align-self: end; justify-self: start; }
+.task-import-heading, .task-grid-heading { display: flex; align-items: center; justify-content: space-between; gap: var(--space-md); margin-bottom: var(--space-md); }
+.task-import-heading p, .task-grid-heading p { margin: 5px 0 0; color: var(--muted); font-size: 0.9rem; }
+.task-grid-heading > span { color: var(--muted); font-size: 0.85rem; }
+.task-preview-table-wrap { overflow-x: auto; }
+.task-preview-table { width: 100%; border-collapse: collapse; text-align: left; font-size: 0.9rem; }
+.task-preview-table th, .task-preview-table td { min-width: 90px; padding: 10px; border-bottom: 1px solid var(--line); vertical-align: top; }
+.task-preview-table th { color: var(--muted); font-size: 0.75rem; text-transform: uppercase; }
+.task-preview-table td small { display: block; margin-top: 4px; color: var(--muted); }
+.task-import-valid { color: #15803d; }
+.task-import-error, .task-warning { color: var(--danger); }
+.task-grid { width: 100%; height: min(65vh, 680px); min-height: 380px; }
+.task-grid .ag-cell { display: flex; align-items: center; }
+.task-grid .ag-cell a { color: var(--primary); text-decoration: underline; }
+
 @media (max-width: 700px) {
   .page-shell { padding: 24px 16px 40px; }
   .page-header { align-items: flex-start; flex-direction: column; gap: 16px; }
@@ -555,6 +592,10 @@ button:disabled {
   .form-progress { gap: 5px; }
   .form-progress i { width: 20px; }
   .invitation-group-heading { align-items: flex-start; flex-direction: column; gap: 4px; }
+  .task-workspace-header, .task-import-heading, .task-grid-heading { align-items: flex-start; flex-direction: column; }
+  .task-workspace-actions { width: 100%; }
+  .task-workspace-actions .button { flex: 1 1 auto; }
+  .task-grid { height: 520px; min-height: 360px; }
 }
 
 /* Shared product surface */

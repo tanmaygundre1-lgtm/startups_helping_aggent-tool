@@ -7,10 +7,11 @@ const aiRoutes = require('./routes/aiRoutes');
 const matchingRoutes = require('./routes/matchingRoutes');
 const invitationRoutes = require('./routes/invitationRoutes');
 const teamRoutes = require('./routes/teamRoutes');
+const taskRoutes = require('./routes/taskRoutes');
 
 const app = express();
 
-app.use(express.json());
+app.use(express.json({ limit: '5mb' }));
 app.use(cors());
 app.use('/api/users', userRoutes);
 app.use('/api/ideas', ideaRoutes);
@@ -18,6 +19,7 @@ app.use('/api/ideas', aiRoutes);
 app.use('/api/candidates', matchingRoutes);
 app.use('/api/invitations', invitationRoutes);
 app.use('/api/teams', teamRoutes);
+app.use('/api/teams/:teamId/tasks', taskRoutes);
 
 app.get('/api/health', (req, res) => {
   res.status(200).json({ status: 'ok', message: 'Backend is running' });

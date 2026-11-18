@@ -11,6 +11,8 @@
     "test": "vitest run"
   },
   "dependencies": {
+    "ag-grid-community": "^36.3.0",
+    "ag-grid-react": "^36.3.0",
     "axios": "^1.19.0",
     "firebase": "^12.17.1",
     "lucide-react": "^1.57.0",

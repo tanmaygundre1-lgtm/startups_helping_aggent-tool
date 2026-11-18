@@ -13,6 +13,8 @@ import CandidateInvitationsPage from "../pages/dashboard/CandidateInvitationsPag
 import CandidateTeamPage from "../pages/dashboard/CandidateTeamPage";
 import FounderTeamPage from "../pages/dashboard/FounderTeamPage";
 import TeamChatPage from "../pages/dashboard/TeamChatPage";
+import TeamTasksPage from "../pages/dashboard/TeamTasksPage";
+import TeamTasksIndexPage from "../pages/dashboard/TeamTasksIndexPage";
 import FeaturePage from "../pages/FeaturePage";
 import RoleSelectionPage from "../pages/onboarding/RoleSelectionPage";
 import FounderOnboarding from "../pages/onboarding/FounderOnboarding";
@@ -92,6 +94,8 @@ const AppRoutes = () => (
       <Route path="/app/team" element={<CandidateTeamPage />} />
       <Route path="/app/founder-team" element={<FounderTeamPage />} />
       <Route path="/app/teams/:teamId/chat" element={<TeamChatPage />} />
+      <Route path="/app/teams/:teamId/tasks" element={<TeamTasksPage />} />
+      <Route path="/app/tasks" element={<TeamTasksIndexPage />} />
       <Route path="/app/invitations" element={<CandidateInvitationsPage />} />
       <Route
         path="/app/explore"

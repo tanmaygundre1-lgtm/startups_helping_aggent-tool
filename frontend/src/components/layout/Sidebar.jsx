@@ -9,6 +9,7 @@ import {
   MessagesSquare,
   Network,
   Sparkles,
+  ListChecks,
   Users,
 } from "lucide-react";
 
@@ -44,6 +45,7 @@ const Sidebar = ({ open = true, onClose }) => {
             {link("/app/ideas", "My Ideas", Sparkles)}
             {link("/app/talent", "Discover Talent", Compass)}
             {link("/app/founder-team", "My Team", Users)}
+            {link("/app/tasks", "Tasks", ListChecks)}
             {link("/app/invitations", "Invitations", Mail)}
           </>
         ) : (
@@ -52,6 +54,7 @@ const Sidebar = ({ open = true, onClose }) => {
             {link("/app/explore", "Explore Startups", Compass)}
             {link("/app/matches", "Matches", Network)}
             {link("/app/team", "My Team", Users)}
+            {link("/app/tasks", "Tasks", ListChecks)}
             {link("/app/invitations", "Invitations", Mail)}
           </>
         )}

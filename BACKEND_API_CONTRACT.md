@@ -1563,6 +1563,22 @@ Frontend note:
 - If the UI needs the idea title, it should fetch the idea by its ID from `/api/ideas/:ideaId` using the actual backend data.
 - Do not invent a team from invitation data when a real Team record exists.
 
+### Team task APIs
+
+Task endpoints are mounted under `/api/teams/:teamId/tasks` and require Firebase authentication plus current team membership. Founders can manage all team tasks; members can read and update only tasks assigned to their own `User._id`. The backend is authoritative for assignments, authorization, status transitions, and optimistic concurrency.
+
+- `GET /` lists tasks. Members default to their own tasks; founders see all tasks. Optional `assignedTo=me|<userId>` and `status=<status>` filters are supported.
+- `GET /summary` returns task counts by employee and overall completion percentage.
+- `GET /template` downloads an `.xlsx` template with task columns and valid team members.
+- `POST /import/preview` accepts multipart field `file` (`.xlsx` or `.csv`, up to 5 MB and 500 task rows). It validates and matches employees but writes no tasks.
+- `POST /import/commit` commits validated preview rows. Send the preview ID and rows returned by preview; repeating a committed preview ID is idempotent.
+- `POST /import/:batchId/undo` removes only imported tasks that remain `TODO`.
+- `POST /` creates one founder-assigned task; `PATCH /:taskId` updates an authorized task using its current `version`; `DELETE /:taskId` deletes a task (founder only).
+
+Import columns are `Employee Email` (preferred) or `Employee Name`, `Task Title`, `Description`, `Deadline`, `Priority`, and optional `Evidence Required`. Employee matching is case-insensitive by email, then exact by name; unknown or ambiguous matches and duplicate employee/task pairs are row errors. Past deadlines are warnings.
+
+Members may transition `TODO` to `IN_PROGRESS` or `SKIPPED`, `IN_PROGRESS` to `COMPLETED`, `SKIPPED`, or `BLOCKED`, `BLOCKED` to `IN_PROGRESS`, and `SKIPPED` back to `TODO`. Skipping requires a reason; tasks requiring evidence need an HTTP(S) URL to complete. `version` must match the task's current version or the API returns `409 STALE_TASK`.
+
 ## 10) Frontend integration notes
 
 The backend is the source of truth for routing and schema. The following must match the backend exactly:
