@@ -511,6 +511,23 @@ Error statuses:
 
 ### POST /api/ideas/
 
+Purpose: create a new founder-owned draft idea.
+
+Required header:
+
+```text
+Idempotency-Key: <1-128 characters from A-Z, a-z, 0-9, ., _, :, or hyphen>
+```
+
+The key is scoped to the authenticated MongoDB user. Repeating the same request
+with the same key returns the original idea with `200 OK` and
+`idempotent: true`; it does not enforce unique titles. A new key can create
+another idea with the same title. Missing or invalid keys return `400` with
+`code: "IDEMPOTENCY_KEY_REQUIRED"`.
+
+The frontend creates one key when the create form mounts and reuses it for
+retries of that logical submission.
+
 Purpose: Creates a draft idea owned by the authenticated user. The request passes through `validateIdeaCreate` before the controller persists it.
 
 Request body:

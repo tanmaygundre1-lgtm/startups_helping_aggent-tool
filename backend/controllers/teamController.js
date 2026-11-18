@@ -205,7 +205,7 @@ const getTeam = async (req, res) => {
     }
 
     const isAuthorized = String(team.founderId?._id || team.founderId) === String(user._id)
-      || team.members.some((member) => String(member.userId) === String(user._id));
+      || team.members.some((member) => String(member.userId?._id || member.userId) === String(user._id));
 
     if (!isAuthorized) {
       return res.status(403).json({ success: false, message: 'Not authorized to view this team', code: 'FORBIDDEN' });

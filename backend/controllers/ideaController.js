@@ -1,9 +1,30 @@
 const Idea = require('../models/Idea');
 const User = require('../models/User');
 
+const IDEMPOTENCY_KEY_PATTERN = /^[A-Za-z0-9._:-]{1,128}$/;
+
+const getCreationRequestId = (req) => {
+  const value = typeof req.get === 'function'
+    ? req.get('Idempotency-Key')
+    : req.headers?.['idempotency-key'];
+  return value?.trim();
+};
+
+const isValidCreationRequestId = (value) =>
+  typeof value === 'string' && IDEMPOTENCY_KEY_PATTERN.test(value);
+
 // POST /api/ideas — Create new startup idea (founder only)
 const createIdea = async (req, res) => {
   try {
+    const creationRequestId = getCreationRequestId(req);
+    if (!isValidCreationRequestId(creationRequestId)) {
+      return res.status(400).json({
+        success: false,
+        message: 'A valid Idempotency-Key header is required',
+        code: 'IDEMPOTENCY_KEY_REQUIRED',
+      });
+    }
+
     const user = await User.findOne({ firebaseUid: req.user.uid });
     if (!user) {
       return res.status(404).json({ success: false, message: 'User not found' });
@@ -18,24 +39,50 @@ const createIdea = async (req, res) => {
       return res.status(400).json({ success: false, message: 'Description is required (min 20 characters)' });
     }
 
+    const existingIdea = await Idea.findOne({ createdBy: user._id, creationRequestId });
+    if (existingIdea) {
+      return res.status(200).json({
+        success: true,
+        message: 'Idea already created for this request',
+        idempotent: true,
+        idea: existingIdea,
+      });
+    }
+
     const trimmedTitle = title.trim();
     const trimmedDescription = description.trim();
-    const idea = await Idea.create({
-      createdBy: user._id,
-      title: trimmedTitle,
-      description: trimmedDescription,
-      category: category?.trim() || '',
-      domain: domain?.trim() || '',
-      problemStatement: problemStatement?.trim() || '',
-      targetUsers: targetUsers?.trim() || '',
-      requiredSkills: requiredSkills || [],
-      status: 'draft',
-      original: {
+    let idea;
+    try {
+      idea = await Idea.create({
+        createdBy: user._id,
+        creationRequestId,
         title: trimmedTitle,
         description: trimmedDescription,
-        capturedAt: new Date(),
-      },
-    });
+        category: category?.trim() || '',
+        domain: domain?.trim() || '',
+        problemStatement: problemStatement?.trim() || '',
+        targetUsers: targetUsers?.trim() || '',
+        requiredSkills: requiredSkills || [],
+        status: 'draft',
+        original: {
+          title: trimmedTitle,
+          description: trimmedDescription,
+          capturedAt: new Date(),
+        },
+      });
+    } catch (error) {
+      if (error?.code !== 11000) throw error;
+
+      const concurrentIdea = await Idea.findOne({ createdBy: user._id, creationRequestId });
+      if (!concurrentIdea) throw error;
+
+      return res.status(200).json({
+        success: true,
+        message: 'Idea already created for this request',
+        idempotent: true,
+        idea: concurrentIdea,
+      });
+    }
 
     return res.status(201).json({
       success: true,

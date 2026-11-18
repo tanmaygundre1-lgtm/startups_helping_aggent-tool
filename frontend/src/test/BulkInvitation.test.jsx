@@ -152,7 +152,7 @@ describe("BulkInvitationComposer", () => {
     );
 
     expect(screen.getByText("Send Invitations")).toBeDefined();
-    expect(screen.getByText(/3/)).toBeDefined();
+    expect(screen.getByRole("button", { name: /Send Invitations \(3\)/i })).toBeDefined();
     expect(screen.getByText(/Alice Smith/)).toBeDefined();
     expect(screen.getByText(/Bob Jones/)).toBeDefined();
     expect(screen.getByText(/Charlie Day/)).toBeDefined();

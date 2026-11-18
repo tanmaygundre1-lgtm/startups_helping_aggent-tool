@@ -1,40 +1,84 @@
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap");
+
 :root {
-  --ink: #17222e;
-  --muted: #64717b;
-  --canvas: #eef3f1;
-  --surface: #fbfcfa;
-  --line: #d6dfdc;
-  --accent: #0f766e;
-  --accent-dark: #115e59;
-  --accent-soft: #dff1eb;
-  --danger: #a43a3a;
+  --bg: #f7f8fb;
+  --surface: #ffffff;
+  --border: #e5e7eb;
+  --text: #172033;
+  --text-muted: #667085;
+  --primary: #4f46e5;
+  --primary-hover: #4338ca;
+  --success: #16805a;
+  --warning: #a16207;
+  --danger: #c2414b;
+  --ink: #1b2a27;
+  --muted: #64736f;
+  --canvas: #f1f4ef;
+  --surface-muted: #f7f8f4;
+  --surface-raised: #fffefa;
+  --line: #d9e1dc;
+  --accent: var(--primary);
+  --accent-dark: var(--primary-hover);
+  --accent-soft: #eef2ff;
+  --accent-warm: #d97757;
+  --danger: #a84343;
   --space-sm: 8px;
   --space-md: 16px;
   --space-lg: 32px;
-  --panel-padding: 32px;
-  --radius-sm: 5px;
-  --radius-md: 8px;
+  --panel-padding: 36px;
+  --radius-sm: 6px;
+  --radius-md: 10px;
   --shadow-md:
-    0 4px 6px -1px rgba(23, 34, 46, 0.1), 0 2px 4px -1px rgba(23, 34, 46, 0.06);
+    0 8px 18px -12px rgba(27, 42, 39, 0.32), 0 2px 5px rgba(27, 42, 39, 0.05);
   --shadow-lg:
-    0 20px 25px -5px rgba(23, 34, 46, 0.1),
-    0 10px 10px -5px rgba(23, 34, 46, 0.04);
-  --sans: "Avenir Next", "Segoe UI", sans-serif;
-  font: 16px/1.5 var(--sans);
-  color: var(--ink);
-  background: var(--canvas);
+    0 24px 50px -24px rgba(27, 42, 39, 0.34), 0 8px 16px rgba(27, 42, 39, 0.07);
+  --sans: "Inter", "Segoe UI", sans-serif;
+  --space-xs: 4px;
+  --space-xl: 40px;
+  --radius-lg: 12px;
+  font: 15px/1.55 var(--sans);
+  color: var(--text);
+  background: var(--bg);
+  color-scheme: light;
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
 }
 
 body {
   margin: 0;
   min-width: 320px;
   min-height: 100vh;
-  background: var(--canvas);
+  background: var(--bg);
 }
 
 #root {
   min-height: 100vh;
+}
+
+button,
+input,
+textarea,
+select {
+  font: inherit;
+}
+
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible {
+  outline: 3px solid rgba(8, 127, 115, 0.28);
+  outline-offset: 2px;
+}
+
+::selection {
+  color: var(--ink);
+  background: #bfe6db;
 }

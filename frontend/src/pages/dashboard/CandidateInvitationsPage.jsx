@@ -7,7 +7,7 @@ import InvitationDetailsModal from "../../components/invitations/InvitationDetai
 import { useAuth } from "../../hooks/useAuth";
 import { listInvitations } from "../../services/matchingApi";
 
-const FILTER_OPTIONS = ["All", "Pending", "Accepted", "Declined"];
+const FILTER_OPTIONS = ["Pending", "Accepted", "Declined", "Withdrawn", "All"];
 
 const normalizeInvitationsResponse = (payload) => {
   if (Array.isArray(payload)) return payload;
@@ -15,6 +15,13 @@ const normalizeInvitationsResponse = (payload) => {
   if (payload && Array.isArray(payload.data)) return payload.data;
   return [];
 };
+
+const groupByIdea = (items) => Object.values(items.reduce((groups, invitation) => {
+  const key = invitation?.ideaId?._id || invitation?.ideaId || "unknown";
+  if (!groups[key]) groups[key] = { title: invitation?.ideaId?.title || "Startup opportunity", invitations: [] };
+  groups[key].invitations.push(invitation);
+  return groups;
+}, {}));
 
 const CandidateInvitationsPage = () => {
   const { profileType } = useAuth();
@@ -34,7 +41,9 @@ const CandidateInvitationsPage = () => {
         direction,
         filter === "All" ? "" : filter,
       );
-      const nextInvitations = normalizeInvitationsResponse(response).sort(
+      const nextInvitations = normalizeInvitationsResponse(response)
+        .filter((invitation) => filter !== "All" || invitation?.status !== "Withdrawn")
+        .sort(
         (a, b) => {
           const aTime = new Date(a?.createdAt || 0).getTime();
           const bTime = new Date(b?.createdAt || 0).getTime();
@@ -130,33 +139,15 @@ const CandidateInvitationsPage = () => {
 
   return (
     <AppLayout>
-      <div
-        style={{
-          padding: "var(--space-lg)",
-          maxWidth: "1200px",
-          margin: "0 auto",
-        }}
-      >
-        <div style={{ marginBottom: "var(--space-lg)" }}>
-          <h1 style={{ margin: 0, fontSize: "clamp(2rem, 4vw, 2.7rem)" }}>
-            Invitations
-          </h1>
-          <p style={{ margin: "8px 0 0", color: "var(--muted)" }}>
+      <div className="page-shell invitations-page">
+        <header className="page-header"><div><span className="eyebrow">Collaboration</span><h1>Invitations</h1><p>
             {profileType === "founder"
               ? "Review the invitations you have sent to candidates."
               : "Review opportunities from founders who are interested in your skills."}
-          </p>
-        </div>
+          </p></div></header>
 
         {!error && (
-          <div
-            style={{
-              display: "flex",
-              flexWrap: "wrap",
-              gap: "var(--space-sm)",
-              marginBottom: "var(--space-lg)",
-            }}
-          >
+          <div className="filter-tabs" role="tablist" aria-label="Invitation status">
             {FILTER_OPTIONS.map((option) => {
               const active = option === filter;
               return (
@@ -164,15 +155,8 @@ const CandidateInvitationsPage = () => {
                   key={option}
                   type="button"
                   onClick={() => setFilter(option)}
-                  style={{
-                    border: "1px solid var(--line)",
-                    background: active ? "var(--accent)" : "var(--surface)",
-                    color: active ? "#fff" : "var(--ink)",
-                    borderRadius: "var(--radius-sm)",
-                    padding: "8px 14px",
-                    cursor: "pointer",
-                    fontWeight: 600,
-                  }}
+                  className={`filter-tab${active ? " filter-tab-active" : ""}`}
+                  aria-pressed={active}
                 >
                   {option}
                 </button>
@@ -186,24 +170,8 @@ const CandidateInvitationsPage = () => {
         {!loading && !error && invitations.length === 0 && renderEmptyState()}
 
         {!loading && !error && invitations.length > 0 && (
-          <div
-            style={{
-              display: "grid",
-              gap: "var(--space-md)",
-              gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))",
-            }}
-          >
-            {invitations.map((invitation) => (
-              <InvitationCard
-                key={
-                  invitation?._id ||
-                  invitation?.id ||
-                  `${invitation?.ideaId?._id || "idea"}-${invitation?.role || "role"}`
-                }
-                invitation={invitation}
-                onViewDetails={setSelectedInvitation}
-              />
-            ))}
+          <div className="invitation-groups">
+            {groupByIdea(invitations).map((group) => <section className="invitation-group" key={group.title}><div className="invitation-group-heading"><h2>{group.title}</h2><span>{group.invitations.length} {group.invitations.length === 1 ? "invitation" : "invitations"}</span></div><div className="invitation-grid">{group.invitations.map((invitation) => <InvitationCard key={invitation?._id || invitation?.id} invitation={invitation} showIdeaTitle={false} onViewDetails={setSelectedInvitation} />)}</div></section>)}
           </div>
         )}
       </div>

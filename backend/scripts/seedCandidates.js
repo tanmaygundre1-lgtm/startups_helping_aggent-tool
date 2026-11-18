@@ -5,6 +5,12 @@ const { normalizeSkills } = require('../config/taxonomies');
 
 const DEMO_PREFIX = 'demo-cand-';
 
+const assertDemoSeedAllowed = () => {
+  if (process.env.NODE_ENV === 'production' && process.env.ALLOW_DEMO_SEED !== 'true') {
+    throw new Error('Demo seed data is disabled in production. Set ALLOW_DEMO_SEED=true only for an intentional seed run.');
+  }
+};
+
 const colleges = {
   iitb: { name: 'IIT Bombay', collegeId: 'iit-bombay' },
   vit: { name: 'VIT Vellore', collegeId: 'vit-vellore' },
@@ -216,6 +222,7 @@ const printCounts = (title, counts) => {
 };
 
 async function seedCandidates() {
+  assertDemoSeedAllowed();
   await connectToDatabase();
 
   try {
@@ -280,12 +287,16 @@ async function seedCandidates() {
   }
 }
 
-seedCandidates().catch(async (error) => {
-  console.error('Candidate seed failed:', error.message);
-  try {
-    await mongoose.connection.close();
-  } catch {
-    // ignore close errors during failure cleanup
-  }
-  process.exitCode = 1;
-});
+if (require.main === module) {
+  seedCandidates().catch(async (error) => {
+    console.error('Candidate seed failed:', error.message);
+    try {
+      await mongoose.connection.close();
+    } catch {
+      // ignore close errors during failure cleanup
+    }
+    process.exitCode = 1;
+  });
+}
+
+module.exports = { seedCandidates, assertDemoSeedAllowed, DEMO_PREFIX };

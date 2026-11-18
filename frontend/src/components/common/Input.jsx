@@ -5,45 +5,33 @@ const Input = ({
   value,
   onChange,
   error,
+  hint,
+  id,
   disabled = false,
   ...props
 }) => {
+  const inputId = id || `input-${label?.toLowerCase().replace(/[^a-z0-9]+/g, "-") || "field"}`;
+
   return (
-    <div style={{ marginBottom: "var(--space-md)" }}>
+    <div className="field">
       {label && (
-        <label
-          style={{
-            display: "block",
-            marginBottom: "var(--space-sm)",
-            fontWeight: 600,
-          }}
-        >
+        <label className="field-label" htmlFor={inputId}>
           {label}
         </label>
       )}
       <input
+        id={inputId}
         type={type}
         placeholder={placeholder}
         value={value}
         onChange={onChange}
         disabled={disabled}
-        style={{
-          width: "100%",
-          padding: "10px",
-          border: error ? "1px solid var(--danger)" : "1px solid var(--line)",
-          borderRadius: "var(--radius-sm)",
-          fontSize: "1rem",
-        }}
+        className={error ? "input input-error" : "input"}
         {...props}
       />
+      {hint && !error && <span className="field-hint">{hint}</span>}
       {error && (
-        <p
-          style={{
-            color: "var(--danger)",
-            fontSize: "0.9rem",
-            marginTop: "4px",
-          }}
-        >
+        <p className="field-error" role="alert">
           {error}
         </p>
       )}

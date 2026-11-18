@@ -159,10 +159,12 @@ const registerTeamChatHandlers = (io, options = {}) => {
           });
           if (!duplicate) throw error;
           const duplicateMessage = await getMessageForResponse(duplicate._id);
+          if (!duplicateMessage) throw new Error('Saved duplicate message could not be loaded');
           return acknowledge(ack, { ok: true, duplicate: true, message: duplicateMessage });
         }
 
         const responseMessage = await getMessageForResponse(chatMessage._id);
+  if (!responseMessage) throw new Error('Saved message could not be loaded');
         io.to(room).emit('team:message', responseMessage);
         return acknowledge(ack, { ok: true, message: responseMessage });
       } catch (error) {

@@ -7,6 +7,12 @@ dotenv.config({ path: path.resolve(__dirname, '..', '.env') });
 const connectToDatabase = require('../config/db');
 const User = require('../models/User');
 
+const assertDemoSeedAllowed = () => {
+  if (process.env.NODE_ENV === 'production' && process.env.ALLOW_DEMO_SEED !== 'true') {
+    throw new Error('Demo seed data is disabled in production. Set ALLOW_DEMO_SEED=true only for an intentional seed run.');
+  }
+};
+
 const SKILL_GROUPS = [
   ['Shopify', 'Conversion Rate Optimization|Marketing|Customer Acquisition', 'E-commerce Specialist', 'E-commerce', 'commerce'],
   ['Conversion Rate Optimization', 'Shopify|Performance Marketing|Customer Acquisition', 'Growth Marketer', 'Digital Marketing', 'marketing'],
@@ -197,6 +203,7 @@ const validateCandidates = (candidates) => {
 };
 
 const seedCandidates = async () => {
+  assertDemoSeedAllowed();
   const candidates = createCandidates();
   validateCandidates(candidates);
 
@@ -222,12 +229,16 @@ const seedCandidates = async () => {
   }
 };
 
-seedCandidates().catch(async (error) => {
-  console.error('Candidate seed failed:', error.message);
-  try {
-    await mongoose.connection.close();
-  } catch {
-    // The connection may not have been opened yet.
-  }
-  process.exitCode = 1;
-});
+if (require.main === module) {
+  seedCandidates().catch(async (error) => {
+    console.error('Candidate seed failed:', error.message);
+    try {
+      await mongoose.connection.close();
+    } catch {
+      // The connection may not have been opened yet.
+    }
+    process.exitCode = 1;
+  });
+}
+
+module.exports = { seedCandidates, assertDemoSeedAllowed };

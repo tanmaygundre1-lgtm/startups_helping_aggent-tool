@@ -1,14 +1,9 @@
-const Card = ({ children, className = "" }) => {
+const Card = ({ children, className = "", style, ...props }) => {
   return (
     <div
-      className={className}
-      style={{
-        background: "var(--surface)",
-        border: "1px solid var(--line)",
-        borderRadius: "var(--radius-md)",
-        boxShadow: "var(--shadow-md)",
-        padding: "var(--space-lg)",
-      }}
+      className={`card ${className}`.trim()}
+      style={style}
+      {...props}
     >
       {children}
     </div>

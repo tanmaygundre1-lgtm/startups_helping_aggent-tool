@@ -9,8 +9,6 @@ const formatDate = (value) => {
     month: "short",
     day: "numeric",
     year: "numeric",
-    hour: "numeric",
-    minute: "2-digit",
   }).format(date);
 };
 
@@ -23,7 +21,7 @@ const getStatusValue = (invitation) => {
   return String(value).trim() || "Pending";
 };
 
-const InvitationCard = ({ invitation, onViewDetails }) => {
+const InvitationCard = ({ invitation, onViewDetails, showIdeaTitle = true }) => {
   const status = getStatusValue(invitation);
   const matchContext = invitation?.matchContext || {};
   const matchedSkills = Array.isArray(matchContext.matchedSkills)
@@ -37,17 +35,7 @@ const InvitationCard = ({ invitation, onViewDetails }) => {
     : null;
 
   return (
-    <div
-      style={{
-        background: "var(--surface)",
-        border: "1px solid var(--line)",
-        borderRadius: "var(--radius-md)",
-        boxShadow: "var(--shadow-md)",
-        padding: "var(--space-lg)",
-        borderColor:
-          status === "Pending" ? "rgba(15, 118, 110, 0.35)" : "var(--line)",
-      }}
-    >
+    <div className={`invitation-card${status === "Pending" ? " invitation-card-pending" : ""}`}>
       <div
         style={{
           display: "flex",
@@ -69,31 +57,23 @@ const InvitationCard = ({ invitation, onViewDetails }) => {
           >
             {invitation?.ideaId?.domain || "Startup"}
           </div>
-          <h3 style={{ margin: "6px 0 0", fontSize: "1.35rem" }}>
-            {getIdeaTitle(invitation)}
-          </h3>
+          {showIdeaTitle && <h3 className="invitation-card-title">{getIdeaTitle(invitation)}</h3>}
         </div>
         <Badge variant={status === "Pending" ? "accent" : "neutral"}>
           {status}
         </Badge>
       </div>
 
-      <div style={{ color: "var(--muted)", marginBottom: "var(--space-sm)" }}>
+      <div className="invitation-meta">
         <strong>Founder:</strong> {getFounderName(invitation)}
       </div>
 
-      <div style={{ marginBottom: "var(--space-sm)" }}>
+      <div className="invitation-role">
         <strong>Role:</strong> {invitation?.role || "Role unspecified"}
       </div>
 
-      <p
-        style={{
-          margin: "0 0 var(--space-md)",
-          color: "var(--ink)",
-          whiteSpace: "pre-wrap",
-        }}
-      >
-        {invitation?.message || "No invitation message provided."}
+      <p className="invitation-message">
+        {invitation?.message || "No message added."}
       </p>
 
       <div
@@ -127,11 +107,11 @@ const InvitationCard = ({ invitation, onViewDetails }) => {
           paddingTop: "var(--space-md)",
         }}
       >
-        <span style={{ color: "var(--muted)" }}>
+        <span className="invitation-date">
           Received: {formatDate(invitation?.createdAt)}
         </span>
-        <Button variant="secondary" onClick={() => onViewDetails(invitation)}>
-          View Details
+        <Button variant="secondary" size="sm" onClick={() => onViewDetails(invitation)}>
+          View details
         </Button>
       </div>
     </div>

@@ -86,7 +86,7 @@ describe("CandidateTeamPage", () => {
     );
 
     expect(
-      await screen.findByText("You are not part of any team yet."),
+      await screen.findByText("You are not part of a team yet"),
     ).toBeDefined();
   });
 

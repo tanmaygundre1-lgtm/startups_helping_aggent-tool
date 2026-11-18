@@ -19,6 +19,17 @@ const ideaSchema = new mongoose.Schema(
       required: true,
       index: true,
     },
+    creationRequestId: {
+      type: String,
+      trim: true,
+      minlength: 1,
+      maxlength: 128,
+    },
+    seedKey: {
+      type: String,
+      trim: true,
+      maxlength: 128,
+    },
     title: {
       type: String,
       required: true,
@@ -112,5 +123,21 @@ const ideaSchema = new mongoose.Schema(
 
 ideaSchema.index({ status: 1 });
 ideaSchema.index({ createdAt: -1 });
+ideaSchema.index(
+  { createdBy: 1, creationRequestId: 1 },
+  {
+    unique: true,
+    partialFilterExpression: { creationRequestId: { $exists: true } },
+    name: 'owner_creation_request_unique',
+  },
+);
+ideaSchema.index(
+  { seedKey: 1 },
+  {
+    unique: true,
+    partialFilterExpression: { seedKey: { $exists: true } },
+    name: 'seed_key_unique',
+  },
+);
 
 module.exports = mongoose.model('Idea', ideaSchema);

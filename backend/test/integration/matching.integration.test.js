@@ -8,12 +8,12 @@ const dotenv = require('dotenv');
 dotenv.config();
 dns.setServers(['1.1.1.1', '1.0.0.1']);
 
-const mongoUri = process.env.MONGODB_TEST_URI || process.env.MONGODB_URI;
-const mongoDbName = process.env.MONGODB_TEST_DATABASE_NAME || process.env.MONGODB_DATABASE_NAME || 'startuplink';
-const integrationReady = Boolean(mongoUri && process.env.FIREBASE_PROJECT_ID);
+const mongoUri = process.env.MONGODB_TEST_URI;
+const mongoDbName = process.env.MONGODB_TEST_DATABASE_NAME;
+const integrationReady = Boolean(mongoUri && mongoDbName && process.env.FIREBASE_PROJECT_ID);
 
 const skipReason =
-  'Set MONGODB_TEST_URI (or MONGODB_URI) and Firebase Admin env to run database-backed matching integration tests.';
+  'Set isolated MONGODB_TEST_URI, MONGODB_TEST_DATABASE_NAME, and Firebase Admin env to run database-backed matching integration tests.';
 
 const createMockRes = () => {
   const res = {

@@ -1,349 +1,87 @@
 import { useEffect, useState } from "react";
+import { ArrowRight, Ellipsis, FileText, Trash2, X } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import AppLayout from "../../components/layout/AppLayout";
 import Card from "../../components/common/Card";
 import Button from "../../components/common/Button";
 import Badge from "../../components/common/Badge";
+import LoadingState from "../../components/common/LoadingState";
 import { getMyIdeas, deleteIdea } from "../../services/ideaApi";
+
+const getIdeaState = (status, isApproved) => {
+  if (isApproved || ["matching", "team-forming", "complete"].includes(status)) return { label: "Finding teammates", variant: "success" };
+  if (status === "analyzed") return { label: "Analysis ready", variant: "accent" };
+  if (status === "enhanced") return { label: "Concept ready", variant: "accent" };
+  if (["enhancing", "analyzing"].includes(status)) return { label: "In progress", variant: "warning" };
+  return { label: "Draft", variant: "neutral" };
+};
+
+const getNextAction = (idea, isApproved) => {
+  if (isApproved) return { label: "Generate team", path: `/app/ideas/${idea._id}/matching` };
+  if (idea.status === "analyzed") return { label: "Review analysis", path: `/app/ideas/${idea._id}/analysis` };
+  if (idea.status === "enhanced") return { label: "Review concept", path: `/app/ideas/${idea._id}/enhance` };
+  return { label: "Shape idea", path: `/app/ideas/${idea._id}/enhance` };
+};
 
 const IdeasPage = () => {
   const [ideas, setIdeas] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [deleteTarget, setDeleteTarget] = useState(null);
+  const [deleting, setDeleting] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
-    let isActive = true;
-
-    const fetchIdeas = async () => {
-      setLoading(true);
-      try {
-        const data = await getMyIdeas();
-        if (isActive) setIdeas(data.ideas || []);
-      } catch (err) {
-        console.error("Failed to fetch ideas", err);
-      } finally {
-        if (isActive) setLoading(false);
-      }
-    };
-
-    fetchIdeas();
-
-    return () => {
-      isActive = false;
-    };
+    let active = true;
+    getMyIdeas()
+      .then((data) => { if (active) setIdeas(data.ideas || []); })
+      .catch((err) => console.error("Failed to fetch ideas", err))
+      .finally(() => { if (active) setLoading(false); });
+    return () => { active = false; };
   }, []);
 
-  const handleDelete = async (id, title, isApproved) => {
-    if (isApproved) {
-      alert("Approved ideas cannot be deleted directly.");
-      return;
-    }
-    if (confirm(`Are you sure you want to delete "${title}"?`)) {
-      try {
-        await deleteIdea(id);
-        setIdeas((currentIdeas) =>
-          currentIdeas.filter((idea) => idea._id !== id),
-        );
-      } catch (err) {
-        alert(err.message || "Failed to delete idea");
-      }
+  const confirmDelete = async () => {
+    if (!deleteTarget) return;
+    setDeleting(true);
+    try {
+      await deleteIdea(deleteTarget.id);
+      setIdeas((current) => current.filter((idea) => idea._id !== deleteTarget.id));
+      setDeleteTarget(null);
+    } catch (err) {
+      alert(err.message || "Failed to delete idea");
+    } finally {
+      setDeleting(false);
     }
   };
 
-  const getStatusBadge = (status, isApproved) => {
-    if (
-      isApproved ||
-      status === "matching" ||
-      status === "team-forming" ||
-      status === "complete"
-    ) {
-      return <Badge variant="accent">✓ APPROVED</Badge>;
-    }
-    switch (status) {
-      case "draft":
-        return <Badge>RAW DRAFT</Badge>;
-      case "enhancing":
-        return <Badge>ENHANCING...</Badge>;
-      case "enhanced":
-        return <Badge variant="accent">ENHANCED</Badge>;
-      case "analyzing":
-        return <Badge>ANALYZING...</Badge>;
-      case "analyzed":
-        return <Badge variant="accent">ANALYSIS READY</Badge>;
-      default:
-        return <Badge>{(status || "draft").toUpperCase()}</Badge>;
-    }
-  };
+  if (loading) return <AppLayout><LoadingState label="Loading your ideas..." /></AppLayout>;
 
   return (
     <AppLayout>
-      <div style={{ padding: "var(--space-lg)", maxWidth: "1000px" }}>
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center",
-            marginBottom: "var(--space-lg)",
-            flexWrap: "wrap",
-            gap: "var(--space-md)",
-          }}
-        >
-          <div>
-            <h1 style={{ margin: "0 0 4px 0" }}>My Startup Ideas</h1>
-            <p style={{ margin: 0, color: "var(--muted)" }}>
-              Manage, resume, and track your startup concepts across all 3
-              phases.
-            </p>
-          </div>
-          <Button onClick={() => navigate("/app/ideas/create")}>
-            + Create New Idea
-          </Button>
-        </div>
-
-        {loading ? (
-          <Card>
-            <p style={{ textAlign: "center", margin: "var(--space-lg) 0" }}>
-              Loading your ideas...
-            </p>
-          </Card>
-        ) : ideas.length === 0 ? (
-          <Card style={{ textAlign: "center", padding: "var(--space-lg)" }}>
-            <h3>No startup ideas yet</h3>
-            <p
-              style={{
-                color: "var(--muted)",
-                maxWidth: "450px",
-                margin: "0 auto var(--space-lg) auto",
-              }}
-            >
-              Start by capturing your raw startup concept in Phase 1. AI will
-              help refine the concept and extract required team skills in Phase
-              2 & 3.
-            </p>
-            <Button onClick={() => navigate("/app/ideas/create")}>
-              ✨ Capture Your First Idea
-            </Button>
-          </Card>
+      <div className="page-shell ideas-shell">
+        <header className="page-header">
+          <div><span className="eyebrow">Founder workspace</span><h1>My ideas</h1><p>Keep each concept moving toward the right next step.</p></div>
+          <Button onClick={() => navigate("/app/ideas/create")}><FileText size={16} /> New idea</Button>
+        </header>
+        {ideas.length === 0 ? (
+          <Card className="empty-state"><div className="empty-state-icon"><FileText size={22} /></div><h2>No ideas yet</h2><p>Capture a raw thought and let idiaMate help you shape it.</p><Button onClick={() => navigate("/app/ideas/create")}>Capture an idea <ArrowRight size={16} /></Button></Card>
         ) : (
-          <div style={{ display: "grid", gap: "var(--space-md)" }}>
+          <div className="idea-list">
             {ideas.map((idea) => {
-              const isApproved =
-                idea.aiAnalysis?.isApproved === true ||
-                idea.status === "matching";
-              const status = idea.status || "draft";
-              const displayTitle = idea.enhanced?.title || idea.title;
-              const displayDescription =
-                idea.enhanced?.description || idea.description;
-              const overallScore = idea.aiAnalysis?.scoring?.overallScore;
-              const verdict = idea.aiAnalysis?.scoring?.verdict;
-
-              return (
-                <Card key={idea._id}>
-                  <div
-                    style={{
-                      display: "flex",
-                      justifyContent: "space-between",
-                      alignItems: "flex-start",
-                      gap: "var(--space-md)",
-                      flexWrap: "wrap",
-                      marginBottom: "var(--space-sm)",
-                    }}
-                  >
-                    <div>
-                      <div
-                        style={{
-                          display: "flex",
-                          gap: "var(--space-xs)",
-                          alignItems: "center",
-                          flexWrap: "wrap",
-                          marginBottom: "6px",
-                        }}
-                      >
-                        {getStatusBadge(status, isApproved)}
-                        {idea.domain && <Badge>{idea.domain}</Badge>}
-                        {idea.category && <Badge>{idea.category}</Badge>}
-                        {overallScore !== undefined && (
-                          <Badge variant="accent">
-                            Score: {overallScore}/100{" "}
-                            {verdict ? `• ${verdict}` : ""}
-                          </Badge>
-                        )}
-                      </div>
-
-                      <h3
-                        onClick={() => navigate(`/app/ideas/${idea._id}`)}
-                        style={{
-                          margin: "0 0 6px 0",
-                          cursor: "pointer",
-                          color: "var(--ink)",
-                          fontSize: "1.2rem",
-                        }}
-                        onMouseEnter={(e) =>
-                          (e.currentTarget.style.color = "var(--accent-dark)")
-                        }
-                        onMouseLeave={(e) =>
-                          (e.currentTarget.style.color = "var(--ink)")
-                        }
-                      >
-                        {displayTitle}
-                      </h3>
-                    </div>
-
-                    <span style={{ fontSize: "0.8rem", color: "var(--muted)" }}>
-                      {new Date(idea.createdAt).toLocaleDateString()}
-                    </span>
-                  </div>
-
-                  <p
-                    style={{
-                      margin: "0 0 var(--space-md) 0",
-                      color: "var(--muted)",
-                      fontSize: "0.95rem",
-                      lineHeight: 1.4,
-                      display: "-webkit-box",
-                      WebkitLineClamp: 2,
-                      WebkitBoxOrient: "vertical",
-                      overflow: "hidden",
-                    }}
-                  >
-                    {displayDescription}
-                  </p>
-
-                  <div
-                    style={{
-                      display: "flex",
-                      justifyContent: "space-between",
-                      alignItems: "center",
-                      gap: "var(--space-sm)",
-                      flexWrap: "wrap",
-                      borderTop: "1px solid var(--line)",
-                      paddingTop: "var(--space-md)",
-                    }}
-                  >
-                    <div
-                      style={{
-                        display: "flex",
-                        gap: "var(--space-sm)",
-                        flexWrap: "wrap",
-                      }}
-                    >
-                      {/* Status-specific primary and secondary action buttons */}
-                      {status === "draft" && (
-                        <>
-                          <Button
-                            variant="primary"
-                            onClick={() =>
-                              navigate(`/app/ideas/${idea._id}/enhance`)
-                            }
-                          >
-                            ✨ Enhance Idea →
-                          </Button>
-                          <Button
-                            variant="secondary"
-                            onClick={() =>
-                              navigate(`/app/ideas/${idea._id}/raw`)
-                            }
-                          >
-                            Edit Raw Draft
-                          </Button>
-                        </>
-                      )}
-
-                      {status === "enhanced" && (
-                        <>
-                          <Button
-                            variant="primary"
-                            onClick={() =>
-                              navigate(`/app/ideas/${idea._id}/enhance`)
-                            }
-                          >
-                            Review Enhanced Concept
-                          </Button>
-                          <Button
-                            variant="secondary"
-                            onClick={() =>
-                              navigate(`/app/ideas/${idea._id}/analysis`)
-                            }
-                          >
-                            Proceed to Analysis →
-                          </Button>
-                        </>
-                      )}
-
-                      {status === "analyzed" && !isApproved && (
-                        <>
-                          <Button
-                            variant="primary"
-                            onClick={() =>
-                              navigate(`/app/ideas/${idea._id}/analysis`)
-                            }
-                          >
-                            Review & Approve Analysis →
-                          </Button>
-                          <Button
-                            variant="secondary"
-                            onClick={() =>
-                              navigate(`/app/ideas/${idea._id}/enhance`)
-                            }
-                          >
-                            Review Enhanced
-                          </Button>
-                        </>
-                      )}
-
-                      {isApproved && (
-                        <>
-                          <Button
-                            variant="primary"
-                            onClick={() =>
-                              navigate(`/app/ideas/${idea._id}/matching`)
-                            }
-                          >
-                            👥 Generate Team
-                          </Button>
-                          <Button
-                            variant="secondary"
-                            onClick={() => navigate(`/app/ideas/${idea._id}`)}
-                          >
-                            View Idea Details
-                          </Button>
-                        </>
-                      )}
-
-                      {/* Always show View Idea overview button for unapproved if not already shown */}
-                      {!isApproved && (
-                        <Button
-                          variant="secondary"
-                          onClick={() => navigate(`/app/ideas/${idea._id}`)}
-                        >
-                          Overview
-                        </Button>
-                      )}
-                    </div>
-
-                    {!isApproved && (
-                      <Button
-                        variant="secondary"
-                        onClick={() =>
-                          handleDelete(idea._id, displayTitle, isApproved)
-                        }
-                        style={{
-                          color: "var(--danger)",
-                          borderColor: "var(--line)",
-                        }}
-                      >
-                        Delete
-                      </Button>
-                    )}
-                  </div>
-                </Card>
-              );
+              const approved = idea.aiAnalysis?.isApproved === true || idea.status === "matching";
+              const status = getIdeaState(idea.status, approved);
+              const action = getNextAction(idea, approved);
+              const score = idea.aiAnalysis?.scoring?.overallScore;
+              const title = idea.enhanced?.title || idea.title;
+              return <Card className="idea-card" key={idea._id}>
+                <div className="idea-card-top"><div className="idea-card-title"><div className="badge-row"><Badge variant={status.variant}>{status.label}</Badge>{idea.domain && <Badge>{idea.domain}</Badge>}</div><button className="text-button idea-title-button" onClick={() => navigate(`/app/ideas/${idea._id}`)}>{title}</button><p>{idea.enhanced?.description || idea.description}</p></div><details className="idea-menu"><summary aria-label={`More actions for ${title}`}><Ellipsis size={18} /></summary><div className="idea-menu-popover"><button onClick={() => navigate(`/app/ideas/${idea._id}`)}>View overview</button>{!approved && <button className="menu-danger" onClick={() => setDeleteTarget({ id: idea._id, title })}><Trash2 size={14} /> Delete idea</button>}</div></details></div>
+                <div className="idea-card-bottom"><div className="idea-score">{score !== undefined ? <><span className="idea-score-label">Analysis score <span title="Score combines problem strength, market potential, feasibility, differentiation, and execution readiness">ⓘ</span></span><div className="score-track"><span style={{ width: `${Math.max(0, Math.min(100, score))}%` }} /></div><strong>{Math.round(score)}/100</strong></> : <span className="idea-score-label">Analysis starts after your concept is ready</span>}</div><Button onClick={() => navigate(action.path)}>{action.label} <ArrowRight size={15} /></Button></div>
+              </Card>;
             })}
           </div>
         )}
       </div>
+      {deleteTarget && <div className="modal-backdrop" role="presentation"><section className="modal" role="dialog" aria-modal="true" aria-labelledby="delete-title"><button className="modal-close" aria-label="Close delete dialog" onClick={() => setDeleteTarget(null)}><X size={18} /></button><div className="state-icon state-icon-error"><Trash2 size={19} /></div><h2 id="delete-title">Delete this idea?</h2><p>“{deleteTarget.title}” will be removed. This cannot be undone.</p><div className="modal-actions"><Button variant="secondary" onClick={() => setDeleteTarget(null)}>Keep idea</Button><Button variant="danger" loading={deleting} onClick={confirmDelete}>Delete idea</Button></div></section></div>}
     </AppLayout>
   );
 };
-
 export default IdeasPage;

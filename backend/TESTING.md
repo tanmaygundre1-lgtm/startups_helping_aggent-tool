@@ -9,6 +9,13 @@
 - [ ] Optional: run `node scripts/seedData.js` to create representative records.
 - [ ] Optional: run `npm run seed:candidates` to create Phase 4A demo candidate records.
 
+Integration-test safety:
+
+- Database-backed integration tests run only when `MONGODB_TEST_URI` and `MONGODB_TEST_DATABASE_NAME` are set.
+- They never fall back to `MONGODB_URI` or `MONGODB_DATABASE_NAME`.
+- Configure those variables to a disposable, isolated MongoDB database before running the integration suite.
+- Unit tests and model-contract tests do not require MongoDB.
+
 ## Phase 4A demo candidate seed data
 
 Phase 4A demo candidate data is seeded into the existing `users` collection as real `User` documents with `profileType: "candidate"` and `profileCompleted: true`.
@@ -60,3 +67,14 @@ The seed data intentionally includes strong, medium, partial, role-mismatch, dom
 - [ ] Restarting the backend does not remove records.
 - [ ] Seed records are linked to the expected founder and idea.
 - [ ] MongoDB indexes are created from the model definitions.
+
+Safe commands:
+
+```text
+node --test test/unit
+MONGODB_TEST_URI=<isolated-uri> MONGODB_TEST_DATABASE_NAME=<isolated-db> npm test
+node scripts/seedData.js
+npm run seed:candidates
+```
+
+Do not run seed commands with production `NODE_ENV` unless `ALLOW_DEMO_SEED=true` is intentionally set. Seed reruns upsert deterministic users and the managed seed idea without deleting records.

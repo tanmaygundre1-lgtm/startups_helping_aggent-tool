@@ -35,8 +35,8 @@ const InvitationDetailsModal = ({ invitation, onClose, onStatusChange }) => {
 
     const ideaId = invitation?.ideaId?._id || invitation?.ideaId || null;
     if (!ideaId) {
-      setProjectDetails(null);
-      return undefined;
+      const resetTask = window.setTimeout(() => setProjectDetails(null), 0);
+      return () => window.clearTimeout(resetTask);
     }
 
     let active = true;

@@ -1,3 +1,10 @@
 node_modules
 graphify-out
 .env
+.graphify_analysis.json
+.graphify_ast.json
+.graphify_detect.json
+.graphify_extract.json
+.graphify_semantic.json
+.graphify_uncached.txt
+.graphify_incremental.json

@@ -1,8 +1,18 @@
 import { NavLink, useNavigate } from "react-router-dom";
 import { useAuth } from "../../hooks/useAuth";
 import Button from "../common/Button";
+import {
+  Compass,
+  LayoutDashboard,
+  LogOut,
+  Mail,
+  MessagesSquare,
+  Network,
+  Sparkles,
+  Users,
+} from "lucide-react";
 
-const Sidebar = () => {
+const Sidebar = ({ open = true, onClose }) => {
   const { profileType, logout } = useAuth();
   const navigate = useNavigate();
 
@@ -11,59 +21,46 @@ const Sidebar = () => {
     navigate("/login");
   };
 
-  const navLinkStyle = ({ isActive }) => ({
-    textDecoration: "none",
-    color: isActive ? "var(--accent-dark)" : "var(--muted)",
-    padding: "var(--space-sm) var(--space-md)",
-    borderRadius: "var(--radius-sm)",
-    background: isActive ? "var(--accent-soft)" : "transparent",
-    fontWeight: isActive ? 600 : 400,
-  });
+  const navLinkClassName = ({ isActive }) =>
+    `nav-link${isActive ? " nav-link-active" : ""}`;
+
+  const link = (to, label, Icon, end = false) => (
+    <NavLink to={to} className={navLinkClassName} end={end} onClick={onClose}>
+      <Icon size={17} strokeWidth={1.9} aria-hidden="true" />
+      <span>{label}</span>
+    </NavLink>
+  );
 
   return (
-    <aside className="app-sidebar">
-      <div className="brand">idiaMate</div>
+    <aside className={`app-sidebar${open ? " app-sidebar-open" : ""}`}>
+      <div className="brand-mark">
+        <span className="brand-symbol"><Sparkles size={16} aria-hidden="true" /></span>
+        <span className="brand">idiaMate</span>
+      </div>
       <nav className="nav-menu">
         {profileType === "founder" ? (
           <>
-            <NavLink to="/app" style={navLinkStyle} end>
-              Overview
-            </NavLink>
-            <NavLink to="/app/ideas" style={navLinkStyle}>
-              My Ideas
-            </NavLink>
-            <NavLink to="/app/talent" style={navLinkStyle}>
-              Discover Talent
-            </NavLink>
-            <NavLink to="/app/founder-team" style={navLinkStyle}>
-              Team
-            </NavLink>
-            <NavLink to="/app/invitations" style={navLinkStyle}>
-              Invitations
-            </NavLink>
+            {link("/app", "Dashboard", LayoutDashboard, true)}
+            {link("/app/ideas", "My Ideas", Sparkles)}
+            {link("/app/talent", "Discover Talent", Compass)}
+            {link("/app/founder-team", "My Team", Users)}
+            {link("/app/invitations", "Invitations", Mail)}
           </>
         ) : (
           <>
-            <NavLink to="/app" style={navLinkStyle} end>
-              Overview
-            </NavLink>
-            <NavLink to="/app/explore" style={navLinkStyle}>
-              Explore Startups
-            </NavLink>
-            <NavLink to="/app/matches" style={navLinkStyle}>
-              Matches
-            </NavLink>
-            <NavLink to="/app/team" style={navLinkStyle}>
-              My Team
-            </NavLink>
-            <NavLink to="/app/invitations" style={navLinkStyle}>
-              Invitations
-            </NavLink>
+            {link("/app", "Dashboard", LayoutDashboard, true)}
+            {link("/app/explore", "Explore Startups", Compass)}
+            {link("/app/matches", "Matches", Network)}
+            {link("/app/team", "My Team", Users)}
+            {link("/app/invitations", "Invitations", Mail)}
           </>
         )}
       </nav>
+      <div className="sidebar-section-label">Workspace</div>
+      {link(profileType === "founder" ? "/app/founder-team" : "/app/team", "Messages", MessagesSquare)}
       <div className="sidebar-footer">
-        <Button variant="secondary" onClick={handleLogout}>
+        <Button variant="ghost" onClick={handleLogout} className="sidebar-signout">
+          <LogOut size={16} aria-hidden="true" />
           Sign Out
         </Button>
       </div>

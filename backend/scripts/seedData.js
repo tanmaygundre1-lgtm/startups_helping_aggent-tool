@@ -9,7 +9,40 @@ dns.setServers(['1.1.1.1', '1.0.0.1']);
 const User = require('../models/User');
 const Idea = require('../models/Idea');
 
+const SEED_FOUNDER_UID = 'seed-founder-uid';
+const SEED_CANDIDATE_UID = 'seed-candidate-uid';
+const SEED_IDEA_KEY = 'campus-team-matching-platform';
+const SEED_IDEA_TITLE = '[SEED] Campus Team Matching Platform';
+
+const assertDemoSeedAllowed = () => {
+  if (process.env.NODE_ENV === 'production' && process.env.ALLOW_DEMO_SEED !== 'true') {
+    throw new Error('Demo seed data is disabled in production. Set ALLOW_DEMO_SEED=true only for an intentional seed run.');
+  }
+};
+
+const upsertSeedUser = (firebaseUid, userDocument) =>
+  User.findOneAndUpdate(
+    { firebaseUid },
+    { $set: userDocument },
+    { upsert: true, returnDocument: 'after', runValidators: true, setDefaultsOnInsert: true },
+  );
+
+const upsertSeedIdea = async (ideaModel, founderId, seedIdea) => {
+  const legacySeedIdea = await ideaModel.findOne({
+    createdBy: founderId,
+    title: SEED_IDEA_TITLE,
+  }).sort({ createdAt: 1 });
+
+  return ideaModel.findOneAndUpdate(
+    legacySeedIdea ? { _id: legacySeedIdea._id } : { seedKey: SEED_IDEA_KEY },
+    { $set: seedIdea },
+    { upsert: true, returnDocument: 'after', runValidators: true, setDefaultsOnInsert: true },
+  );
+};
+
 const seedData = async () => {
+  assertDemoSeedAllowed();
+
   if (!process.env.MONGODB_URI) {
     throw new Error('MONGODB_URI is not configured');
   }
@@ -23,11 +56,8 @@ const seedData = async () => {
     connectTimeoutMS: 10000,
   });
 
-  await User.deleteMany({ firebaseUid: { $in: ['seed-founder-uid', 'seed-candidate-uid'] } });
-  await Idea.deleteMany({ title: { $regex: /^\[SEED\]/ } });
-
-  const founder = await User.create({
-    firebaseUid: 'seed-founder-uid',
+  const founder = await upsertSeedUser(SEED_FOUNDER_UID, {
+    firebaseUid: SEED_FOUNDER_UID,
     email: 'founder@test.com',
     name: 'Sarah Founder',
     profileType: 'founder',
@@ -40,8 +70,8 @@ const seedData = async () => {
     profileCompleted: true,
   });
 
-  const candidate = await User.create({
-    firebaseUid: 'seed-candidate-uid',
+  const candidate = await upsertSeedUser(SEED_CANDIDATE_UID, {
+    firebaseUid: SEED_CANDIDATE_UID,
     email: 'candidate@test.com',
     name: 'Alex Developer',
     profileType: 'candidate',
@@ -61,9 +91,10 @@ const seedData = async () => {
     profileCompleted: true,
   });
 
-  const idea = await Idea.create({
+  const seedIdea = {
     createdBy: founder._id,
-    title: '[SEED] Campus Team Matching Platform',
+    seedKey: SEED_IDEA_KEY,
+    title: SEED_IDEA_TITLE,
     description:
       'Help student founders find teammates by analyzing a startup idea, extracting required roles and skills, and matching college students who can join the team.',
     category: 'SaaS',
@@ -99,7 +130,9 @@ const seedData = async () => {
       isApproved: true,
       approvedAt: new Date(),
     },
-  });
+  };
+
+  const idea = await upsertSeedIdea(Idea, founder._id, seedIdea);
 
   console.log('Test data seeded successfully');
   console.log('Founder ID:', founder._id.toString());
@@ -109,7 +142,11 @@ const seedData = async () => {
   await mongoose.disconnect();
 };
 
-seedData().catch((error) => {
-  console.error('Seed failed:', error.message);
-  process.exit(1);
-});
+if (require.main === module) {
+  seedData().catch((error) => {
+    console.error('Seed failed:', error.message);
+    process.exit(1);
+  });
+}
+
+module.exports = { seedData, assertDemoSeedAllowed, upsertSeedIdea, SEED_IDEA_KEY, SEED_IDEA_TITLE };

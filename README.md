@@ -12,6 +12,7 @@ This repository contains a Node.js backend and a React + Vite frontend that work
 - Database: MongoDB with environment-based connection strings
 - Authentication: Firebase web client + Firebase Admin backend
 - AI integration: Google/OpenAI/Anthropic via the Vercel AI SDK
+- Realtime chat: Socket.IO over the backend HTTP server
 
 ## Requirements
 
@@ -60,8 +61,19 @@ The backend configuration is defined by [backend/.env.example](backend/.env.exam
 - AI_PROVIDER
 - AI_MODEL
 - GOOGLE_GENERATIVE_AI_API_KEY
+- FRONTEND_URL or FRONTEND_ORIGIN (recommended in deployed environments for Socket.IO CORS)
 
 The frontend currently uses a Firebase web configuration embedded in [frontend/src/config/firebase-config.js](frontend/src/config/firebase-config.js). There is no frontend .env.example in this repo at the moment.
+
+## Realtime chat deployment
+
+Team chat uses Socket.IO at the same origin and port as the Express backend. The backend must run as a persistent Node.js HTTP process using `server.js`; do not deploy the websocket endpoint as a short-lived serverless function.
+
+For a deployed frontend, set `FRONTEND_URL` or `FRONTEND_ORIGIN` on the backend to the exact frontend origin so Socket.IO CORS accepts the browser connection. Set `VITE_SOCKET_URL` on the frontend when the websocket server is hosted at a different origin; otherwise it derives the socket URL from `VITE_API_URL` by removing `/api`.
+
+If a reverse proxy or load balancer sits in front of the backend, it must forward HTTP upgrade requests for `/socket.io/` and allow long-lived websocket connections. When running multiple backend instances, configure sticky sessions or a shared Socket.IO adapter such as Redis; the current implementation is intended for one backend instance and does not synchronize rooms across processes.
+
+The client loads message history through the authenticated REST API on first load and after reconnecting, so websocket reconnects do not require trusting client-side room state.
 
 ## Manual validation
 

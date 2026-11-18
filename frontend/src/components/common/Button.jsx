@@ -5,20 +5,23 @@ const Button = ({
   disabled = false,
   onClick,
   className = "",
+  size = "md",
+  loading = false,
   ...props
 }) => {
-  const baseClass =
-    variant === "secondary" ? "secondary-button" : "primary-button";
+  const baseClass = `button button-${variant} button-${size}`;
 
   return (
     <button
       type={type}
-      className={`${baseClass} ${className}`}
-      disabled={disabled}
+      className={`${baseClass} ${className}`.trim()}
+      disabled={disabled || loading}
+      aria-busy={loading || undefined}
       onClick={onClick}
       {...props}
     >
-      {children}
+      {loading ? <span className="button-loading" aria-hidden="true" /> : null}
+      <span>{children}</span>
     </button>
   );
 };

@@ -1,4 +1,5 @@
 import { useNavigate } from "react-router-dom";
+import { BriefcaseBusiness, Rocket } from "lucide-react";
 import Button from "../../components/common/Button";
 import Card from "../../components/common/Card";
 
@@ -8,20 +9,13 @@ const RoleSelectionPage = () => {
   return (
     <main className="state-page">
       <div className="state-panel">
-        <span className="state-kicker">Get Started</span>
-        <h1>What brings you to idiaMate?</h1>
+        <span className="state-kicker">Choose your path</span>
+        <h1>How will you build today?</h1>
 
-        <div
-          style={{
-            display: "flex",
-            flexDirection: "column",
-            gap: "var(--space-md)",
-            marginTop: "var(--space-lg)",
-          }}
-        >
-          <Card>
-            <h3>🚀 I Have a Startup Idea</h3>
-            <p style={{ marginBottom: "var(--space-md)" }}>
+        <div className="role-choice-list">
+          <Card className="role-choice-card">
+            <div className="role-choice-icon"><Rocket size={20} /></div><h3>I have a startup idea</h3>
+            <p>
               I'm looking for talented people to help build my startup.
             </p>
             <Button onClick={() => navigate("/onboarding/founder")}>
@@ -29,9 +23,9 @@ const RoleSelectionPage = () => {
             </Button>
           </Card>
 
-          <Card>
-            <h3>💻 I Want to Join a Startup</h3>
-            <p style={{ marginBottom: "var(--space-md)" }}>
+          <Card className="role-choice-card">
+            <div className="role-choice-icon"><BriefcaseBusiness size={20} /></div><h3>I want to join a startup</h3>
+            <p>
               I want to use my skills and work with exciting startup ideas.
             </p>
             <Button onClick={() => navigate("/onboarding/candidate")}>

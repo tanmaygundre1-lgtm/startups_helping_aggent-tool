@@ -1,10 +1,10 @@
 import { useState, useEffect } from "react";
+import { ArrowRight, Check, LockKeyhole } from "lucide-react";
 import { useParams, useNavigate } from "react-router-dom";
 import AppLayout from "../../components/layout/AppLayout";
 import Button from "../../components/common/Button";
 import Input from "../../components/common/Input";
 import Card from "../../components/common/Card";
-import IdeaWorkflowProgress from "../../components/common/IdeaWorkflowProgress";
 import { createIdea, updateIdea, getIdeaById } from "../../services/ideaApi";
 
 const CreateIdeaPage = () => {
@@ -14,12 +14,15 @@ const CreateIdeaPage = () => {
   const [fetching, setFetching] = useState(Boolean(ideaId));
   const [error, setError] = useState("");
   const [successMsg, setSuccessMsg] = useState("");
-  const [ideaStatus, setIdeaStatus] = useState("draft");
-  const [isApproved, setIsApproved] = useState(false);
   const [formData, setFormData] = useState({
     title: "",
     description: "",
   });
+  const [creationRequestId] = useState(() =>
+    typeof crypto !== "undefined" && crypto.randomUUID
+      ? crypto.randomUUID()
+      : `${Date.now()}-${Math.random().toString(36).slice(2)}`,
+  );
 
   const isEditMode = Boolean(ideaId);
 
@@ -35,8 +38,6 @@ const CreateIdeaPage = () => {
               title: idea.original?.title || idea.title || "",
               description: idea.original?.description || idea.description || "",
             });
-            setIdeaStatus(idea.status || "draft");
-            setIsApproved(idea.aiAnalysis?.isApproved === true);
           }
         })
         .catch((err) => {
@@ -78,10 +79,13 @@ const CreateIdeaPage = () => {
         });
         navigate(`/app/ideas/${ideaId}/enhance`);
       } else {
-        const data = await createIdea({
-          title: formData.title.trim(),
-          description: formData.description.trim(),
-        });
+        const data = await createIdea(
+          {
+            title: formData.title.trim(),
+            description: formData.description.trim(),
+          },
+          creationRequestId,
+        );
         if (data.idea?._id) {
           navigate(`/app/ideas/${data.idea._id}/enhance`);
         } else {
@@ -120,10 +124,13 @@ const CreateIdeaPage = () => {
         });
         setSuccessMsg("Draft saved successfully!");
       } else {
-        const data = await createIdea({
-          title: formData.title.trim(),
-          description: formData.description.trim(),
-        });
+        const data = await createIdea(
+          {
+            title: formData.title.trim(),
+            description: formData.description.trim(),
+          },
+          creationRequestId,
+        );
         if (data.idea?._id) {
           setSuccessMsg("Draft saved successfully!");
           navigate(`/app/ideas/${data.idea._id}/raw`, { replace: true });
@@ -139,36 +146,19 @@ const CreateIdeaPage = () => {
   if (fetching) {
     return (
       <AppLayout>
-        <div
-          style={{
-            padding: "var(--space-lg)",
-            maxWidth: "800px",
-            textAlign: "center",
-          }}
-        >
-          <p>Loading your idea...</p>
-        </div>
+        <div className="page-shell form-shell"><p>Loading your idea...</p></div>
       </AppLayout>
     );
   }
 
   return (
     <AppLayout>
-      <div style={{ padding: "var(--space-lg)", maxWidth: "800px" }}>
-        <IdeaWorkflowProgress
-          currentPhase={1}
-          ideaId={ideaId}
-          status={ideaStatus}
-          isApproved={isApproved}
-        />
-
-        <div style={{ marginBottom: "var(--space-lg)" }}>
-          <h1>{isEditMode ? "Edit Raw Idea" : "Capture Your Raw Idea"}</h1>
-          <p style={{ color: "var(--muted)" }}>
-            Phase 1: Share your initial startup concept. You will review and
-            refine the AI-structured enhancement in Phase 2 before finalizing
-            your analysis.
-          </p>
+      <div className="page-shell form-shell">
+        <div className="form-progress" aria-label="Idea creation progress"><span className="form-progress-active"><b><Check size={13} /></b><small>Capture</small></span><i /><span><b>2</b><small>Refine</small></span><i /><span><b>3</b><small>Analyze</small></span></div>
+        <div className="form-intro">
+          <span className="eyebrow">Step 1 of 3</span>
+          <h1>{isEditMode ? "Edit your idea" : "Capture your idea"}</h1>
+          <p>Start with the problem you want to solve. You can refine the details with AI next.</p>
         </div>
 
         {error && (
@@ -178,7 +168,7 @@ const CreateIdeaPage = () => {
               marginBottom: "var(--space-md)",
             }}
           >
-            <p style={{ color: "var(--danger)", margin: 0 }}>{error}</p>
+              <p className="form-alert form-alert-error">{error}</p>
           </Card>
         )}
 
@@ -189,13 +179,7 @@ const CreateIdeaPage = () => {
               marginBottom: "var(--space-md)",
             }}
           >
-            <p
-              style={{
-                color: "var(--accent-dark)",
-                margin: 0,
-                fontWeight: 600,
-              }}
-            >
+            <p className="form-alert form-alert-success">
               ✓ {successMsg}
             </p>
           </Card>
@@ -205,6 +189,7 @@ const CreateIdeaPage = () => {
           <Card>
             <Input
               label="Startup Idea Title"
+              hint="A short name that makes the idea easy to remember."
               placeholder="e.g., CampusConnect: Peer Tutoring & Skills Marketplace"
               value={formData.title}
               onChange={(e) =>
@@ -212,17 +197,10 @@ const CreateIdeaPage = () => {
               }
               required
             />
-            <div style={{ marginBottom: "var(--space-md)" }}>
-              <label
-                style={{
-                  display: "block",
-                  marginBottom: "var(--space-sm)",
-                  fontWeight: 600,
-                }}
-              >
-                Idea Pitch / Description
-              </label>
+            <div className="field">
+              <label className="field-label" htmlFor="idea-description">Idea pitch</label>
               <textarea
+                id="idea-description"
                 placeholder="Describe the problem, solution, and target student audience in detail (minimum 20 characters)..."
                 value={formData.description}
                 onChange={(e) =>
@@ -230,56 +208,40 @@ const CreateIdeaPage = () => {
                 }
                 required
                 rows={6}
-                style={{
-                  width: "100%",
-                  padding: "10px",
-                  border: "1px solid var(--line)",
-                  borderRadius: "var(--radius-sm)",
-                  fontSize: "1rem",
-                  fontFamily: "inherit",
-                  boxSizing: "border-box",
-                }}
+                className="input idea-description-input"
               />
-              <span style={{ fontSize: "0.8rem", color: "var(--muted)" }}>
+              <span className="field-hint">
                 {formData.description.length} characters (min 20)
               </span>
             </div>
+            <div className="privacy-note"><LockKeyhole size={15} /><span>Only people you invite can see your idea.</span></div>
           </Card>
 
-          <div
-            style={{
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "center",
-              marginTop: "var(--space-lg)",
-              gap: "var(--space-md)",
-              flexWrap: "wrap",
-            }}
-          >
+          <div className="form-actions">
             <Button
-              variant="secondary"
+              variant="ghost"
               type="button"
               onClick={() => navigate("/app/ideas")}
             >
-              ← My Ideas
+              Back to ideas
             </Button>
 
-            <div style={{ display: "flex", gap: "var(--space-md)" }}>
+            <div className="form-action-group">
               <Button
                 variant="secondary"
                 type="button"
                 disabled={loading}
                 onClick={handleSaveDraft}
               >
-                Save Draft
+                Save draft
               </Button>
 
               <Button type="submit" disabled={loading}>
                 {loading
                   ? "Saving..."
                   : isEditMode
-                    ? "Save & Review Enhanced →"
-                    : "✨ Save & Enhance Idea →"}
+                    ? <>Save & review <ArrowRight size={15} /></>
+                    : <>Save & enhance <ArrowRight size={15} /></>}
               </Button>
             </div>
           </div>

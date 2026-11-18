@@ -9,11 +9,11 @@ dns.setServers(['1.1.1.1', '1.0.0.1']);
 
 const Match = require('../../models/Match');
 
-const mongoUri = process.env.MONGODB_TEST_URI || process.env.MONGODB_URI;
-const mongoDbName = process.env.MONGODB_TEST_DATABASE_NAME || process.env.MONGODB_DATABASE_NAME || 'startuplink';
-const performanceReady = Boolean(mongoUri);
+const mongoUri = process.env.MONGODB_TEST_URI;
+const mongoDbName = process.env.MONGODB_TEST_DATABASE_NAME;
+const performanceReady = Boolean(mongoUri && mongoDbName);
 
-const skipReason = 'Set MONGODB_TEST_URI (or MONGODB_URI) to run MongoDB explain/index verification.';
+const skipReason = 'Set isolated MONGODB_TEST_URI and MONGODB_TEST_DATABASE_NAME to run MongoDB explain/index verification.';
 
 test('matching ranking index is declared on the Match schema', () => {
   const indexes = Match.schema.indexes();

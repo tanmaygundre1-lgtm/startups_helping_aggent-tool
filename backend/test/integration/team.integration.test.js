@@ -6,7 +6,7 @@ const Invitation = require('../../models/Invitation');
 const Idea = require('../../models/Idea');
 const User = require('../../models/User');
 const teamRoutes = require('../../routes/teamRoutes');
-const { createTeam, addTeamMember } = require('../../controllers/teamController');
+const { createTeam, addTeamMember, getTeam } = require('../../controllers/teamController');
 
 const createMockRes = () => {
   const res = {
@@ -188,6 +188,34 @@ test('adding a candidate requires an accepted invite from this founder for this 
     Team.findOneAndUpdate = originals.teamFindOneAndUpdate;
     Invitation.findOne = originals.invitationFindOne;
     Invitation.updateOne = originals.invitationUpdateOne;
+  }
+});
+
+test('populated team members remain authorized to view their team', async () => {
+  const candidateId = '507f1f77bcf86cd799439012';
+  const teamId = '507f1f77bcf86cd799439014';
+  const originalUserFindOne = User.findOne;
+  const originalTeamFindById = Team.findById;
+
+  try {
+    User.findOne = async () => ({ _id: candidateId });
+    Team.findById = () => createPopulateQuery({
+      _id: teamId,
+      founderId: { _id: '507f1f77bcf86cd799439011' },
+      members: [{ userId: { _id: candidateId }, role: 'Frontend Developer' }],
+    });
+
+    const res = createMockRes();
+    await getTeam(
+      { user: { uid: 'candidate-firebase' }, params: { teamId } },
+      res,
+    );
+
+    assert.equal(res.statusCode, 200);
+    assert.equal(res.body.team._id, teamId);
+  } finally {
+    User.findOne = originalUserFindOne;
+    Team.findById = originalTeamFindById;
   }
 });
 

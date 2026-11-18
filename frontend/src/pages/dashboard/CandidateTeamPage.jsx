@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
+import { Users } from "lucide-react";
 import { Link } from "react-router-dom";
 import AppLayout from "../../components/layout/AppLayout";
 import Badge from "../../components/common/Badge";
@@ -86,28 +87,18 @@ const CandidateTeamPage = () => {
   }, []);
 
   useEffect(() => {
-    void loadTeams();
+    const loadTask = window.setTimeout(() => {
+      void loadTeams();
+    }, 0);
+    return () => window.clearTimeout(loadTask);
   }, [loadTeams]);
 
   const currentUserId = profile?._id ? String(profile._id) : "";
 
   return (
     <AppLayout>
-      <div
-        style={{
-          padding: "var(--space-lg)",
-          maxWidth: "1200px",
-          margin: "0 auto",
-        }}
-      >
-        <div style={{ marginBottom: "var(--space-lg)" }}>
-          <h1 style={{ margin: 0, fontSize: "clamp(2rem, 4vw, 2.7rem)" }}>
-            My Team
-          </h1>
-          <p style={{ margin: "8px 0 0", color: "var(--muted)" }}>
-            Review the startups and team memberships you are part of.
-          </p>
-        </div>
+      <div className="page-shell team-page">
+        <header className="page-header"><div><span className="eyebrow">Collaboration</span><h1>My team</h1><p>Review the startups and team memberships you are part of.</p></div></header>
 
         {loading && (
           <Card>
@@ -124,9 +115,9 @@ const CandidateTeamPage = () => {
         )}
 
         {!loading && !error && teams.length === 0 && (
-          <Card>
-            <h3 style={{ marginTop: 0 }}>You are not part of any team yet.</h3>
-            <p style={{ marginBottom: 0 }}>
+          <Card className="empty-state">
+            <div className="empty-state-icon"><Users size={22} /></div><h2>You are not part of a team yet</h2>
+            <p>
               Accepted invitations will appear here once you are added to a
               team.
             </p>
@@ -134,13 +125,7 @@ const CandidateTeamPage = () => {
         )}
 
         {!loading && !error && teams.length > 0 && (
-          <div
-            style={{
-              display: "grid",
-              gap: "var(--space-md)",
-              gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))",
-            }}
-          >
+          <div className="team-grid">
             {teams.map((team) => {
               const founder =
                 typeof team?.founderId === "object" && team.founderId
@@ -152,7 +137,7 @@ const CandidateTeamPage = () => {
                 : [];
 
               return (
-                <Card key={team?._id || team?.name || Math.random().toString()}>
+                <Card key={team?._id || team?.name || `team-${ideaTitle}`}>
                   <div
                     style={{
                       display: "flex",
@@ -270,7 +255,7 @@ const CandidateTeamPage = () => {
                     </div>
                   </div>
                   <Link
-                    className="primary-button"
+                    className="button button-primary"
                     to={`/app/teams/${team?._id}/chat`}
                   >
                     Open team chat

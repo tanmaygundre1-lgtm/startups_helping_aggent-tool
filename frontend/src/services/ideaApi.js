@@ -1,7 +1,9 @@
 import client from "../api/client";
 
-export const createIdea = async (ideaData) => {
-  const response = await client.post("/ideas", ideaData);
+export const createIdea = async (ideaData, idempotencyKey) => {
+  const response = await client.post("/ideas", ideaData, {
+    headers: { "Idempotency-Key": idempotencyKey },
+  });
   return response.data;
 };
 
