@@ -480,19 +480,20 @@ const FounderTeamPage = () => {
                           })}
                         </div>
                       )}
-                      <Link
-                        className="primary-button"
-                        to={`/app/teams/${team._id}/chat`}
-                      >
-                        Open team chat
-                      </Link>
-                      <Link
-                        className="button button-secondary"
-                        to={`/app/teams/${team._id}/tasks`}
-                        style={{ marginLeft: "var(--space-sm)" }}
-                      >
-                        Open tasks
-                      </Link>
+                      <div className="team-card-actions">
+                        <Link
+                          className="primary-button"
+                          to={`/app/teams/${team._id}/chat`}
+                        >
+                          Open team chat
+                        </Link>
+                        <Link
+                          className="button button-secondary"
+                          to={`/app/teams/${team._id}/tasks`}
+                        >
+                          Open tasks
+                        </Link>
+                      </div>
                       <section style={{ marginTop: "var(--space-lg)" }}>
                         <h3 style={{ margin: "0 0 var(--space-sm)" }}>
                           Missing Roles

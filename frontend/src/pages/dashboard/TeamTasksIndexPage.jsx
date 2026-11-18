@@ -15,7 +15,7 @@ const TeamTasksIndexPage = () => {
     setError("");
     try {
       const response = await listTeams();
-      setTeams(response?.teams || []);
+      setTeams(Array.isArray(response) ? response : response?.teams || response?.data || []);
     } catch (requestError) {
       setError(
         requestError?.response?.data?.message ||
@@ -28,7 +28,10 @@ const TeamTasksIndexPage = () => {
   }, []);
 
   useEffect(() => {
-    void loadTeams();
+    const timer = window.setTimeout(() => {
+      void loadTeams();
+    }, 0);
+    return () => window.clearTimeout(timer);
   }, [loadTeams]);
 
   return (

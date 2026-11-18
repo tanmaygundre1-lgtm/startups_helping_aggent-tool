@@ -254,19 +254,20 @@ const CandidateTeamPage = () => {
                       )}
                     </div>
                   </div>
-                  <Link
-                    className="button button-primary"
-                    to={`/app/teams/${team?._id}/chat`}
-                  >
-                    Open team chat
-                  </Link>
-                  <Link
-                    className="button button-secondary"
-                    to={`/app/teams/${team?._id}/tasks`}
-                    style={{ marginLeft: "var(--space-sm)" }}
-                  >
-                    Open tasks
-                  </Link>
+                  <div className="team-card-actions">
+                    <Link
+                      className="button button-primary"
+                      to={`/app/teams/${team?._id}/chat`}
+                    >
+                      Open team chat
+                    </Link>
+                    <Link
+                      className="button button-secondary"
+                      to={`/app/teams/${team?._id}/tasks`}
+                    >
+                      Open tasks
+                    </Link>
+                  </div>
                 </Card>
               );
             })}

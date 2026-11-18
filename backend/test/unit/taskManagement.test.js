@@ -190,6 +190,206 @@ test('task update rejects stale versions before writing', async () => {
   }
 });
 
+test('member completion without required evidence returns EVIDENCE_REQUIRED', async () => {
+  const originals = {
+    userFindOne: User.findOne,
+    teamFindById: Team.findById,
+    taskFindOne: Task.findOne,
+  };
+  try {
+    User.findOne = () => ({ lean: async () => ({ _id: memberId }) });
+    Team.findById = () => ({
+      lean: async () => ({ _id: teamId, founderId, members: [{ userId: memberId }] }),
+    });
+    Task.findOne = async () => ({
+      _id: taskId,
+      teamId,
+      assignedTo: memberId,
+      status: 'IN_PROGRESS',
+      evidenceRequired: true,
+      completionEvidence: '',
+      version: 7,
+      startedAt: new Date(),
+    });
+
+    const res = createResponse();
+    await updateTask({
+      params: { teamId, taskId },
+      user: { uid: 'member-firebase' },
+      body: { version: 7, status: 'COMPLETED' },
+    }, res);
+
+    assert.equal(res.statusCode, 400);
+    assert.equal(res.body.code, 'EVIDENCE_REQUIRED');
+    assert.equal(res.body.message, 'Valid completion evidence is required');
+  } finally {
+    User.findOne = originals.userFindOne;
+    Team.findById = originals.teamFindById;
+    Task.findOne = originals.taskFindOne;
+  }
+});
+
+test('member completes a task with evidence atomically and receives incremented version', async () => {
+  const originals = {
+    userFindOne: User.findOne,
+    teamFindById: Team.findById,
+    taskFindOne: Task.findOne,
+    taskFindOneAndUpdate: Task.findOneAndUpdate,
+    taskFindById: Task.findById,
+    activityInsertMany: TaskActivity.insertMany,
+  };
+  const nowStarted = new Date('2026-10-01T10:00:00Z');
+  const existingTask = {
+    _id: taskId,
+    teamId,
+    assignedTo: memberId,
+    status: 'IN_PROGRESS',
+    evidenceRequired: true,
+    completionEvidence: '',
+    version: 7,
+    startedAt: nowStarted,
+    completedAt: null,
+  };
+  let updateFilter;
+  let update;
+  let activityEntries;
+  let savedTask;
+  try {
+    User.findOne = () => ({ lean: async () => ({ _id: memberId }) });
+    Team.findById = () => ({
+      lean: async () => ({ _id: teamId, founderId, members: [{ userId: memberId }] }),
+    });
+    Task.findOne = async () => existingTask;
+    Task.findOneAndUpdate = async (filter, updateDocument) => {
+      updateFilter = filter;
+      update = updateDocument;
+      savedTask = {
+        ...existingTask,
+        ...updateDocument.$set,
+        version: existingTask.version + updateDocument.$inc.version,
+      };
+      return savedTask;
+    };
+    Task.findById = () => ({
+      populate() { return this; },
+      lean: async () => savedTask,
+    });
+    TaskActivity.insertMany = async (entries) => {
+      activityEntries = entries;
+      return entries;
+    };
+
+    const res = createResponse();
+    await updateTask({
+      params: { teamId, taskId },
+      user: { uid: 'member-firebase' },
+      body: {
+        version: 7,
+        status: 'COMPLETED',
+        completionEvidence: 'https://example.com/evidence',
+      },
+    }, res);
+
+    assert.equal(res.statusCode, 200);
+    assert.equal(res.body.task.status, 'COMPLETED');
+    assert.equal(res.body.task.completionEvidence, 'https://example.com/evidence');
+    assert.equal(res.body.task.version, 8);
+    assert.ok(res.body.task.completedAt instanceof Date);
+    assert.equal(updateFilter.version, 7);
+    assert.equal(update.$set.status, 'COMPLETED');
+    assert.equal(update.$set.completionEvidence, 'https://example.com/evidence');
+    assert.equal(update.$set.completedAt instanceof Date, true);
+    assert.equal(update.$inc.version, 1);
+    assert.ok(activityEntries.some((entry) => (
+      entry.field === 'status' && entry.newValue === 'COMPLETED'
+    )));
+    assert.ok(activityEntries.some((entry) => (
+      entry.field === 'completionEvidence' && entry.newValue === 'https://example.com/evidence'
+    )));
+  } finally {
+    User.findOne = originals.userFindOne;
+    Team.findById = originals.teamFindById;
+    Task.findOne = originals.taskFindOne;
+    Task.findOneAndUpdate = originals.taskFindOneAndUpdate;
+    Task.findById = originals.taskFindById;
+    TaskActivity.insertMany = originals.activityInsertMany;
+  }
+});
+
+test('member PATCH rejects an invalid evidence URL', async () => {
+  const originals = {
+    userFindOne: User.findOne,
+    teamFindById: Team.findById,
+    taskFindOne: Task.findOne,
+    taskFindOneAndUpdate: Task.findOneAndUpdate,
+  };
+  let updateCalled = false;
+  try {
+    User.findOne = () => ({ lean: async () => ({ _id: memberId }) });
+    Team.findById = () => ({
+      lean: async () => ({ _id: teamId, founderId, members: [{ userId: memberId }] }),
+    });
+    Task.findOne = async () => ({
+      _id: taskId, teamId, assignedTo: memberId, status: 'IN_PROGRESS',
+      evidenceRequired: true, completionEvidence: '', version: 7,
+    });
+    Task.findOneAndUpdate = async () => { updateCalled = true; };
+
+    const res = createResponse();
+    await updateTask({
+      params: { teamId, taskId },
+      user: { uid: 'member-firebase' },
+      body: { version: 7, completionEvidence: 'javascript:alert(1)' },
+    }, res);
+
+    assert.equal(res.statusCode, 400);
+    assert.equal(res.body.code, 'INVALID_EVIDENCE');
+    assert.equal(updateCalled, false);
+  } finally {
+    User.findOne = originals.userFindOne;
+    Team.findById = originals.teamFindById;
+    Task.findOne = originals.taskFindOne;
+    Task.findOneAndUpdate = originals.taskFindOneAndUpdate;
+  }
+});
+
+test('member cannot complete a task assigned to another employee', async () => {
+  const originals = {
+    userFindOne: User.findOne,
+    teamFindById: Team.findById,
+    taskFindOne: Task.findOne,
+    taskFindOneAndUpdate: Task.findOneAndUpdate,
+  };
+  let updateCalled = false;
+  try {
+    User.findOne = () => ({ lean: async () => ({ _id: memberId }) });
+    Team.findById = () => ({
+      lean: async () => ({ _id: teamId, founderId, members: [{ userId: memberId }] }),
+    });
+    Task.findOne = async () => ({
+      _id: taskId, teamId, assignedTo: founderId, status: 'IN_PROGRESS',
+      evidenceRequired: false, completionEvidence: '', version: 7,
+    });
+    Task.findOneAndUpdate = async () => { updateCalled = true; };
+
+    const res = createResponse();
+    await updateTask({
+      params: { teamId, taskId },
+      user: { uid: 'member-firebase' },
+      body: { version: 7, status: 'COMPLETED', completionEvidence: '' },
+    }, res);
+
+    assert.equal(res.statusCode, 403);
+    assert.equal(res.body.code, 'FORBIDDEN');
+    assert.equal(updateCalled, false);
+  } finally {
+    User.findOne = originals.userFindOne;
+    Team.findById = originals.teamFindById;
+    Task.findOne = originals.taskFindOne;
+    Task.findOneAndUpdate = originals.taskFindOneAndUpdate;
+  }
+});
+
 test('task update prevents members from editing founder-only fields', async () => {
   const originals = {
     userFindOne: User.findOne,
